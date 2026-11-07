@@ -56,7 +56,11 @@ There is no linter or formatter configured.
 - Everything hangs off `Dispensa` (the future CloudKit share root): its relationships cascade. `Struttura → Articolo` and `Ubicazione → Struttura` are *nullify*, so the history (storico) survives deleting a struttura. Relationships are set after `context.insert(...)`, not in initializers.
 - Model tests use an in-memory `ModelContainer` in a `@MainActor` test struct (the test target is not MainActor-isolated by default); see `DispensaTests/ModelliTests.swift`.
 - Views get persistence via `@Environment(\.modelContext)` and `@Query`.
-- Platform differences are handled inline with `#if os(macOS)` / `#if os(iOS)`. `ContentView`'s private `NavigationViewWrapper` uses `NavigationSplitView` on macOS and `NavigationStack` elsewhere.
+- UI entry point is `Views/RootView.swift`: a 3-column `NavigationSplitView` (Dispense → Strutture → dettaglio) that collapses to a stack on iPhone. Selection is passed down as `@Binding`.
+- Forms (`*FormView`) edit local `@State` copies and write to the model only on "Salva"; `nil` model means "create new".
+- Previews use `.modelContainer(.anteprima)` (in-memory sample data, `Views/Anteprime.swift`, DEBUG only).
+- Platform differences are handled inline with `#if os(macOS)` / `#if os(iOS)`.
+- `Dispensa/Localizable.xcstrings` (source language `it`) is filled automatically when building from the Xcode IDE, not from `xcodebuild`.
 
 ## Build settings that affect how code is written
 

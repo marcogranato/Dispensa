@@ -1,0 +1,73 @@
+//
+//  DispensaFormView.swift
+//  Dispensa
+//
+
+import SwiftUI
+import SwiftData
+
+/// Modulo per creare una nuova dispensa (`dispensa == nil`) o modificarne una esistente.
+/// Le modifiche vengono applicate solo premendo "Salva".
+struct DispensaFormView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    let dispensa: Dispensa?
+
+    @State private var nome: String
+    @State private var storicoAbilitato: Bool
+
+    init(dispensa: Dispensa? = nil) {
+        self.dispensa = dispensa
+        _nome = State(initialValue: dispensa?.nome ?? "")
+        _storicoAbilitato = State(initialValue: dispensa?.storicoAbilitato ?? true)
+    }
+
+    private var nomePulito: String {
+        nome.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                TextField("Nome", text: $nome, prompt: Text("Es. Casa, Casa al mare"))
+
+                Section {
+                    Toggle("Conserva storico", isOn: $storicoAbilitato)
+                } footer: {
+                    Text("Gli articoli consumati o buttati restano consultabili nello storico. Se disattivato, vengono eliminati.")
+                }
+            }
+            .formStyle(.grouped)
+            .navigationTitle(dispensa == nil ? Text("Nuova dispensa") : Text("Modifica dispensa"))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Annulla") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Salva", action: salva)
+                        .disabled(nomePulito.isEmpty)
+                }
+            }
+        }
+#if os(macOS)
+        .frame(minWidth: 400, minHeight: 240)
+#endif
+    }
+
+    private func salva() {
+        let dispensaDaSalvare = dispensa ?? {
+            let nuova = Dispensa(nome: nomePulito)
+            modelContext.insert(nuova)
+            return nuova
+        }()
+        dispensaDaSalvare.nome = nomePulito
+        dispensaDaSalvare.storicoAbilitato = storicoAbilitato
+        dismiss()
+    }
+}
+
+#Preview("Nuova") {
+    DispensaFormView()
+        .modelContainer(.anteprima)
+}
