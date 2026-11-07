@@ -52,7 +52,9 @@ There is no linter or formatter configured.
 
 ## Architecture
 
-- `DispensaApp.swift` builds the single persistent `ModelContainer`. Any new `@Model` type must be added to the `Schema([...])` list there (and to `.modelContainer(for:)` in previews).
+- `DispensaApp.swift` builds the single persistent `ModelContainer` from `SchemaDispensa.schema`. Any new `@Model` type must be added to `SchemaDispensa.modelli` (`Dispensa/Models/SchemaDispensa.swift`), which is also used by previews and tests.
+- Everything hangs off `Dispensa` (the future CloudKit share root): its relationships cascade. `Struttura → Articolo` and `Ubicazione → Struttura` are *nullify*, so the history (storico) survives deleting a struttura. Relationships are set after `context.insert(...)`, not in initializers.
+- Model tests use an in-memory `ModelContainer` in a `@MainActor` test struct (the test target is not MainActor-isolated by default); see `DispensaTests/ModelliTests.swift`.
 - Views get persistence via `@Environment(\.modelContext)` and `@Query`.
 - Platform differences are handled inline with `#if os(macOS)` / `#if os(iOS)`. `ContentView`'s private `NavigationViewWrapper` uses `NavigationSplitView` on macOS and `NavigationStack` elsewhere.
 
