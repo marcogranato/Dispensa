@@ -45,6 +45,8 @@ struct MenuDispensa: View {
                     .imageScale(.small)
             }
         }
+        // Sul Mac il sistema aggiunge una seconda freccia al menu: la nostra basta.
+        .menuIndicator(.hidden)
         .accessibilityLabel(Text("Dispensa: \(corrente.nome)"))
     }
 }
