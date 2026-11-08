@@ -73,4 +73,5 @@ There is no linter or formatter configured.
 ## Tests
 
 - `DispensaTests` uses **Swift Testing** (`import Testing`, `@Test`, `#expect`), not XCTest.
-- `DispensaUITests` uses XCTest/XCUIApplication.
+- `DispensaUITests` uses XCTest/XCUIApplication and launches the app with `--in-memoria` (handled in `DispensaApp.swift`) so it never touches real data. Note: `LabeledContent` rows are exposed to accessibility as a single `"Label, Value"` static text; text fields with a `prompt` are found by placeholder, not label.
+- Logic that mutates several models (e.g. `ModelContext.eliminaStruttura` in `Services/`) lives in `Services/` as `ModelContext` extensions and is unit-tested.

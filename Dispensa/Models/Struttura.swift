@@ -32,6 +32,14 @@ final class Struttura {
         set { tipoRaw = newValue.rawValue }
     }
 
+    /// Nome da mostrare per la tipologia: quello personalizzato se il tipo è "altro" e il nome è indicato.
+    var nomeTipo: String {
+        if tipo == .altro, let tipoPersonalizzato, !tipoPersonalizzato.isEmpty {
+            return tipoPersonalizzato
+        }
+        return String(localized: tipo.nomeLocalizzato)
+    }
+
     var articoliAttivi: [Articolo] {
         (articoli ?? []).filter { $0.stato == .attivo }
     }

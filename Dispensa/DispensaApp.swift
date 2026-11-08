@@ -12,7 +12,9 @@ import SwiftData
 struct DispensaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = SchemaDispensa.schema
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        // I test UI avviano l'app con "--in-memoria" per non toccare i dati reali.
+        let inMemoria = ProcessInfo.processInfo.arguments.contains("--in-memoria")
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemoria)
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

@@ -10,7 +10,7 @@ import SwiftData
 /// Su iPhone `NavigationSplitView` diventa automaticamente una navigazione a pagine.
 struct RootView: View {
     @State private var dispensaSelezionata: Dispensa?
-    @State private var mostraUbicazioni = false
+    @State private var strutturaSelezionata: Struttura?
 
     var body: some View {
         NavigationSplitView {
@@ -20,21 +20,22 @@ struct RootView: View {
 #endif
         } content: {
             if let dispensa = dispensaSelezionata {
-                ContentUnavailableView("Nessuna struttura", systemImage: "square.stack.3d.up")
-                    .navigationTitle(dispensa.nome)
-                    .toolbar {
-                        ToolbarItem {
-                            Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
-                        }
-                    }
-                    .sheet(isPresented: $mostraUbicazioni) {
-                        UbicazioniView(dispensa: dispensa)
-                    }
+                ElencoStruttureView(dispensa: dispensa, selezione: $strutturaSelezionata)
+#if os(macOS)
+                    .navigationSplitViewColumnWidth(min: 220, ideal: 260)
+#endif
             } else {
                 ContentUnavailableView("Seleziona una dispensa", systemImage: "cabinet")
             }
         } detail: {
-            ContentUnavailableView("Seleziona una struttura", systemImage: "square.stack.3d.up")
+            if let struttura = strutturaSelezionata {
+                DettaglioStrutturaView(struttura: struttura)
+            } else {
+                ContentUnavailableView("Seleziona una struttura", systemImage: "square.stack.3d.up")
+            }
+        }
+        .onChange(of: dispensaSelezionata) {
+            strutturaSelezionata = nil
         }
     }
 }
