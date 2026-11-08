@@ -163,7 +163,7 @@ final class DispensaUITests: XCTestCase {
         }
     }
 
-    /// Crea un prodotto dalla scheda Prodotti e lo ritrova nel catalogo.
+    /// Crea un prodotto dalla scheda Prodotti, ne apre la scheda e da lì la modifica.
     @MainActor
     func testCreaProdotto() throws {
         let app = avviaConDispensa()
@@ -173,8 +173,14 @@ final class DispensaUITests: XCTestCase {
         scrivi("Pasta", nelPrimoCampoDi: app)
         app.buttons["Salva"].tap()
 
-        XCTAssertTrue(app.staticTexts["Pasta"].waitForExistence(timeout: 5))
+        // Il click sulla riga apre la scheda in sola lettura, non la modifica.
+        tocca(rigaCheIniziaCon: "Pasta", in: app)
+        XCTAssertTrue(app.navigationBars["Pasta"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 0"].exists)
         allegaScreenshot(app)
+
+        app.navigationBars["Pasta"].buttons["Modifica"].tap()
+        XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
     }
 
     /// Un articolo aggiunto in una struttura compare nella scheda Articoli, con la sua struttura, e si apre.

@@ -100,9 +100,8 @@ struct ElencoProdottiView: View {
             ),
         ].compactMap { $0 }
 
-        return Button {
-            prodottoInModifica = prodotto
-        } label: {
+        // Il click apre la scheda del prodotto; la modifica è nel menu contestuale o nella scheda.
+        return RigaNavigabile(valore: prodotto) {
             HStack {
                 VStack(alignment: .leading) {
                     Text(prodotto.nome)
@@ -119,9 +118,7 @@ struct ElencoProdottiView: View {
                     .monospacedDigit()
                     .accessibilityLabel(Text("Articoli presenti: \(presenti)"))
             }
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
         .contextMenu {
             pulsanteModifica(prodotto)
             pulsanteElimina(prodotto)
@@ -163,7 +160,7 @@ struct ElencoProdottiView: View {
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    NavigationStack {
+    PilaDiNavigazione {
         ElencoProdottiView(dispensa: dispensa)
     }
     .modelContainer(.anteprima)

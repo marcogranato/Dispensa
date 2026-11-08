@@ -100,7 +100,7 @@ struct DettaglioArticoloView: View {
 
 #Preview {
     let articolo = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Articolo>()).first!
-    NavigationStack {
+    PilaDiNavigazione {
         DettaglioArticoloView(articolo: articolo)
     }
     .modelContainer(.anteprima)

@@ -71,6 +71,9 @@
         }
       }
     },
+    "Articoli nello storico: %lld" : {
+
+    },
     "Articoli presenti in «%@»: %lld. Verranno eliminati; lo storico resta." : {
       "localizations" : {
         "it" : {
@@ -118,6 +121,9 @@
 
     },
     "Chilogrammi" : {
+
+    },
+    "Codice" : {
 
     },
     "Codice a barre" : {
@@ -440,6 +446,9 @@
 
     },
     "Prodotto" : {
+
+    },
+    "Prodotto eliminato" : {
 
     },
     "Prodotto sconosciuto" : {

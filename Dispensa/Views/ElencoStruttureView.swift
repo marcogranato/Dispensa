@@ -54,9 +54,6 @@ struct ElencoStruttureView: View {
             }
         }
         .navigationTitle("Strutture")
-        .navigationDestination(for: Struttura.self) { struttura in
-            DettaglioStrutturaView(struttura: struttura)
-        }
         .overlay {
             if dispensa.strutture?.isEmpty ?? true {
                 ContentUnavailableView {
@@ -102,7 +99,7 @@ struct ElencoStruttureView: View {
     }
 
     private func riga(_ struttura: Struttura) -> some View {
-        NavigationLink(value: struttura) {
+        RigaNavigabile(valore: struttura) {
             HStack {
                 Label {
                     VStack(alignment: .leading) {
@@ -155,7 +152,7 @@ struct ElencoStruttureView: View {
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    NavigationStack {
+    PilaDiNavigazione {
         ElencoStruttureView(dispensa: dispensa)
     }
     .modelContainer(.anteprima)

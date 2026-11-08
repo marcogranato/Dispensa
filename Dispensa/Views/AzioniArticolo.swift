@@ -45,7 +45,7 @@ struct RigaArticoloConAzioni: View {
     @Binding var daEliminare: Articolo?
 
     var body: some View {
-        NavigationLink(value: articolo) {
+        RigaNavigabile(valore: articolo) {
             VStack(alignment: .leading, spacing: 2) {
                 RigaArticoloView(articolo: articolo)
                 if mostraStruttura, let struttura = articolo.struttura {

@@ -56,9 +56,6 @@ struct DettaglioStrutturaView: View {
         }
         .formStyle(.grouped)
         .navigationTitle(struttura.nome)
-        .navigationDestination(for: Articolo.self) { articolo in
-            DettaglioArticoloView(articolo: articolo)
-        }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
             ToolbarItem {
@@ -83,7 +80,7 @@ struct DettaglioStrutturaView: View {
 
 #Preview {
     let struttura = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Struttura>(sortBy: [SortDescriptor(\.nome)])).first!
-    NavigationStack {
+    PilaDiNavigazione {
         DettaglioStrutturaView(struttura: struttura)
     }
     .modelContainer(.anteprima)

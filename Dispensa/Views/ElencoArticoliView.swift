@@ -39,9 +39,6 @@ struct ElencoArticoliView: View {
         }
         .navigationTitle("Articoli")
         .searchable(text: $ricerca, prompt: Text("Cerca per nome"))
-        .navigationDestination(for: Articolo.self) { articolo in
-            DettaglioArticoloView(articolo: articolo)
-        }
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
@@ -78,7 +75,7 @@ struct ElencoArticoliView: View {
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    NavigationStack {
+    PilaDiNavigazione {
         ElencoArticoliView(dispensa: dispensa)
     }
     .modelContainer(.anteprima)

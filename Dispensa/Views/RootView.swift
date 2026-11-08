@@ -21,8 +21,26 @@ struct RootView: View {
     @State private var dispensaInModifica: Dispensa?
     @State private var dispensaDaEliminare: Dispensa?
 
-    enum Scheda: Hashable {
+    enum Scheda: Hashable, CaseIterable {
         case strutture, articoli, prodotti, storico
+
+        var titolo: LocalizedStringKey {
+            switch self {
+            case .strutture: "Strutture"
+            case .articoli: "Articoli"
+            case .prodotti: "Prodotti"
+            case .storico: "Storico"
+            }
+        }
+
+        var simbolo: String {
+            switch self {
+            case .strutture: "cabinet"
+            case .articoli: "list.bullet"
+            case .prodotti: "carrot"
+            case .storico: "clock.arrow.circlepath"
+            }
+        }
     }
 
     /// La dispensa ricordata; se non esiste più, la prima in ordine alfabetico.
@@ -64,34 +82,49 @@ struct RootView: View {
         }
     }
 
+    /// Su iPhone e iPad una `TabView`. Sul Mac una vista divisa costruita qui: la `TabView` con barra laterale
+    /// del Mac condivide la navigazione tra le schede, e cambiando scheda il dettaglio aperto finiva
+    /// nella scheda sbagliata o spariva lasciando una riga selezionata non più cliccabile.
+    @ViewBuilder
     private func schede(_ dispensa: Dispensa) -> some View {
+#if os(macOS)
+        NavigationSplitView {
+            List(Scheda.allCases, id: \.self, selection: Binding(
+                get: { scheda },
+                set: { if let nuova = $0 { scheda = nuova } }
+            )) { voce in
+                Label(voce.titolo, systemImage: voce.simbolo)
+            }
+            .navigationSplitViewColumnWidth(min: 160, ideal: 180)
+        } detail: {
+            pila(scheda, dispensa: dispensa)
+                .id(scheda)
+        }
+#else
         TabView(selection: $scheda) {
-            Tab("Strutture", systemImage: "cabinet", value: Scheda.strutture) {
-                NavigationStack {
-                    ElencoStruttureView(dispensa: dispensa)
-                        .toolbar { menuDispensa(dispensa) }
-                }
-            }
-            Tab("Articoli", systemImage: "list.bullet", value: Scheda.articoli) {
-                NavigationStack {
-                    ElencoArticoliView(dispensa: dispensa)
-                        .toolbar { menuDispensa(dispensa) }
-                }
-            }
-            Tab("Prodotti", systemImage: "carrot", value: Scheda.prodotti) {
-                NavigationStack {
-                    ElencoProdottiView(dispensa: dispensa)
-                        .toolbar { menuDispensa(dispensa) }
-                }
-            }
-            Tab("Storico", systemImage: "clock.arrow.circlepath", value: Scheda.storico) {
-                NavigationStack {
-                    StoricoView(dispensa: dispensa)
-                        .toolbar { menuDispensa(dispensa) }
+            ForEach(Scheda.allCases, id: \.self) { voce in
+                Tab(voce.titolo, systemImage: voce.simbolo, value: voce) {
+                    pila(voce, dispensa: dispensa)
                 }
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+#endif
+    }
+
+    /// La pila di navigazione di una scheda, con il suo percorso e il menu della dispensa nel titolo.
+    private func pila(_ scheda: Scheda, dispensa: Dispensa) -> some View {
+        PilaDiNavigazione {
+            Group {
+                switch scheda {
+                case .strutture: ElencoStruttureView(dispensa: dispensa)
+                case .articoli: ElencoArticoliView(dispensa: dispensa)
+                case .prodotti: ElencoProdottiView(dispensa: dispensa)
+                case .storico: StoricoView(dispensa: dispensa)
+                }
+            }
+            .toolbar { menuDispensa(dispensa) }
+        }
     }
 
     @ToolbarContentBuilder
