@@ -8,8 +8,6 @@ import SwiftData
 
 /// Caratteristiche di una struttura e articoli presenti, ordinati per scadenza.
 struct DettaglioStrutturaView: View {
-    @Environment(\.modelContext) private var modelContext
-
     let struttura: Struttura
 
     @State private var mostraModifica = false
@@ -49,7 +47,7 @@ struct DettaglioStrutturaView: View {
 
             Section {
                 ForEach(Articolo.ordinatiPerScadenza(struttura.articoliAttivi)) { articolo in
-                    rigaArticolo(articolo)
+                    RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
                 }
                 Button("Aggiungi articolo", systemImage: "plus.circle") { mostraNuovoArticolo = true }
             } header: {
@@ -79,29 +77,6 @@ struct DettaglioStrutturaView: View {
             if let dispensa = struttura.dispensa {
                 StrutturaFormView(dispensa: dispensa, struttura: struttura)
             }
-        }
-    }
-}
-
-extension DettaglioStrutturaView {
-    /// Scorrendo verso destra si preleva una parte; verso sinistra si butta.
-    private func rigaArticolo(_ articolo: Articolo) -> some View {
-        NavigationLink(value: articolo) {
-            RigaArticoloView(articolo: articolo)
-        }
-        .swipeActions(edge: .leading) {
-            Button("Preleva 1", systemImage: "minus.circle") {
-                // Una parte si può sempre prelevare da un articolo presente: l'errore non può verificarsi.
-                try? modelContext.preleva(articolo)
-            }
-            .tint(.green)
-        }
-        .swipeActions(edge: .trailing) {
-            Button("Butta", systemImage: "trash.slash") { azione = AzioneArticolo(tipo: .butta, articolo: articolo) }
-                .tint(.orange)
-        }
-        .contextMenu {
-            MenuAzioniArticolo(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
         }
     }
 }

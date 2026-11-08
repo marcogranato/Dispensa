@@ -33,6 +33,49 @@ struct MenuAzioniArticolo: View {
     }
 }
 
+/// Riga di un articolo che apre il dettaglio, con le azioni rapide:
+/// scorrendo verso destra si preleva una parte, verso sinistra si butta; tenendo premuto, il menu completo.
+struct RigaArticoloConAzioni: View {
+    @Environment(\.modelContext) private var modelContext
+
+    let articolo: Articolo
+    /// Mostra sotto la riga la struttura in cui si trova (per gli elenchi di più strutture).
+    var mostraStruttura = false
+    @Binding var azione: AzioneArticolo?
+    @Binding var daEliminare: Articolo?
+
+    var body: some View {
+        NavigationLink(value: articolo) {
+            VStack(alignment: .leading, spacing: 2) {
+                RigaArticoloView(articolo: articolo)
+                if mostraStruttura, let struttura = articolo.struttura {
+                    HStack(spacing: 4) {
+                        Image(systemName: struttura.tipo.simbolo)
+                            .accessibilityHidden(true)
+                        Text(struttura.nome)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .swipeActions(edge: .leading) {
+            Button("Preleva 1", systemImage: "minus.circle") {
+                // Una parte si può sempre prelevare da un articolo presente: l'errore non può verificarsi.
+                try? modelContext.preleva(articolo)
+            }
+            .tint(.green)
+        }
+        .swipeActions(edge: .trailing) {
+            Button("Butta", systemImage: "trash.slash") { azione = AzioneArticolo(tipo: .butta, articolo: articolo) }
+                .tint(.orange)
+        }
+        .contextMenu {
+            MenuAzioniArticolo(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
+        }
+    }
+}
+
 extension View {
     /// Collega i moduli delle azioni e la conferma di eliminazione di un articolo.
     func azioniArticolo(_ azione: Binding<AzioneArticolo?>, daEliminare: Binding<Articolo?>) -> some View {

@@ -37,6 +37,9 @@
     "%lld parti" : {
 
     },
+    "Aggiungi" : {
+
+    },
     "Aggiungi articolo" : {
 
     },
@@ -53,6 +56,9 @@
 
     },
     "Annulla" : {
+
+    },
+    "Articoli" : {
 
     },
     "Articoli di «%@» nello storico: %lld. Verranno eliminati anche loro." : {
@@ -144,6 +150,9 @@
     "Crea una dispensa per iniziare a organizzare frigorifero, scaffali e tutto il resto." : {
 
     },
+    "Crea una struttura nella scheda Strutture, poi aggiungi gli articoli." : {
+
+    },
     "Cucina" : {
 
     },
@@ -159,10 +168,13 @@
     "Dispensa" : {
 
     },
-    "Dispense" : {
+    "Dispensa: %@" : {
 
     },
     "Elimina" : {
+
+    },
+    "Elimina «%@»…" : {
 
     },
     "Elimina articolo" : {
@@ -229,6 +241,9 @@
 
     },
     "Gli articoli consumati o buttati restano consultabili nello storico. Se disattivato, vengono eliminati." : {
+
+    },
+    "Gli articoli di tutte le strutture compariranno qui." : {
 
     },
     "Grammi" : {
@@ -306,6 +321,9 @@
     "Modifica" : {
 
     },
+    "Modifica «%@»…" : {
+
+    },
     "Modifica articolo" : {
 
     },
@@ -319,6 +337,9 @@
 
     },
     "Motivo" : {
+
+    },
+    "Nessun articolo" : {
 
     },
     "Nessun prodotto" : {
@@ -355,6 +376,9 @@
 
     },
     "Nuova dispensa" : {
+
+    },
+    "Nuova dispensa…" : {
 
     },
     "Nuova struttura" : {
@@ -445,6 +469,9 @@
     "Rimetti in dispensa" : {
 
     },
+    "Rimuovi data" : {
+
+    },
     "Rinomina" : {
 
     },
@@ -487,12 +514,6 @@
     "Se non indichi un nome, viene usato il tipo." : {
 
     },
-    "Seleziona una dispensa" : {
-
-    },
-    "Seleziona una struttura" : {
-
-    },
     "Senza ubicazione" : {
 
     },
@@ -515,6 +536,9 @@
 
     },
     "Struttura" : {
+
+    },
+    "Strutture" : {
 
     },
     "Strutture collegate: %lld. Non verranno eliminate, ma resteranno senza ubicazione." : {

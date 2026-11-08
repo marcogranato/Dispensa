@@ -13,13 +13,16 @@ struct DispensaFormView: View {
     @Environment(\.dismiss) private var dismiss
 
     let dispensa: Dispensa?
+    /// Chiamato con la dispensa appena creata (non in modifica), per aprirla subito.
+    let creata: ((Dispensa) -> Void)?
 
     @State private var nome: String
     @State private var storicoAbilitato: Bool
     @State private var chiediCosaFareDelloStorico = false
 
-    init(dispensa: Dispensa? = nil) {
+    init(dispensa: Dispensa? = nil, creata: ((Dispensa) -> Void)? = nil) {
         self.dispensa = dispensa
+        self.creata = creata
         _nome = State(initialValue: dispensa?.nome ?? "")
         _storicoAbilitato = State(initialValue: dispensa?.storicoAbilitato ?? true)
     }
@@ -85,6 +88,9 @@ struct DispensaFormView: View {
         dispensaDaSalvare.storicoAbilitato = storicoAbilitato
         if svuotandoLoStorico {
             modelContext.svuotaStorico(di: dispensaDaSalvare)
+        }
+        if dispensa == nil {
+            creata?(dispensaDaSalvare)
         }
         dismiss()
     }

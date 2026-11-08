@@ -11,12 +11,9 @@ struct ElencoStruttureView: View {
     @Environment(\.modelContext) private var modelContext
 
     let dispensa: Dispensa
-    @Binding var selezione: Struttura?
 
     @State private var mostraNuovaStruttura = false
     @State private var mostraUbicazioni = false
-    @State private var mostraProdotti = false
-    @State private var mostraStorico = false
     @State private var strutturaInModifica: Struttura?
     @State private var strutturaDaEliminare: Struttura?
 
@@ -41,7 +38,7 @@ struct ElencoStruttureView: View {
     }
 
     var body: some View {
-        List(selection: $selezione) {
+        List {
             ForEach(gruppi) { gruppo in
                 Section {
                     ForEach(gruppo.strutture) { struttura in
@@ -56,7 +53,10 @@ struct ElencoStruttureView: View {
                 }
             }
         }
-        .navigationTitle(dispensa.nome)
+        .navigationTitle("Strutture")
+        .navigationDestination(for: Struttura.self) { struttura in
+            DettaglioStrutturaView(struttura: struttura)
+        }
         .overlay {
             if dispensa.strutture?.isEmpty ?? true {
                 ContentUnavailableView {
@@ -71,11 +71,7 @@ struct ElencoStruttureView: View {
         }
         .toolbar {
             ToolbarItem {
-                Menu("Altro", systemImage: "ellipsis") {
-                    Button("Prodotti", systemImage: "carrot") { mostraProdotti = true }
-                    Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
-                    Button("Storico", systemImage: "clock.arrow.circlepath") { mostraStorico = true }
-                }
+                Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuova struttura", systemImage: "plus") { mostraNuovaStruttura = true }
@@ -89,12 +85,6 @@ struct ElencoStruttureView: View {
         }
         .sheet(isPresented: $mostraUbicazioni) {
             UbicazioniView(dispensa: dispensa)
-        }
-        .sheet(isPresented: $mostraProdotti) {
-            ElencoProdottiView(dispensa: dispensa)
-        }
-        .sheet(isPresented: $mostraStorico) {
-            StoricoView(dispensa: dispensa)
         }
         .confirmationDialog(
             "Eliminare la struttura?",
@@ -159,18 +149,14 @@ struct ElencoStruttureView: View {
     }
 
     private func elimina(_ struttura: Struttura) {
-        if selezione == struttura {
-            selezione = nil
-        }
         modelContext.eliminaStruttura(struttura)
     }
 }
 
 #Preview {
-    @Previewable @State var selezione: Struttura?
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
     NavigationStack {
-        ElencoStruttureView(dispensa: dispensa, selezione: $selezione)
+        ElencoStruttureView(dispensa: dispensa)
     }
     .modelContainer(.anteprima)
 }

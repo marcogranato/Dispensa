@@ -9,8 +9,6 @@ import SwiftData
 /// Articoli consumati o buttati di una dispensa, dal più recente.
 struct StoricoView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
     let dispensa: Dispensa
 
     @State private var ricerca = ""
@@ -34,58 +32,53 @@ struct StoricoView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List(selection: $selezione) {
-                ForEach(articoli) { articolo in
-                    RigaStoricoView(articolo: articolo)
-                        .swipeActions(edge: .leading) {
-                            Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
-                                .tint(.blue)
+        List(selection: $selezione) {
+            ForEach(articoli) { articolo in
+                RigaStoricoView(articolo: articolo)
+                    .swipeActions(edge: .leading) {
+                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
+                            .tint(.blue)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button("Elimina", systemImage: "trash", role: .destructive) {
+                            modelContext.eliminaDalloStorico([articolo])
                         }
-                        .swipeActions(edge: .trailing) {
-                            Button("Elimina", systemImage: "trash", role: .destructive) {
-                                modelContext.eliminaDalloStorico([articolo])
-                            }
+                    }
+                    .contextMenu {
+                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
+                        Button("Elimina dallo storico", systemImage: "trash", role: .destructive) {
+                            modelContext.eliminaDalloStorico([articolo])
                         }
-                        .contextMenu {
-                            Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
-                            Button("Elimina dallo storico", systemImage: "trash", role: .destructive) {
-                                modelContext.eliminaDalloStorico([articolo])
-                            }
-                        }
-                }
-            }
-            .navigationTitle("Storico")
-            .searchable(text: $ricerca, prompt: Text("Cerca per nome"))
-#if os(iOS)
-            .environment(\.editMode, $modalitaModifica)
-#endif
-            .overlay { statoVuoto }
-            .toolbar { barra }
-            .sheet(item: $daRimettere) { articolo in
-                RimettiInDispensaView(articolo: articolo)
-            }
-            .confirmationDialog("Svuotare lo storico?", isPresented: $confermaSvuota, titleVisibility: .visible) {
-                Button("Svuota storico", role: .destructive) {
-                    modelContext.svuotaStorico(di: dispensa)
-                    selezione.removeAll()
-                }
-            } message: {
-                Text("Verranno eliminati tutti gli articoli consumati e buttati di «\(dispensa.nome)». L'operazione non si può annullare.")
-            }
-            .alert(
-                "Operazione non riuscita",
-                isPresented: Binding(get: { errore != nil }, set: { if !$0 { errore = nil } }),
-                presenting: errore
-            ) { _ in
-                Button("OK") {}
-            } message: { errore in
-                Text(errore)
+                    }
             }
         }
-#if os(macOS)
-        .frame(minWidth: 440, minHeight: 480)
+        .navigationTitle("Storico")
+        .searchable(text: $ricerca, prompt: Text("Cerca per nome"))
+#if os(iOS)
+        .environment(\.editMode, $modalitaModifica)
 #endif
+        .overlay { statoVuoto }
+        .toolbar { barra }
+        .sheet(item: $daRimettere) { articolo in
+            RimettiInDispensaView(articolo: articolo)
+        }
+        .confirmationDialog("Svuotare lo storico?", isPresented: $confermaSvuota, titleVisibility: .visible) {
+            Button("Svuota storico", role: .destructive) {
+                modelContext.svuotaStorico(di: dispensa)
+                selezione.removeAll()
+            }
+        } message: {
+            Text("Verranno eliminati tutti gli articoli consumati e buttati di «\(dispensa.nome)». L'operazione non si può annullare.")
+        }
+        .alert(
+            "Operazione non riuscita",
+            isPresented: Binding(get: { errore != nil }, set: { if !$0 { errore = nil } }),
+            presenting: errore
+        ) { _ in
+            Button("OK") {}
+        } message: { errore in
+            Text(errore)
+        }
     }
 
     @ViewBuilder
@@ -111,12 +104,9 @@ struct StoricoView: View {
 
     @ToolbarContentBuilder
     private var barra: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button("Fine") { dismiss() }
-        }
 #if os(iOS)
         if !dispensa.articoliNelloStorico.isEmpty {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .topBarTrailing) {
                 EditButton()
             }
         }
@@ -284,6 +274,8 @@ private struct RimettiInDispensaView: View {
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    StoricoView(dispensa: dispensa)
-        .modelContainer(.anteprima)
+    NavigationStack {
+        StoricoView(dispensa: dispensa)
+    }
+    .modelContainer(.anteprima)
 }

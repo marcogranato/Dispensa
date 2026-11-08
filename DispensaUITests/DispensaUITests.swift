@@ -13,7 +13,7 @@ final class DispensaUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// Avvia l'app con un database vuoto in memoria, crea la dispensa "Casa" e la apre.
+    /// Avvia l'app con un database vuoto in memoria e crea la dispensa "Casa", che si apre sulla scheda Strutture.
     @MainActor
     private func avviaConDispensa() -> XCUIApplication {
         let app = XCUIApplication()
@@ -23,8 +23,16 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Crea la tua prima dispensa"].tap()
         scrivi("Casa", nelPrimoCampoDi: app)
         app.buttons["Salva"].tap()
-        app.buttons["Casa"].tap()
+        XCTAssertTrue(app.buttons["Aggiungi una struttura"].waitForExistence(timeout: 5))
         return app
+    }
+
+    /// Apre una scheda della barra in basso (Strutture, Articoli, Prodotti, Storico).
+    @MainActor
+    private func apri(scheda: String, in app: XCUIApplication) {
+        let pulsante = app.tabBars.buttons[scheda]
+        XCTAssertTrue(pulsante.waitForExistence(timeout: 5))
+        pulsante.tap()
     }
 
     /// I campi con un testo di esempio non sono identificati dall'etichetta: si usa il primo campo.
@@ -130,10 +138,7 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Butta"].tap()
         XCTAssertTrue(app.staticTexts["Articoli presenti: 0"].waitForExistence(timeout: 5))
 
-        // Torna all'elenco delle strutture e apre lo storico.
-        app.navigationBars.buttons["BackButton"].tap()
-        app.buttons["Altro"].tap()
-        app.buttons["Storico"].tap()
+        apri(scheda: "Storico", in: app)
 
         let esito = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Buttato (Avariato)'")).firstMatch
         XCTAssertTrue(esito.waitForExistence(timeout: 5))
@@ -143,8 +148,8 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Rimetti in dispensa"].tap()
         XCTAssertTrue(app.staticTexts["Storico vuoto"].waitForExistence(timeout: 5))
 
-        app.buttons["Fine"].tap()
-        tocca(rigaCheIniziaCon: "Frigorifero", in: app)
+        // La scheda Strutture è rimasta sul frigorifero, dove l'articolo è tornato.
+        apri(scheda: "Strutture", in: app)
         XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
     }
 
@@ -158,18 +163,55 @@ final class DispensaUITests: XCTestCase {
         }
     }
 
-    /// Crea un prodotto dal menu "Altro" e lo ritrova nel catalogo.
+    /// Crea un prodotto dalla scheda Prodotti e lo ritrova nel catalogo.
     @MainActor
     func testCreaProdotto() throws {
         let app = avviaConDispensa()
 
-        app.buttons["Altro"].tap()
-        app.buttons["Prodotti"].tap()
+        apri(scheda: "Prodotti", in: app)
         app.buttons["Aggiungi un prodotto"].tap()
         scrivi("Pasta", nelPrimoCampoDi: app)
         app.buttons["Salva"].tap()
 
         XCTAssertTrue(app.staticTexts["Pasta"].waitForExistence(timeout: 5))
         allegaScreenshot(app)
+    }
+
+    /// Un articolo aggiunto in una struttura compare nella scheda Articoli, con la sua struttura, e si apre.
+    @MainActor
+    func testElencoArticoli() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Latte", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
+
+        apri(scheda: "Articoli", in: app)
+        XCTAssertTrue(app.staticTexts["Frigorifero"].waitForExistence(timeout: 5))
+        allegaScreenshot(app)
+        tocca(rigaCheIniziaCon: "Latte", in: app)
+        XCTAssertTrue(app.navigationBars["Latte"].waitForExistence(timeout: 5))
+    }
+
+    /// Crea una seconda dispensa dal menu nel titolo: si apre vuota; poi si torna a "Casa".
+    @MainActor
+    func testCambiaDispensa() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        app.navigationBars.buttons["BackButton"].tap()
+
+        app.buttons["Dispensa: Casa"].tap()
+        app.buttons["Nuova dispensa…"].tap()
+        scrivi("Mare", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.buttons["Aggiungi una struttura"].waitForExistence(timeout: 5))
+        allegaScreenshot(app)
+
+        app.buttons["Dispensa: Mare"].tap()
+        app.buttons["Casa"].tap()
+        tocca(rigaCheIniziaCon: "Frigorifero", in: app)
+        XCTAssertTrue(app.navigationBars["Frigorifero"].waitForExistence(timeout: 5))
     }
 }

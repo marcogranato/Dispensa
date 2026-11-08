@@ -9,8 +9,6 @@ import SwiftData
 /// Catalogo dei prodotti di una dispensa, con ricerca.
 struct ElencoProdottiView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
     let dispensa: Dispensa
 
     @State private var ricerca = ""
@@ -32,71 +30,63 @@ struct ElencoProdottiView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(prodotti) { prodotto in
-                    riga(prodotto)
-                }
-            }
-            .navigationTitle("Prodotti")
-            .searchable(text: $ricerca, prompt: Text("Nome, marca o codice"))
-            .overlay {
-                if dispensa.prodotti?.isEmpty ?? true {
-                    ContentUnavailableView {
-                        Label("Nessun prodotto", systemImage: "carrot")
-                    } description: {
-                        Text("I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa.")
-                    } actions: {
-                        Button("Aggiungi un prodotto") { mostraNuovoProdotto = true }
-                            .buttonStyle(.borderedProminent)
-                    }
-                } else if prodotti.isEmpty {
-                    ContentUnavailableView.search(text: ricerca)
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Fine") { dismiss() }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Nuovo prodotto", systemImage: "plus") { mostraNuovoProdotto = true }
-                }
-            }
-            .sheet(isPresented: $mostraNuovoProdotto) {
-                ProdottoFormView(dispensa: dispensa)
-            }
-            .sheet(item: $prodottoInModifica) { prodotto in
-                ProdottoFormView(dispensa: dispensa, prodotto: prodotto)
-            }
-            .confirmationDialog(
-                "Eliminare il prodotto?",
-                isPresented: Binding(
-                    get: { prodottoDaEliminare != nil },
-                    set: { if !$0 { prodottoDaEliminare = nil } }
-                ),
-                titleVisibility: .visible,
-                presenting: prodottoDaEliminare
-            ) { prodotto in
-                Button("Elimina", role: .destructive) { elimina(prodotto) }
-            } message: { prodotto in
-                Text("Articoli di «\(prodotto.nome)» nello storico: \(prodotto.articoli?.count ?? 0). Verranno eliminati anche loro.")
-            }
-            .alert(
-                "Impossibile eliminare",
-                isPresented: Binding(
-                    get: { errore != nil },
-                    set: { if !$0 { errore = nil } }
-                ),
-                presenting: errore
-            ) { _ in
-                Button("OK") {}
-            } message: { errore in
-                Text(errore.localizedDescription)
+        List {
+            ForEach(prodotti) { prodotto in
+                riga(prodotto)
             }
         }
-#if os(macOS)
-        .frame(minWidth: 420, minHeight: 480)
-#endif
+        .navigationTitle("Prodotti")
+        .searchable(text: $ricerca, prompt: Text("Nome, marca o codice"))
+        .overlay {
+            if dispensa.prodotti?.isEmpty ?? true {
+                ContentUnavailableView {
+                    Label("Nessun prodotto", systemImage: "carrot")
+                } description: {
+                    Text("I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa.")
+                } actions: {
+                    Button("Aggiungi un prodotto") { mostraNuovoProdotto = true }
+                        .buttonStyle(.borderedProminent)
+                }
+            } else if prodotti.isEmpty {
+                ContentUnavailableView.search(text: ricerca)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Nuovo prodotto", systemImage: "plus") { mostraNuovoProdotto = true }
+            }
+        }
+        .sheet(isPresented: $mostraNuovoProdotto) {
+            ProdottoFormView(dispensa: dispensa)
+        }
+        .sheet(item: $prodottoInModifica) { prodotto in
+            ProdottoFormView(dispensa: dispensa, prodotto: prodotto)
+        }
+        .confirmationDialog(
+            "Eliminare il prodotto?",
+            isPresented: Binding(
+                get: { prodottoDaEliminare != nil },
+                set: { if !$0 { prodottoDaEliminare = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: prodottoDaEliminare
+        ) { prodotto in
+            Button("Elimina", role: .destructive) { elimina(prodotto) }
+        } message: { prodotto in
+            Text("Articoli di «\(prodotto.nome)» nello storico: \(prodotto.articoli?.count ?? 0). Verranno eliminati anche loro.")
+        }
+        .alert(
+            "Impossibile eliminare",
+            isPresented: Binding(
+                get: { errore != nil },
+                set: { if !$0 { errore = nil } }
+            ),
+            presenting: errore
+        ) { _ in
+            Button("OK") {}
+        } message: { errore in
+            Text(errore.localizedDescription)
+        }
     }
 
     private func riga(_ prodotto: Prodotto) -> some View {
@@ -173,6 +163,8 @@ struct ElencoProdottiView: View {
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    ElencoProdottiView(dispensa: dispensa)
-        .modelContainer(.anteprima)
+    NavigationStack {
+        ElencoProdottiView(dispensa: dispensa)
+    }
+    .modelContainer(.anteprima)
 }
