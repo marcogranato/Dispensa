@@ -24,6 +24,16 @@
         }
       }
     },
+    "%lld di %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld di %2$lld"
+          }
+        }
+      }
+    },
     "%lld parti" : {
 
     },
@@ -43,9 +53,6 @@
 
     },
     "Annulla" : {
-
-    },
-    "Articoli" : {
 
     },
     "Articoli di «%@» nello storico: %lld. Verranno eliminati anche loro." : {
@@ -71,10 +78,22 @@
     "Articoli presenti: %lld" : {
 
     },
+    "Articolo non più in dispensa" : {
+
+    },
     "Avariato" : {
 
     },
+    "Butta" : {
+
+    },
+    "Butta…" : {
+
+    },
     "Buttato" : {
+
+    },
+    "Buttato (%@)" : {
 
     },
     "Cantina" : {
@@ -87,6 +106,9 @@
 
     },
     "Categoria" : {
+
+    },
+    "Cerca per nome" : {
 
     },
     "Chilogrammi" : {
@@ -107,6 +129,9 @@
     "Congelatore" : {
 
     },
+    "Conserva lo storico esistente" : {
+
+    },
     "Conserva storico" : {
 
     },
@@ -122,7 +147,13 @@
     "Cucina" : {
 
     },
+    "Da ora gli articoli consumati o buttati verranno eliminati. Articoli già nello storico: %lld." : {
+
+    },
     "Date" : {
+
+    },
+    "Disattivare lo storico?" : {
 
     },
     "Dispensa" : {
@@ -134,7 +165,22 @@
     "Elimina" : {
 
     },
+    "Elimina articolo" : {
+
+    },
+    "Elimina dallo storico" : {
+
+    },
+    "Elimina lo storico esistente" : {
+
+    },
+    "Elimina selezionati (%lld)" : {
+
+    },
     "Eliminare il prodotto?" : {
+
+    },
+    "Eliminare l'articolo?" : {
 
     },
     "Eliminare l'ubicazione?" : {
@@ -206,6 +252,9 @@
     "In dispensa" : {
 
     },
+    "In scadenza il %@" : {
+
+    },
     "Inserimento" : {
 
     },
@@ -221,10 +270,22 @@
     "L'articolo non è più in dispensa." : {
 
     },
+    "La confezione sarà vuota e passerà nello storico." : {
+
+    },
+    "La confezione sarà vuota e verrà eliminata." : {
+
+    },
+    "La confezione verrà divisa: le parti spostate diventano un nuovo articolo con le stesse date." : {
+
+    },
     "La lettura con la fotocamera arriverà in seguito." : {
 
     },
     "La struttura appartiene a un'altra dispensa." : {
+
+    },
+    "La struttura originale non esiste più: scegline un'altra." : {
 
     },
     "Litri" : {
@@ -257,6 +318,9 @@
     "Modifica struttura" : {
 
     },
+    "Motivo" : {
+
+    },
     "Nessun prodotto" : {
 
     },
@@ -276,6 +340,12 @@
 
     },
     "Nome, marca o codice" : {
+
+    },
+    "Non ci sono altre strutture in questa dispensa." : {
+
+    },
+    "Non indicata" : {
 
     },
     "Non indicato" : {
@@ -302,6 +372,28 @@
     "OK" : {
 
     },
+    "Operazione non riuscita" : {
+
+    },
+    "Parti" : {
+
+    },
+    "Parti buttate" : {
+
+    },
+    "Parti buttate: %lld di %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Parti buttate: %1$lld di %2$lld"
+          }
+        }
+      }
+    },
+    "Parti da rimettere" : {
+
+    },
     "Parti per confezione" : {
 
     },
@@ -311,7 +403,13 @@
     "Pezzi" : {
 
     },
-    "Presenti" : {
+    "Preleva" : {
+
+    },
+    "Preleva 1" : {
+
+    },
+    "Preleva…" : {
 
     },
     "Prodotti" : {
@@ -320,7 +418,13 @@
     "Prodotto" : {
 
     },
+    "Prodotto sconosciuto" : {
+
+    },
     "Produzione" : {
+
+    },
+    "Puoi attivarlo modificando la dispensa." : {
 
     },
     "Puoi creare le ubicazioni con il pulsante Ubicazioni nell'elenco delle strutture." : {
@@ -330,6 +434,15 @@
 
     },
     "Quantità per parte" : {
+
+    },
+    "Qui compariranno gli articoli consumati o buttati." : {
+
+    },
+    "Rimetti" : {
+
+    },
+    "Rimetti in dispensa" : {
 
     },
     "Rinomina" : {
@@ -350,10 +463,16 @@
     "Salva" : {
 
     },
+    "Scade il %@" : {
+
+    },
     "Scadenza" : {
 
     },
     "Scaduto" : {
+
+    },
+    "Scaduto il %@" : {
 
     },
     "Scaffale" : {
@@ -377,6 +496,24 @@
     "Senza ubicazione" : {
 
     },
+    "Sposta" : {
+
+    },
+    "Sposta in" : {
+
+    },
+    "Sposta…" : {
+
+    },
+    "Storico" : {
+
+    },
+    "Storico disattivato" : {
+
+    },
+    "Storico vuoto" : {
+
+    },
     "Struttura" : {
 
     },
@@ -384,6 +521,12 @@
 
     },
     "Suggerimenti" : {
+
+    },
+    "Svuota storico" : {
+
+    },
+    "Svuotare lo storico?" : {
 
     },
     "Taverna" : {
@@ -404,6 +547,9 @@
     "Unità" : {
 
     },
+    "Usa Elimina solo per un articolo inserito per errore: non finirà nello storico. Per il cibo consumato o buttato usa Preleva o Butta." : {
+
+    },
     "Valori proposti quando aggiungi un articolo di questo prodotto. Es. una scatola di biscotti con 6 pacchi da 150 g." : {
 
     },
@@ -411,6 +557,9 @@
 
     },
     "Verranno eliminati anche strutture, articoli e storico di «%@». L'operazione non si può annullare." : {
+
+    },
+    "Verranno eliminati tutti gli articoli consumati e buttati di «%@». L'operazione non si può annullare." : {
 
     }
   },
