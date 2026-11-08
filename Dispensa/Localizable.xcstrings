@@ -1,7 +1,259 @@
 {
   "sourceLanguage" : "it",
   "strings" : {
+    "%lld" : {
 
+    },
+    "Aggiungi frigorifero, congelatore, scaffali e gli altri spazi dove conservi il cibo." : {
+
+    },
+    "Aggiungi una struttura" : {
+
+    },
+    "Altro" : {
+
+    },
+    "Annulla" : {
+
+    },
+    "Articoli" : {
+
+    },
+    "Articoli presenti in «%@»: %lld. Verranno eliminati; lo storico resta." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Articoli presenti in «%1$@»: %2$lld. Verranno eliminati; lo storico resta."
+          }
+        }
+      }
+    },
+    "Articoli presenti: %lld" : {
+
+    },
+    "Avariato" : {
+
+    },
+    "Buttato" : {
+
+    },
+    "Cantina" : {
+
+    },
+    "Caratteristiche" : {
+
+    },
+    "Cassetti" : {
+
+    },
+    "Categoria" : {
+
+    },
+    "Chilogrammi" : {
+
+    },
+    "Congelatore" : {
+
+    },
+    "Conserva storico" : {
+
+    },
+    "Consumato" : {
+
+    },
+    "Crea la tua prima dispensa" : {
+
+    },
+    "Crea una dispensa per iniziare a organizzare frigorifero, scaffali e tutto il resto." : {
+
+    },
+    "Cucina" : {
+
+    },
+    "Dispensa" : {
+
+    },
+    "Dispense" : {
+
+    },
+    "Elimina" : {
+
+    },
+    "Eliminare l'ubicazione?" : {
+
+    },
+    "Eliminare la dispensa?" : {
+
+    },
+    "Eliminare la struttura?" : {
+
+    },
+    "Es. Casa, Casa al mare" : {
+
+    },
+    "Es. Credenza, Cantinetta" : {
+
+    },
+    "Estraibile" : {
+
+    },
+    "Facoltative" : {
+
+    },
+    "Fine" : {
+
+    },
+    "Frigorifero" : {
+
+    },
+    "g" : {
+
+    },
+    "Garage" : {
+
+    },
+    "Giardino" : {
+
+    },
+    "Gli articoli consumati o buttati restano consultabili nello storico. Se disattivato, vengono eliminati." : {
+
+    },
+    "Grammi" : {
+
+    },
+    "Hashtag" : {
+
+    },
+    "In dispensa" : {
+
+    },
+    "kg" : {
+
+    },
+    "l" : {
+
+    },
+    "Litri" : {
+
+    },
+    "Millilitri" : {
+
+    },
+    "ml" : {
+
+    },
+    "Modifica" : {
+
+    },
+    "Modifica dispensa" : {
+
+    },
+    "Modifica struttura" : {
+
+    },
+    "Nessuna" : {
+
+    },
+    "Nessuna dispensa" : {
+
+    },
+    "Nessuna struttura" : {
+
+    },
+    "Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti." : {
+
+    },
+    "Nome" : {
+
+    },
+    "Non indicato" : {
+
+    },
+    "Note" : {
+
+    },
+    "Nuova dispensa" : {
+
+    },
+    "Nuova struttura" : {
+
+    },
+    "Nuova ubicazione" : {
+
+    },
+    "Pezzi" : {
+
+    },
+    "Presenti" : {
+
+    },
+    "Puoi creare le ubicazioni con il pulsante Ubicazioni nell'elenco delle strutture." : {
+
+    },
+    "pz" : {
+
+    },
+    "Rinomina" : {
+
+    },
+    "Rinomina ubicazione" : {
+
+    },
+    "Ripiani" : {
+
+    },
+    "Ripostiglio" : {
+
+    },
+    "Salone" : {
+
+    },
+    "Salva" : {
+
+    },
+    "Scaduto" : {
+
+    },
+    "Scaffale" : {
+
+    },
+    "Se non indichi un nome, viene usato il tipo." : {
+
+    },
+    "Seleziona una dispensa" : {
+
+    },
+    "Seleziona una struttura" : {
+
+    },
+    "Senza ubicazione" : {
+
+    },
+    "Strutture collegate: %lld. Non verranno eliminate, ma resteranno senza ubicazione." : {
+
+    },
+    "Suggerimenti" : {
+
+    },
+    "Taverna" : {
+
+    },
+    "Tipo" : {
+
+    },
+    "Tipo personalizzato" : {
+
+    },
+    "Ubicazione" : {
+
+    },
+    "Ubicazioni" : {
+
+    },
+    "Verranno eliminati anche strutture, articoli e storico di «%@». L'operazione non si può annullare." : {
+
+    }
   },
   "version" : "1.0"
 }

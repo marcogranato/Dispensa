@@ -33,10 +33,18 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 - Codici a barre e QR code (scanner solo su iPhone/iPad; su Mac inserimento manuale).
 - Immagine (priorità bassa).
 
+- Spostamento anche parziale: spostando solo alcune parti, la confezione si divide e le parti spostate diventano un nuovo articolo con le stesse date.
+- Un Prodotto si può eliminare solo se non ha articoli presenti; i suoi articoli nello storico vengono eliminati insieme (con avviso).
+- Un articolo è "in scadenza" (evidenziato in arancione) quando mancano 3 giorni o meno; scaduto (rosso) quando la data è passata. Il numero di giorni diventerà un'impostazione nella fase 6.
+- Si possono aggiungere più confezioni uguali in una volta (diventano articoli separati).
+
 ### Uscita dalla dispensa e storico
 
 - Quando un articolo si svuota è **consumato**. Si può anche **buttare** indicando il motivo (scaduto, avariato, altro).
-- Gli articoli usciti vanno nello storico, se è abilitato.
+- Prelevando o buttando parti, quando le parti rimaste arrivano a 0 l'articolo esce: lo stato finale dipende dall'ultima operazione, mentre `partiButtate` conserva il conteggio esatto dello spreco.
+- Gli articoli usciti vanno nello storico, se è abilitato. Un articolo uscito per errore si può rimettere in dispensa.
+- Un articolo inserito per sbaglio si elimina senza passare dallo storico.
+- Disattivando lo storico in una dispensa che ne ha già, l'app chiede se eliminare quello esistente.
 - Lo storico si può cancellare in parte o del tutto.
 - Lo storico si può disattivare (impostazione della Dispensa): in quel caso gli articoli usciti vengono eliminati.
 

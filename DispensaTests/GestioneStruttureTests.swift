@@ -14,8 +14,7 @@ struct GestioneStruttureTests {
     var context: ModelContext { container.mainContext }
 
     init() throws {
-        let configurazione = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: SchemaDispensa.schema, configurations: [configurazione])
+        container = try creaContainerDiTest()
     }
 
     @Test func eliminaStrutturaEliminaSoloGliArticoliAttivi() throws {

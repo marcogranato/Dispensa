@@ -14,8 +14,7 @@ struct ModelliTests {
     var context: ModelContext { container.mainContext }
 
     init() throws {
-        let configurazione = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: SchemaDispensa.schema, configurations: [configurazione])
+        container = try creaContainerDiTest()
     }
 
     /// Crea una dispensa con una struttura che contiene un articolo.
