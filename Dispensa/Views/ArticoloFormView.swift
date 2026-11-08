@@ -26,7 +26,7 @@ struct ArticoloFormView: View {
         self.dispensa = dispensa
         self.articolo = articolo
         _nomeProdotto = State(initialValue: articolo?.prodotto?.nome ?? "")
-        _dati = State(initialValue: articolo.map(DatiArticolo.init(articolo:)) ?? DatiArticolo())
+        _dati = State(initialValue: articolo.map { DatiArticolo(articolo: $0) } ?? DatiArticolo())
         _struttura = State(initialValue: articolo?.struttura ?? struttura)
         _partiRimaste = State(initialValue: articolo?.partiRimaste ?? 1)
     }
