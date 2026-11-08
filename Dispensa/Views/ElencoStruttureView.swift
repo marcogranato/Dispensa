@@ -15,6 +15,7 @@ struct ElencoStruttureView: View {
 
     @State private var mostraNuovaStruttura = false
     @State private var mostraUbicazioni = false
+    @State private var mostraProdotti = false
     @State private var strutturaInModifica: Struttura?
     @State private var strutturaDaEliminare: Struttura?
 
@@ -69,7 +70,10 @@ struct ElencoStruttureView: View {
         }
         .toolbar {
             ToolbarItem {
-                Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
+                Menu("Altro", systemImage: "ellipsis") {
+                    Button("Prodotti", systemImage: "carrot") { mostraProdotti = true }
+                    Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
+                }
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuova struttura", systemImage: "plus") { mostraNuovaStruttura = true }
@@ -83,6 +87,9 @@ struct ElencoStruttureView: View {
         }
         .sheet(isPresented: $mostraUbicazioni) {
             UbicazioniView(dispensa: dispensa)
+        }
+        .sheet(isPresented: $mostraProdotti) {
+            ElencoProdottiView(dispensa: dispensa)
         }
         .confirmationDialog(
             "Eliminare la struttura?",

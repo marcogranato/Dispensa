@@ -1,10 +1,36 @@
 {
   "sourceLanguage" : "it",
   "strings" : {
+    "%@ %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%lld" : {
 
     },
+    "%lld × %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld × %2$@"
+          }
+        }
+      }
+    },
+    "%lld parti" : {
+
+    },
     "Aggiungi frigorifero, congelatore, scaffali e gli altri spazi dove conservi il cibo." : {
+
+    },
+    "Aggiungi un prodotto" : {
 
     },
     "Aggiungi una struttura" : {
@@ -18,6 +44,16 @@
     },
     "Articoli" : {
 
+    },
+    "Articoli di «%@» nello storico: %lld. Verranno eliminati anche loro." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Articoli di «%1$@» nello storico: %2$lld. Verranno eliminati anche loro."
+          }
+        }
+      }
     },
     "Articoli presenti in «%@»: %lld. Verranno eliminati; lo storico resta." : {
       "localizations" : {
@@ -53,6 +89,15 @@
     "Chilogrammi" : {
 
     },
+    "Codice a barre" : {
+
+    },
+    "Codice a barre o QR (facoltativo)" : {
+
+    },
+    "Confezione" : {
+
+    },
     "Congelatore" : {
 
     },
@@ -80,6 +125,9 @@
     "Elimina" : {
 
     },
+    "Eliminare il prodotto?" : {
+
+    },
     "Eliminare l'ubicazione?" : {
 
     },
@@ -89,6 +137,9 @@
     "Eliminare la struttura?" : {
 
     },
+    "Es. Biscotti, Latte, Acqua" : {
+
+    },
     "Es. Casa, Casa al mare" : {
 
     },
@@ -96,6 +147,9 @@
 
     },
     "Estraibile" : {
+
+    },
+    "Facoltativa" : {
 
     },
     "Facoltative" : {
@@ -125,6 +179,18 @@
     "Hashtag" : {
 
     },
+    "I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa." : {
+
+    },
+    "Il numero di parti non è valido." : {
+
+    },
+    "Il prodotto ha ancora articoli in dispensa." : {
+
+    },
+    "Impossibile eliminare" : {
+
+    },
     "In dispensa" : {
 
     },
@@ -134,7 +200,25 @@
     "l" : {
 
     },
+    "L'articolo non è nello storico." : {
+
+    },
+    "L'articolo non è più in dispensa." : {
+
+    },
+    "La lettura con la fotocamera arriverà in seguito." : {
+
+    },
+    "La struttura appartiene a un'altra dispensa." : {
+
+    },
     "Litri" : {
+
+    },
+    "Marca" : {
+
+    },
+    "Marca (facoltativa)" : {
 
     },
     "Millilitri" : {
@@ -149,7 +233,13 @@
     "Modifica dispensa" : {
 
     },
+    "Modifica prodotto" : {
+
+    },
     "Modifica struttura" : {
+
+    },
+    "Nessun prodotto" : {
 
     },
     "Nessuna" : {
@@ -167,6 +257,9 @@
     "Nome" : {
 
     },
+    "Nome, marca o codice" : {
+
+    },
     "Non indicato" : {
 
     },
@@ -182,16 +275,31 @@
     "Nuova ubicazione" : {
 
     },
+    "Nuovo prodotto" : {
+
+    },
+    "OK" : {
+
+    },
+    "Parti per confezione" : {
+
+    },
     "Pezzi" : {
 
     },
     "Presenti" : {
 
     },
+    "Prodotti" : {
+
+    },
     "Puoi creare le ubicazioni con il pulsante Ubicazioni nell'elenco delle strutture." : {
 
     },
     "pz" : {
+
+    },
+    "Quantità per parte" : {
 
     },
     "Rinomina" : {
@@ -216,6 +324,9 @@
 
     },
     "Scaffale" : {
+
+    },
+    "Scegli una struttura in cui rimettere l'articolo." : {
 
     },
     "Se non indichi un nome, viene usato il tipo." : {
@@ -249,6 +360,12 @@
 
     },
     "Ubicazioni" : {
+
+    },
+    "Unità" : {
+
+    },
+    "Valori proposti quando aggiungi un articolo di questo prodotto. Es. una scatola di biscotti con 6 pacchi da 150 g." : {
 
     },
     "Verranno eliminati anche strutture, articoli e storico di «%@». L'operazione non si può annullare." : {

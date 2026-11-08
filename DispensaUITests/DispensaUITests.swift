@@ -13,21 +13,40 @@ final class DispensaUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// Crea una dispensa e una struttura, poi apre il dettaglio della struttura.
+    /// Avvia l'app con un database vuoto in memoria, crea la dispensa "Casa" e la apre.
     @MainActor
-    func testCreaDispensaEStruttura() throws {
+    private func avviaConDispensa() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--in-memoria"]
         app.launch()
 
         app.buttons["Crea la tua prima dispensa"].tap()
-        let campoNome = app.textFields.firstMatch
-        XCTAssertTrue(campoNome.waitForExistence(timeout: 5))
-        campoNome.tap()
-        campoNome.typeText("Casa")
+        scrivi("Casa", nelPrimoCampoDi: app)
         app.buttons["Salva"].tap()
-
         app.buttons["Casa"].tap()
+        return app
+    }
+
+    /// I campi con un testo di esempio non sono identificati dall'etichetta: si usa il primo campo.
+    @MainActor
+    private func scrivi(_ testo: String, nelPrimoCampoDi app: XCUIApplication) {
+        let campo = app.textFields.firstMatch
+        XCTAssertTrue(campo.waitForExistence(timeout: 5))
+        campo.tap()
+        campo.typeText(testo)
+    }
+
+    @MainActor
+    private func allegaScreenshot(_ app: XCUIApplication) {
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
+    /// Crea una struttura e ne apre il dettaglio.
+    @MainActor
+    func testCreaDispensaEStruttura() throws {
+        let app = avviaConDispensa()
 
         app.buttons["Aggiungi una struttura"].tap()
         XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
@@ -41,9 +60,21 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Frigorifero"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Tipo"].exists)
         XCTAssertTrue(app.staticTexts["Ubicazione, Nessuna"].exists)
+        allegaScreenshot(app)
+    }
 
-        let screenshot = XCTAttachment(screenshot: app.screenshot())
-        screenshot.lifetime = .keepAlways
-        add(screenshot)
+    /// Crea un prodotto dal menu "Altro" e lo ritrova nel catalogo.
+    @MainActor
+    func testCreaProdotto() throws {
+        let app = avviaConDispensa()
+
+        app.buttons["Altro"].tap()
+        app.buttons["Prodotti"].tap()
+        app.buttons["Aggiungi un prodotto"].tap()
+        scrivi("Pasta", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        XCTAssertTrue(app.staticTexts["Pasta"].waitForExistence(timeout: 5))
+        allegaScreenshot(app)
     }
 }
