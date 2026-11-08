@@ -22,13 +22,20 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 |---|---|---|
 | 1 | Modello dati; gestione di Dispense, Ubicazioni e Strutture | ✅ Completata |
 | 2 | Articoli e Prodotti: aggiungere, modificare, spostare, prelevare, buttare, storico | ✅ Completata |
-| 3 | Etichette, ricerca, filtri, ordinamento | Da fare |
+| 3 | Navigazione a schede ed elenco di tutti gli articoli; icone dei prodotti; etichette, ricerca, filtri, ordinamento | In corso |
 | 4 | Tabelle con colonne configurabili e filtri salvati | Da fare |
 | 5 | Immagini e scanner di codici a barre/QR | Da fare |
 | 6 | Notifiche locali per gli articoli in scadenza | Da fare |
 | 7 | Sincronizzazione iCloud e condivisione (con account a pagamento) | Da fare |
 
-### Da provare a mano (fasi 1–2)
+### Fase 3: avanzamento
+
+1. ✅ Ritocchi: date facoltative su una riga nel modulo dell'articolo; riga dell'articolo compatta (nome, parti e scadenza su una riga, due righe solo se non ci stanno).
+2. ✅ Navigazione a schede (Strutture, Articoli, Prodotti, Storico), menu della dispensa nel titolo, elenco di tutti gli articoli, scheda del prodotto; navigazione affidabile sul Mac.
+3. Icone dei prodotti — da fare. Da decidere: emoji (proposta) o simboli di sistema (SF Symbols).
+4. Etichette, ricerca, filtri, ordinamento — da fare. Da decidere: categoria e hashtag distinti o un solo tipo; colore subito o dopo; filtri su tutte le date o solo sulla scadenza.
+
+### Da provare a mano
 
 Queste funzioni compilano e la loro logica è coperta da test, ma nessun test UI le usa:
 
@@ -36,7 +43,9 @@ Queste funzioni compilano e la loro logica è coperta da test, ma nessun test UI
 - azioni rapide scorrendo le righe e menu contestuali;
 - selezione multipla nello storico e "Rimetti in dispensa" di un articolo con più parti;
 - domanda sullo storico esistente quando lo si disattiva;
-- tutta l'app avviata sul Mac.
+- tutta l'app su iPad (le schede possono diventare una barra laterale, come sul Mac).
+
+Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`); il resto dell'app sul Mac va provato a mano.
 
 ## Gestione Dispense, Ubicazioni e Strutture
 
@@ -55,6 +64,9 @@ Decisioni prese:
 - Eliminando una struttura, i suoi articoli presenti vengono eliminati; quelli nello storico restano.
 - Eliminando una dispensa si elimina tutto il suo contenuto.
 - Al primo avvio non si creano dati automaticamente (eviterà duplicati con la sincronizzazione).
+- L'app mostra una dispensa alla volta, in quattro schede: Strutture, Articoli, Prodotti, Storico (su iPhone barra in basso; su iPad e Mac barra laterale). Le ubicazioni si gestiscono da un pulsante nella scheda Strutture.
+- La dispensa si cambia, crea, modifica ed elimina dal menu con il suo nome nel titolo (es. "Casa ▾"). L'app ricorda l'ultima dispensa aperta; una dispensa appena creata si apre subito.
+- In tutti gli elenchi il click (o tocco) su una riga apre il dettaglio in sola lettura; la modifica è un'azione esplicita: pulsante "Modifica" nel dettaglio, menu contestuale o scorrimento della riga. Fanno eccezione lo storico (il click seleziona, per eliminare più articoli insieme) e le ubicazioni (si rinominano dal menu contestuale).
 
 ## Gestione Prodotti e Articoli
 
@@ -73,6 +85,9 @@ Decisioni prese:
 - Spostamento anche parziale: spostando solo alcune parti, la confezione si divide e le parti spostate diventano un nuovo articolo con le stesse date.
 - Un Prodotto si può eliminare solo se non ha articoli presenti; i suoi articoli nello storico vengono eliminati insieme (con avviso).
 - Gli articoli di una struttura sono ordinati per scadenza (prima i più urgenti, senza data in fondo).
+- La scheda Articoli mostra gli articoli di tutte le strutture, ordinati per scadenza, con la struttura in cui si trovano e la ricerca per nome; da lì si possono anche aggiungere articoli, scegliendo la struttura nel modulo.
+- La scheda di un prodotto mostra marca, codice, confezione e gli articoli presenti di quel prodotto con la loro struttura.
+- Nel modulo dell'articolo le date facoltative (produzione, scadenza) stanno su una riga: "Aggiungi" se mancano, altrimenti la data e un pulsante per toglierla.
 - Un articolo è "in scadenza" (arancione) quando mancano 3 giorni o meno, "scaduto" (rosso) quando la data è passata. Il numero di giorni diventerà un'impostazione nella fase 6. Lo stato è indicato anche da un'icona, non solo dal colore.
 
 ### Uscita dalla dispensa e storico
@@ -95,7 +110,7 @@ Decisioni prese:
 - Filtri salvati e richiamabili; una vista predefinita per ogni tipo di elenco.
 - Ricerca per nome, etichetta, codice.
 
-Già disponibile: ricerca per nome, marca o codice nel catalogo prodotti; ricerca per nome nello storico.
+Già disponibile: elenco degli articoli di tutte le strutture (scheda Articoli) con ricerca per nome; ricerca per nome, marca o codice nel catalogo prodotti; ricerca per nome nello storico.
 
 ## Condivisione (futura, richiede account Apple a pagamento)
 
