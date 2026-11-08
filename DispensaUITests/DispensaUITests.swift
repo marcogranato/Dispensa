@@ -116,6 +116,38 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// Butta un articolo, lo ritrova nello storico con il motivo e lo rimette in dispensa.
+    @MainActor
+    func testStorico() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Yogurt", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        tocca(rigaCheIniziaCon: "Yogurt", in: app)
+        app.buttons["Butta…"].tap()
+        app.buttons["Butta"].tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 0"].waitForExistence(timeout: 5))
+
+        // Torna all'elenco delle strutture e apre lo storico.
+        app.navigationBars.buttons["BackButton"].tap()
+        app.buttons["Altro"].tap()
+        app.buttons["Storico"].tap()
+
+        let esito = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Buttato (Avariato)'")).firstMatch
+        XCTAssertTrue(esito.waitForExistence(timeout: 5))
+        allegaScreenshot(app)
+
+        app.cells.containing(.staticText, identifier: "Yogurt").firstMatch.swipeRight()
+        app.buttons["Rimetti in dispensa"].tap()
+        XCTAssertTrue(app.staticTexts["Storico vuoto"].waitForExistence(timeout: 5))
+
+        app.buttons["Fine"].tap()
+        tocca(rigaCheIniziaCon: "Frigorifero", in: app)
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
+    }
+
     /// Preme `volte` il "+" dello stepper che inizia con `etichetta`.
     @MainActor
     private func aumenta(_ etichetta: String, di volte: Int, in app: XCUIApplication) {

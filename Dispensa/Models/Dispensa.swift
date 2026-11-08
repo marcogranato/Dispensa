@@ -31,6 +31,13 @@ final class Dispensa {
     @Relationship(deleteRule: .cascade, inverse: \Etichetta.dispensa)
     var etichette: [Etichetta]? = []
 
+    /// Articoli consumati o buttati, dal più recente.
+    var articoliNelloStorico: [Articolo] {
+        (articoli ?? [])
+            .filter { $0.stato != .attivo }
+            .sorted { ($0.dataUscita ?? .distantPast) > ($1.dataUscita ?? .distantPast) }
+    }
+
     init(nome: String) {
         self.nome = nome
     }

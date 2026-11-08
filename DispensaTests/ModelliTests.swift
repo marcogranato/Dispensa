@@ -101,6 +101,24 @@ struct ModelliTests {
         #expect(ordinati.map(\.nomeVisualizzato) == ["Burro", "Latte", "Pasta", "Riso", "Sale"])
     }
 
+    @Test func storicoDalPiuRecente() throws {
+        let (dispensa, _, presente) = try creaDispensaConArticolo()
+        let vecchio = Articolo()
+        let recente = Articolo()
+        for articolo in [vecchio, recente] {
+            context.insert(articolo)
+            articolo.dispensa = dispensa
+            articolo.stato = .consumato
+        }
+        vecchio.dataUscita = Date(timeIntervalSince1970: 1_000)
+        recente.dataUscita = Date(timeIntervalSince1970: 2_000)
+
+        let storico = dispensa.articoliNelloStorico
+
+        #expect(storico.map(\.id) == [recente.id, vecchio.id])
+        #expect(!storico.contains { $0 === presente })
+    }
+
     @Test func articoliAttiviEscludonoLoStorico() throws {
         let (_, struttura, articolo) = try creaDispensaConArticolo()
         #expect(struttura.articoliAttivi.count == 1)

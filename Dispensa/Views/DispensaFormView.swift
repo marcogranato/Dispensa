@@ -16,6 +16,7 @@ struct DispensaFormView: View {
 
     @State private var nome: String
     @State private var storicoAbilitato: Bool
+    @State private var chiediCosaFareDelloStorico = false
 
     init(dispensa: Dispensa? = nil) {
         self.dispensa = dispensa
@@ -49,6 +50,17 @@ struct DispensaFormView: View {
                         .disabled(nomePulito.isEmpty)
                 }
             }
+            .confirmationDialog(
+                "Disattivare lo storico?",
+                isPresented: $chiediCosaFareDelloStorico,
+                titleVisibility: .visible
+            ) {
+                Button("Elimina lo storico esistente", role: .destructive) { applica(svuotandoLoStorico: true) }
+                Button("Conserva lo storico esistente") { applica(svuotandoLoStorico: false) }
+                Button("Annulla", role: .cancel) {}
+            } message: {
+                Text("Da ora gli articoli consumati o buttati verranno eliminati. Articoli già nello storico: \(dispensa?.articoliNelloStorico.count ?? 0).")
+            }
         }
 #if os(macOS)
         .frame(minWidth: 400, minHeight: 240)
@@ -56,6 +68,14 @@ struct DispensaFormView: View {
     }
 
     private func salva() {
+        if let dispensa, dispensa.storicoAbilitato, !storicoAbilitato, !dispensa.articoliNelloStorico.isEmpty {
+            chiediCosaFareDelloStorico = true
+        } else {
+            applica(svuotandoLoStorico: false)
+        }
+    }
+
+    private func applica(svuotandoLoStorico: Bool) {
         let dispensaDaSalvare = dispensa ?? {
             let nuova = Dispensa(nome: nomePulito)
             modelContext.insert(nuova)
@@ -63,6 +83,9 @@ struct DispensaFormView: View {
         }()
         dispensaDaSalvare.nome = nomePulito
         dispensaDaSalvare.storicoAbilitato = storicoAbilitato
+        if svuotandoLoStorico {
+            modelContext.svuotaStorico(di: dispensaDaSalvare)
+        }
         dismiss()
     }
 }
