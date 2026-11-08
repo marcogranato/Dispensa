@@ -36,12 +36,17 @@ xcodebuild -scheme Dispensa -destination 'platform=macOS' build
 # Verifica sulla versione minima (simulatore iOS 26.1)
 xcodebuild -scheme Dispensa -destination 'platform=iOS Simulator,OS=26.1,name=iPhone 17' build
 
-# All tests (unit + UI)
+# All tests (unit + UI; the UI tests take ~2 minutes)
 xcodebuild -scheme Dispensa -destination 'platform=iOS Simulator,name=iPhone 17' test
 
-# Unit tests only / a single test
+# Unit tests only (fast) / a single Swift Testing test / a single UI test
 xcodebuild ... test -only-testing:DispensaTests
-xcodebuild ... test -only-testing:DispensaTests/DispensaTests/example
+xcodebuild ... test -only-testing:'DispensaTests/GestioneArticoliTests/prelevaRiduceLeParti()'
+xcodebuild ... test -only-testing:DispensaUITests/DispensaUITests/testStorico
+
+# Inspect a UI test run (screenshots, view hierarchy on failure)
+xcodebuild ... -resultBundlePath <scratch>/ui.xcresult test -only-testing:DispensaUITests
+xcrun xcresulttool export attachments --path <scratch>/ui.xcresult --output-path <scratch>/att   # manifest.json maps files to tests
 ```
 
 There is no linter or formatter configured.
@@ -54,13 +59,16 @@ There is no linter or formatter configured.
 
 - `DispensaApp.swift` builds the single persistent `ModelContainer` from `SchemaDispensa.schema`. Any new `@Model` type must be added to `SchemaDispensa.modelli` (`Dispensa/Models/SchemaDispensa.swift`), which is also used by previews and tests.
 - Everything hangs off `Dispensa` (the future CloudKit share root): its relationships cascade. `Struttura → Articolo` and `Ubicazione → Struttura` are *nullify*, so the history (storico) survives deleting a struttura. Relationships are set after `context.insert(...)`, not in initializers.
-- Model tests use an in-memory `ModelContainer` in a `@MainActor` test struct (the test target is not MainActor-isolated by default); see `DispensaTests/ModelliTests.swift`.
-- Views get persistence via `@Environment(\.modelContext)` and `@Query`.
-- UI entry point is `Views/RootView.swift`: a 3-column `NavigationSplitView` (Dispense → Strutture → dettaglio) that collapses to a stack on iPhone. Selection is passed down as `@Binding`.
+- Article lifecycle: an `Articolo` is *attivo* while in a struttura; when its `partiRimaste` reach 0 (via `preleva`/`butta`) it becomes `consumato`/`buttato` with `dataUscita` (the storico), or is deleted if `Dispensa.storicoAbilitato` is false. `partiButtate` counts waste exactly; `StatoScadenza` (scaduto / in scadenza ≤ 3 days) is computed, never stored.
+- Business rules live in `Services/` as `ModelContext` extensions and are unit-tested: `GestioneArticoli.swift` (preleva, butta, sposta with confezione split, rimettiInDispensa, storico cleanup, eliminaProdotto), `AggiuntaArticoli.swift` (`DatiArticolo`, `trovaOCreaProdotto`, `aggiungiArticoli`), `GestioneStrutture.swift`. They validate input and throw `ErroreGestioneArticoli` (a `LocalizedError` with Italian messages) instead of corrupting data; views show `error.localizedDescription` in an alert. Put new multi-model logic here, not in views.
+- Views get persistence via `@Environment(\.modelContext)`; lists mostly read relationships of the selected `Dispensa`/`Struttura` (e.g. `dispensa.articoliNelloStorico`, `struttura.articoliAttivi`) rather than `@Query`.
+- UI entry point is `Views/RootView.swift`: a 3-column `NavigationSplitView` (Dispense → Strutture → dettaglio) that collapses to a stack on iPhone. Selection is passed down as `@Binding`. Per-dispensa tools (Prodotti, Ubicazioni, Storico) open as sheets from the "Altro" menu in `ElencoStruttureView`.
 - The detail column wraps `DettaglioStrutturaView` in its own `NavigationStack` (reset with `.id`) so articles can be pushed with `NavigationLink(value:)`.
 - Article actions (preleva / butta / sposta / modifica / elimina) are shared via `MenuAzioniArticolo` and the `.azioniArticolo(_:daEliminare:)` modifier in `Views/AzioniArticolo.swift`; views only hold the two `@State` bindings.
 - Views showing a single article must guard against it leaving the pantry or being deleted (`isDeleted`, `modelContext == nil`, `stato != .attivo`) — see `DettaglioArticoloView`.
 - Forms (`*FormView`) edit local `@State` copies and write to the model only on "Salva"; `nil` model means "create new".
+- Deletions of user data ask for confirmation via `confirmationDialog(presenting:)` only when something else is lost (contents, storico); empty items are deleted directly.
+- Shared formatting ("6 × 150 g", "1,5 l") is in `Views/Formattazione.swift`; article rows and expiry badges in `Views/RigaArticoloView.swift`. Expiry state is never conveyed by color alone (icon + accessibility label).
 - Previews use `.modelContainer(.anteprima)` (in-memory sample data, `Views/Anteprime.swift`, DEBUG only).
 - Platform differences are handled inline with `#if os(macOS)` / `#if os(iOS)`.
 - `Dispensa/Localizable.xcstrings` (source language `it`) is filled automatically when building from the Xcode IDE, not from `xcodebuild`.
@@ -75,6 +83,6 @@ There is no linter or formatter configured.
 
 ## Tests
 
-- `DispensaTests` uses **Swift Testing** (`import Testing`, `@Test`, `#expect`), not XCTest.
-- `DispensaUITests` uses XCTest/XCUIApplication and launches the app with `--in-memoria` (handled in `DispensaApp.swift`) so it never touches real data. Note: `LabeledContent` rows are exposed to accessibility as a single `"Label, Value"` static text; text fields with a `prompt` are found by placeholder, not label.
-- Logic that mutates several models (e.g. `ModelContext.eliminaStruttura` in `Services/`) lives in `Services/` as `ModelContext` extensions and is unit-tested.
+- `DispensaTests` uses **Swift Testing** (`import Testing`, `@Test`, `#expect`), not XCTest. Each suite is a `@MainActor struct` (the test target is not MainActor-isolated by default) that gets a fresh in-memory container from `creaContainerDiTest()` (`DispensaTests/SupportoTest.swift`).
+- `DispensaUITests` uses XCTest/XCUIApplication and launches the app with `--in-memoria` (handled in `DispensaApp.swift`) so it never touches real data. Reuse the helpers in `DispensaUITests.swift` (`avviaConDispensa`, `creaEApriStruttura`, `tocca(rigaCheIniziaCon:)`, `scrivi`, `aumenta`, `allegaScreenshot`).
+- Accessibility quirks the UI tests rely on: `LabeledContent` rows are a single `"Label, Value"` static text; text fields with a `prompt` are found by placeholder, not label (use `app.textFields.firstMatch`); list rows are buttons whose label joins all texts (match with `BEGINSWITH`); the iPhone back button has identifier `BackButton`.
