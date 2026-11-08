@@ -43,8 +43,28 @@ final class Articolo {
         set { unitaRaw = newValue?.rawValue }
     }
 
+    var nomeVisualizzato: String {
+        prodotto?.nome ?? String(localized: "Prodotto sconosciuto")
+    }
+
     init(partiTotali: Int = 1) {
         self.partiTotali = partiTotali
         self.partiRimaste = partiTotali
+    }
+
+    /// Prima gli articoli che scadono prima; quelli senza scadenza in fondo; a parità, per nome.
+    static func ordinatiPerScadenza(_ articoli: [Articolo]) -> [Articolo] {
+        articoli.sorted { a, b in
+            switch (a.dataScadenza, b.dataScadenza) {
+            case let (scadenzaA?, scadenzaB?) where scadenzaA != scadenzaB:
+                return scadenzaA < scadenzaB
+            case (_?, nil):
+                return true
+            case (nil, _?):
+                return false
+            default:
+                return a.nomeVisualizzato.localizedStandardCompare(b.nomeVisualizzato) == .orderedAscending
+            }
+        }
     }
 }

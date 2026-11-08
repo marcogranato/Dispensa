@@ -80,6 +80,27 @@ struct ModelliTests {
         #expect(articolo.dispensa === dispensa)
     }
 
+    @Test func ordinamentoPerScadenza() {
+        func articolo(_ nome: String, scadenza: TimeInterval?) -> Articolo {
+            let prodotto = Prodotto(nome: nome)
+            let articolo = Articolo()
+            context.insert(prodotto)
+            context.insert(articolo)
+            articolo.prodotto = prodotto
+            articolo.dataScadenza = scadenza.map { Date(timeIntervalSince1970: $0) }
+            return articolo
+        }
+        let senzaDataB = articolo("Sale", scadenza: nil)
+        let tardi = articolo("Pasta", scadenza: 2_000)
+        let senzaDataA = articolo("Riso", scadenza: nil)
+        let presto = articolo("Latte", scadenza: 1_000)
+        let prestoA = articolo("Burro", scadenza: 1_000)
+
+        let ordinati = Articolo.ordinatiPerScadenza([senzaDataB, tardi, senzaDataA, presto, prestoA])
+
+        #expect(ordinati.map(\.nomeVisualizzato) == ["Burro", "Latte", "Pasta", "Riso", "Sale"])
+    }
+
     @Test func articoliAttiviEscludonoLoStorico() throws {
         let (_, struttura, articolo) = try creaDispensaConArticolo()
         #expect(struttura.articoliAttivi.count == 1)

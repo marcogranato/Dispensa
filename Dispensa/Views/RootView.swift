@@ -29,7 +29,11 @@ struct RootView: View {
             }
         } detail: {
             if let struttura = strutturaSelezionata {
-                DettaglioStrutturaView(struttura: struttura)
+                // La colonna di dettaglio ha una propria navigazione, per aprire gli articoli.
+                NavigationStack {
+                    DettaglioStrutturaView(struttura: struttura)
+                }
+                .id(struttura.persistentModelID)
             } else {
                 ContentUnavailableView("Seleziona una struttura", systemImage: "square.stack.3d.up")
             }
