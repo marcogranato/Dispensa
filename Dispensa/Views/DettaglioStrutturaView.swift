@@ -11,6 +11,7 @@ struct DettaglioStrutturaView: View {
     let struttura: Struttura
 
     @State private var mostraModifica = false
+    @State private var mostraNuovoArticolo = false
 
     var body: some View {
         Form {
@@ -46,13 +47,22 @@ struct DettaglioStrutturaView: View {
                 LabeledContent("Presenti") {
                     Text(struttura.articoliAttivi.count, format: .number)
                 }
+                Button("Aggiungi articolo", systemImage: "plus.circle") { mostraNuovoArticolo = true }
             }
         }
         .formStyle(.grouped)
         .navigationTitle(struttura.nome)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem {
                 Button("Modifica") { mostraModifica = true }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }
+            }
+        }
+        .sheet(isPresented: $mostraNuovoArticolo) {
+            if let dispensa = struttura.dispensa {
+                ArticoloFormView(dispensa: dispensa, struttura: struttura)
             }
         }
         .sheet(isPresented: $mostraModifica) {

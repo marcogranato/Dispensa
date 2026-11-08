@@ -27,6 +27,9 @@
     "%lld parti" : {
 
     },
+    "Aggiungi articolo" : {
+
+    },
     "Aggiungi frigorifero, congelatore, scaffali e gli altri spazi dove conservi il cibo." : {
 
     },
@@ -98,6 +101,9 @@
     "Confezione" : {
 
     },
+    "Confezioni da aggiungere" : {
+
+    },
     "Congelatore" : {
 
     },
@@ -114,6 +120,9 @@
 
     },
     "Cucina" : {
+
+    },
+    "Date" : {
 
     },
     "Dispensa" : {
@@ -144,6 +153,9 @@
 
     },
     "Es. Credenza, Cantinetta" : {
+
+    },
+    "Es. Latte, Biscotti" : {
 
     },
     "Estraibile" : {
@@ -194,6 +206,9 @@
     "In dispensa" : {
 
     },
+    "Inserimento" : {
+
+    },
     "kg" : {
 
     },
@@ -228,6 +243,9 @@
 
     },
     "Modifica" : {
+
+    },
+    "Modifica articolo" : {
 
     },
     "Modifica dispensa" : {
@@ -275,6 +293,9 @@
     "Nuova ubicazione" : {
 
     },
+    "Nuovo articolo" : {
+
+    },
     "Nuovo prodotto" : {
 
     },
@@ -284,6 +305,9 @@
     "Parti per confezione" : {
 
     },
+    "Parti rimaste" : {
+
+    },
     "Pezzi" : {
 
     },
@@ -291,6 +315,12 @@
 
     },
     "Prodotti" : {
+
+    },
+    "Prodotto" : {
+
+    },
+    "Produzione" : {
 
     },
     "Puoi creare le ubicazioni con il pulsante Ubicazioni nell'elenco delle strutture." : {
@@ -320,10 +350,16 @@
     "Salva" : {
 
     },
+    "Scadenza" : {
+
+    },
     "Scaduto" : {
 
     },
     "Scaffale" : {
+
+    },
+    "Scegli" : {
 
     },
     "Scegli una struttura in cui rimettere l'articolo." : {
@@ -339,6 +375,9 @@
 
     },
     "Senza ubicazione" : {
+
+    },
+    "Struttura" : {
 
     },
     "Strutture collegate: %lld. Non verranno eliminate, ma resteranno senza ubicazione." : {
@@ -366,6 +405,9 @@
 
     },
     "Valori proposti quando aggiungi un articolo di questo prodotto. Es. una scatola di biscotti con 6 pacchi da 150 g." : {
+
+    },
+    "Verrà creato il nuovo prodotto «%@»." : {
 
     },
     "Verranno eliminati anche strutture, articoli e storico di «%@». L'operazione non si può annullare." : {
