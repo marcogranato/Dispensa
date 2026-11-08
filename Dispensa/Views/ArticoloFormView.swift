@@ -162,20 +162,30 @@ struct ArticoloFormView: View {
         }
     }
 
-    /// Interruttore che mostra il selettore della data solo quando la data è indicata.
+    /// Data facoltativa su una sola riga: "Aggiungi" se manca, altrimenti il selettore e un pulsante per toglierla.
     @ViewBuilder
     private func dataFacoltativa(_ titolo: LocalizedStringKey, data: Binding<Date?>) -> some View {
-        Toggle(titolo, isOn: Binding(
-            get: { data.wrappedValue != nil },
-            set: { data.wrappedValue = $0 ? Calendar.current.startOfDay(for: .now) : nil }
-        ))
         if let valore = data.wrappedValue {
-            DatePicker(
-                titolo,
-                selection: Binding(get: { valore }, set: { data.wrappedValue = $0 }),
-                displayedComponents: .date
-            )
-            .labelsHidden()
+            HStack {
+                DatePicker(
+                    titolo,
+                    selection: Binding(get: { valore }, set: { data.wrappedValue = $0 }),
+                    displayedComponents: .date
+                )
+                Button("Rimuovi data", systemImage: "xmark.circle.fill") {
+                    data.wrappedValue = nil
+                }
+                .labelStyle(.iconOnly)
+                .foregroundStyle(.secondary)
+                .buttonStyle(.borderless)
+            }
+        } else {
+            LabeledContent(titolo) {
+                Button("Aggiungi") {
+                    data.wrappedValue = Calendar.current.startOfDay(for: .now)
+                }
+                .buttonStyle(.borderless)
+            }
         }
     }
 

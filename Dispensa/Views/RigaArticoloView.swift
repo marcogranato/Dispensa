@@ -20,20 +20,45 @@ struct RigaArticoloView: View {
     }
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
+        // Prima prova tutto su una riga; se non ci sta (nome lungo, testo grande) va su due righe.
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline) {
                 Text(articolo.nomeVisualizzato)
+                    .lineLimit(1)
+                    .fixedSize()
                 if let dettagli {
-                    Text(dettagli)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    testoDettagli(dettagli)
+                        .lineLimit(1)
+                        .fixedSize()
                 }
+                Spacer(minLength: 8)
+                scadenza
+                    .fixedSize()
             }
-            Spacer()
-            if let scadenza = articolo.dataScadenza {
-                EtichettaScadenzaView(data: scadenza, stato: articolo.statoScadenza())
-                    .font(.caption)
+            HStack {
+                VStack(alignment: .leading) {
+                    Text(articolo.nomeVisualizzato)
+                    if let dettagli {
+                        testoDettagli(dettagli)
+                    }
+                }
+                Spacer()
+                scadenza
             }
+        }
+    }
+
+    private func testoDettagli(_ testo: String) -> some View {
+        Text(testo)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder
+    private var scadenza: some View {
+        if let data = articolo.dataScadenza {
+            EtichettaScadenzaView(data: data, stato: articolo.statoScadenza())
+                .font(.caption)
         }
     }
 }
