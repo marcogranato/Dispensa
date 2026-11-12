@@ -22,6 +22,28 @@ Dispensa is a multiplatform SwiftUI + SwiftData app for iOS, iPadOS and macOS (v
 - **Enum nei modelli:** salvarli come `String` grezza (es. `tipoRaw`) con una proprietà calcolata tipizzata, perché `#Predicate` non filtra bene sugli enum.
 - **Dispositivi:** l'app deve funzionare da iPhone 13 in su. Versione minima iOS 26 / macOS 26: non usare API più recenti senza `if #available`.
 
+## Stato del progetto
+
+Dettagli e avanzamento in `docs/Requisiti.md` ("Stato dello sviluppo").
+
+- **Fatto:** fase 1 (modello dati; dispense, ubicazioni, strutture) e fase 2 (prodotti e articoli: aggiunta, modifica, spostamento anche parziale, prelievo, scarto, storico). Della fase 3: ritocchi a modulo e riga dell'articolo; navigazione a quattro schede (Strutture, Articoli, Prodotti, Storico) con menu della dispensa nel titolo; elenco di tutti gli articoli; scheda del prodotto; navigazione affidabile sul Mac (con test UI dedicato).
+- **Prossimo passo:** fase 3, punto 3 — **icone dei prodotti**. Prima di scrivere codice decidere con l'utente: emoji (proposta) o SF Symbols.
+- **Dopo:** fase 3, punto 4 — etichette, ricerca, filtri, ordinamento. Il modello `Etichetta` (categoria/hashtag, colore opzionale) esiste già ma non ha interfaccia; da decidere: categoria e hashtag distinti o un solo tipo, colore subito o dopo, filtri su tutte le date o solo sulla scadenza.
+- **Da provare a mano** (nessun test UI): spostamento parziale, swipe e menu contestuali, selezione multipla e "Rimetti in dispensa" nello storico, domanda alla disattivazione dello storico, tutta l'app su iPad.
+
+## Decisioni prese
+
+Le decisioni di prodotto complete sono in `docs/Requisiti.md` (sezioni "Decisioni prese"); le principali:
+
+- Una dispensa alla volta, scelta dal menu nel titolo; l'app ricorda l'ultima aperta e al primo avvio non crea dati.
+- Click su una riga = dettaglio in sola lettura; la modifica è sempre esplicita (eccezioni: storico e ubicazioni).
+- Prelievo solo a parti intere; spostamento parziale divide la confezione in un nuovo articolo con le stesse date.
+- Un nuovo nome nel modulo dell'articolo crea automaticamente il prodotto; più confezioni uguali diventano articoli separati.
+- "In scadenza" = 3 giorni o meno (diventerà un'impostazione nella fase 6); "scaduto" = data passata; sempre con icona oltre al colore.
+- Eliminazioni: struttura → articoli presenti eliminati, storico conservato; dispensa → tutto; prodotto solo se senza articoli presenti (il suo storico va eliminato, con avviso); ubicazione → strutture senza ubicazione.
+- Nessuna sincronizzazione finché l'account Apple è gratuito, ma modello già compatibile con CloudKit e con la `Dispensa` come radice della futura condivisione.
+- Mac: `NavigationSplitView` costruito a mano e destinazioni di navigazione solo in `PilaDiNavigazione` (vedi Architecture).
+
 ## Commands
 
 Single shared scheme: `Dispensa` (targets `Dispensa`, `DispensaTests`, `DispensaUITests`).

@@ -32,8 +32,8 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 
 1. ✅ Ritocchi: date facoltative su una riga nel modulo dell'articolo; riga dell'articolo compatta (nome, parti e scadenza su una riga, due righe solo se non ci stanno).
 2. ✅ Navigazione a schede (Strutture, Articoli, Prodotti, Storico), menu della dispensa nel titolo, elenco di tutti gli articoli, scheda del prodotto; navigazione affidabile sul Mac.
-3. Icone dei prodotti — da fare. Da decidere: emoji (proposta) o simboli di sistema (SF Symbols).
-4. Etichette, ricerca, filtri, ordinamento — da fare. Da decidere: categoria e hashtag distinti o un solo tipo; colore subito o dopo; filtri su tutte le date o solo sulla scadenza.
+3. Icone dei prodotti — **prossimo passo**. Da decidere: emoji (proposta) o simboli di sistema (SF Symbols).
+4. Etichette, ricerca, filtri, ordinamento — da fare. Il modello dati delle etichette (categoria o hashtag, colore facoltativo, collegate ai prodotti) esiste già, manca l'interfaccia. Da decidere: categoria e hashtag distinti o un solo tipo; colore subito o dopo; filtri su tutte le date o solo sulla scadenza.
 
 ### Da provare a mano
 
