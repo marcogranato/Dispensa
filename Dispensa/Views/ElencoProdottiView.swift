@@ -13,6 +13,7 @@ struct ElencoProdottiView: View {
 
     @State private var ricerca = ""
     @State private var mostraNuovoProdotto = false
+    @State private var mostraCategorie = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
     @State private var errore: ErroreGestioneArticoli?
@@ -52,12 +53,18 @@ struct ElencoProdottiView: View {
             }
         }
         .toolbar {
+            ToolbarItem {
+                Button("Categorie", systemImage: "list.bullet.indent") { mostraCategorie = true }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo prodotto", systemImage: "plus") { mostraNuovoProdotto = true }
             }
         }
         .sheet(isPresented: $mostraNuovoProdotto) {
             ProdottoFormView(dispensa: dispensa)
+        }
+        .sheet(isPresented: $mostraCategorie) {
+            CategorieView(dispensa: dispensa)
         }
         .sheet(item: $prodottoInModifica) { prodotto in
             ProdottoFormView(dispensa: dispensa, prodotto: prodotto)
