@@ -13,6 +13,7 @@ enum SchemaDispensa {
         Struttura.self,
         Prodotto.self,
         Articolo.self,
+        Categoria.self,
         Etichetta.self,
     ]
 

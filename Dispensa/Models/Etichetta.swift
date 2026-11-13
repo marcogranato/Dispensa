@@ -6,24 +6,18 @@
 import Foundation
 import SwiftData
 
-/// Categoria o hashtag assegnabile ai prodotti.
+/// Hashtag assegnabile ai prodotti (es. #senzaglutine, #colazione), per raggruppamenti trasversali.
+/// La classificazione principale è invece l'albero delle `Categoria`.
 @Model
 final class Etichetta {
     var id: UUID = UUID()
     var nome: String = ""
-    var tipoRaw: String = TipoEtichetta.categoria.rawValue
     var coloreRaw: String?
 
     var dispensa: Dispensa?
     var prodotti: [Prodotto]? = []
 
-    var tipo: TipoEtichetta {
-        get { TipoEtichetta(rawValue: tipoRaw) ?? .categoria }
-        set { tipoRaw = newValue.rawValue }
-    }
-
-    init(nome: String, tipo: TipoEtichetta) {
+    init(nome: String) {
         self.nome = nome
-        self.tipoRaw = tipo.rawValue
     }
 }

@@ -28,6 +28,9 @@ final class Dispensa {
     @Relationship(deleteRule: .cascade, inverse: \Articolo.dispensa)
     var articoli: [Articolo]? = []
 
+    @Relationship(deleteRule: .cascade, inverse: \Categoria.dispensa)
+    var categorie: [Categoria]? = []
+
     @Relationship(deleteRule: .cascade, inverse: \Etichetta.dispensa)
     var etichette: [Etichetta]? = []
 

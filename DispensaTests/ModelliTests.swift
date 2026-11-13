@@ -126,4 +126,84 @@ struct ModelliTests {
         articolo.stato = .consumato
         #expect(struttura.articoliAttivi.isEmpty)
     }
+
+    // MARK: - Categorie e dettagli del prodotto
+
+    /// Crea l'albero "Pasta e riso ▸ Pasta secca ▸ Pasta di semola" in una dispensa.
+    private func creaAlberoPasta() -> (Categoria, Categoria, Categoria) {
+        let dispensa = Dispensa(nome: "Casa")
+        let pasta = Categoria(nome: "Pasta e riso")
+        let secca = Categoria(nome: "Pasta secca")
+        let semola = Categoria(nome: "Pasta di semola")
+        context.insert(dispensa)
+        for categoria in [pasta, secca, semola] {
+            context.insert(categoria)
+            categoria.dispensa = dispensa
+        }
+        secca.genitore = pasta
+        semola.genitore = secca
+        return (pasta, secca, semola)
+    }
+
+    @Test func percorsoELivelloDellaCategoria() {
+        let (pasta, secca, semola) = creaAlberoPasta()
+
+        #expect(semola.percorso.map(\.nome) == ["Pasta e riso", "Pasta secca", "Pasta di semola"])
+        #expect(pasta.livello == 1)
+        #expect(secca.livello == 2)
+        #expect(semola.livello == 3)
+        #expect(Set(pasta.discendenti.map(\.id)) == [secca.id, semola.id])
+        #expect(semola.discendenti.isEmpty)
+    }
+
+    @Test func iconaEreditataDalGenitorePiuVicino() {
+        let (pasta, secca, semola) = creaAlberoPasta()
+        pasta.icona = "🍝"
+        #expect(semola.iconaEffettiva == "🍝")
+
+        secca.icona = "🌾"
+        #expect(semola.iconaEffettiva == "🌾")
+
+        let prodotto = Prodotto(nome: "Penne rigate")
+        context.insert(prodotto)
+        prodotto.categoria = semola
+        #expect(prodotto.iconaEffettiva == "🌾")
+
+        prodotto.icona = "🥣"
+        #expect(prodotto.iconaEffettiva == "🥣")
+
+        prodotto.icona = " "
+        prodotto.categoria = nil
+        #expect(prodotto.iconaEffettiva == nil)
+    }
+
+    @Test func quantitaTotaleEMultipack() {
+        let biscotti = Prodotto(nome: "Oro Saiwa")
+        #expect(biscotti.quantitaTotale == nil)
+        #expect(!biscotti.isMultipack)
+
+        biscotti.quantitaPerParte = 100
+        biscotti.partiPerConfezione = 4
+        biscotti.tipoParte = .pacchetto
+        #expect(biscotti.quantitaTotale == 400)
+        #expect(biscotti.isMultipack)
+        #expect(biscotti.tipoParteRaw == "pacchetto")
+
+        biscotti.tipoParteRaw = "valore sconosciuto"
+        #expect(biscotti.tipoParte == nil)
+    }
+
+    @Test func eliminareCategoriaLasciaIProdotti() throws {
+        let (pasta, _, _) = creaAlberoPasta()
+        let prodotto = Prodotto(nome: "Penne rigate")
+        context.insert(prodotto)
+        prodotto.categoria = pasta
+        try context.save()
+
+        context.delete(pasta)
+        try context.save()
+
+        #expect(try context.fetchCount(FetchDescriptor<Prodotto>()) == 1)
+        #expect(prodotto.categoria == nil)
+    }
 }
