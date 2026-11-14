@@ -47,6 +47,11 @@ final class Categoria {
         return risultato
     }
 
+    /// Es. "Pasta e riso ▸ Pasta secca ▸ Pasta di semola".
+    var percorsoTestuale: String {
+        percorso.map(\.nome).joined(separator: " ▸ ")
+    }
+
     /// 1 per una categoria principale, 2 per una sottocategoria, 3 per una tipologia.
     var livello: Int { percorso.count }
 

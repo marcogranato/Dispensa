@@ -46,6 +46,14 @@ struct CategorieView: View {
                     } actions: {
                         Button("Aggiungi una categoria") { modulo = .nuova(genitore: nil) }
                             .buttonStyle(.borderedProminent)
+#if DEBUG
+                        // Solo nella versione di sviluppo: niente traduzione.
+                        Button {
+                            modelContext.inserisciCategorieDiProva(in: dispensa)
+                        } label: {
+                            Text(verbatim: "Aggiungi categorie di prova")
+                        }
+#endif
                     }
                 }
             }

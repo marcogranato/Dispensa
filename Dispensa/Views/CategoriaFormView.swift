@@ -55,13 +55,12 @@ struct CategoriaFormView: View {
                 }
 
                 Section {
-                    Picker("Dentro", selection: $genitore) {
-                        Text("Nessuna (categoria principale)").tag(Categoria?.none)
-                        ForEach(genitoriPossibili) { possibile in
-                            Text(possibile.percorso.map(\.nome).joined(separator: " ▸ "))
-                                .tag(Optional(possibile))
-                        }
-                    }
+                    PickerCategoria(
+                        titolo: "Dentro",
+                        selezione: $genitore,
+                        categorie: genitoriPossibili,
+                        etichettaNessuna: "Nessuna (categoria principale)"
+                    )
                 } footer: {
                     Text("Fino a tre livelli: categoria, sottocategoria e tipologia.")
                 }

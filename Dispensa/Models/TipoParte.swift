@@ -21,6 +21,7 @@ enum TipoParte: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
+    /// Nome per i menu, es. "Pacchetto".
     var nomeSingolare: LocalizedStringResource {
         switch self {
         case .confezione: "Confezione"
@@ -36,19 +37,19 @@ enum TipoParte: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Plurale minuscolo per i conteggi, es. "4 pacchetti da 100 g".
     var nomePlurale: LocalizedStringResource {
         switch self {
-        case .confezione: "Confezioni"
-        case .pacchetto: "Pacchetti"
-        case .bustina: "Bustine"
-        case .bottiglia: "Bottiglie"
-        case .lattina: "Lattine"
-        case .vasetto: "Vasetti"
-        case .scatoletta: "Scatolette"
-        // Chiave distinta dal singolare: in italiano è uguale, in altre lingue no.
-        case .brick: LocalizedStringResource("tipoParte.brick.plurale", defaultValue: "Brick")
-        case .vaschetta: "Vaschette"
-        case .pezzo: "Pezzi"
+        case .confezione: "confezioni"
+        case .pacchetto: "pacchetti"
+        case .bustina: "bustine"
+        case .bottiglia: "bottiglie"
+        case .lattina: "lattine"
+        case .vasetto: "vasetti"
+        case .scatoletta: "scatolette"
+        case .brick: "brick"
+        case .vaschetta: "vaschette"
+        case .pezzo: "pezzi"
         }
     }
 }

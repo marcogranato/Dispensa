@@ -29,4 +29,18 @@ enum Formattazione {
             return nil
         }
     }
+
+    /// Versione estesa per la scheda del prodotto: es. "4 pacchetti da 100 g (400 g)", "500 g", "4 parti".
+    /// `nil` se non c'è niente da mostrare.
+    static func confezioneEstesa(parti: Int, quantitaPerParte: Double?, unita: Unita?, tipoParte: TipoParte?) -> String? {
+        let perParte = quantita(quantitaPerParte, unita: unita)
+        guard parti > 1 else { return perParte }
+
+        let nome = tipoParte.map { String(localized: $0.nomePlurale) } ?? String(localized: "parti")
+        guard let perParte, let quantitaPerParte,
+              let totale = quantita(quantitaPerParte * Double(parti), unita: unita) else {
+            return String(localized: "\(parti) \(nome)")
+        }
+        return String(localized: "\(parti) \(nome) da \(perParte) (\(totale))")
+    }
 }

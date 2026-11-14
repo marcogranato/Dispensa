@@ -46,6 +46,9 @@ struct DettaglioProdottoView: View {
     private var contenuto: some View {
         Form {
             Section {
+                LabeledContent("Categoria") {
+                    Text(prodotto.categoria?.percorsoTestuale ?? String(localized: "Senza categoria"))
+                }
                 LabeledContent("Marca") {
                     Text(prodotto.marca ?? String(localized: "Non indicata"))
                 }
@@ -53,11 +56,23 @@ struct DettaglioProdottoView: View {
                     Text(prodotto.codiceBarre ?? String(localized: "Non indicato"))
                 }
                 LabeledContent("Confezione") {
-                    Text(Formattazione.confezione(
+                    Text(Formattazione.confezioneEstesa(
                         parti: prodotto.partiPerConfezione,
                         quantitaPerParte: prodotto.quantitaPerParte,
-                        unita: prodotto.unita
+                        unita: prodotto.unita,
+                        tipoParte: prodotto.tipoParte
                     ) ?? String(localized: "Non indicata"))
+                }
+            }
+
+            if let descrizione = prodotto.descrizione {
+                Section("Descrizione") {
+                    Text(descrizione)
+                }
+            }
+            if let note = prodotto.note {
+                Section("Note personali") {
+                    Text(note)
                 }
             }
 
