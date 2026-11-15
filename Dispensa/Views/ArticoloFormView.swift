@@ -7,7 +7,8 @@ import SwiftUI
 import SwiftData
 
 /// Modulo per aggiungere articoli (`articolo == nil`) o modificarne uno esistente.
-/// Il prodotto si sceglie scrivendo il nome: se non esiste, viene creato al salvataggio.
+/// Il prodotto si sceglie scrivendo nome e marca: se non esiste, viene creato al salvataggio,
+/// con la categoria e il tipo di parte indicati qui.
 struct ArticoloFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -16,6 +17,12 @@ struct ArticoloFormView: View {
     let articolo: Articolo?
 
     @State private var nomeProdotto: String
+    @State private var marca: String
+    /// Solo per un prodotto nuovo.
+    @State private var categoria: Categoria?
+    /// Solo per un prodotto nuovo con più parti.
+    @State private var tipoParte: TipoParte?
+    @State private var mostraNuovaCategoria = false
     @State private var dati: DatiArticolo
     @State private var struttura: Struttura?
     @State private var partiRimaste: Int
@@ -26,6 +33,7 @@ struct ArticoloFormView: View {
         self.dispensa = dispensa
         self.articolo = articolo
         _nomeProdotto = State(initialValue: articolo?.prodotto?.nome ?? "")
+        _marca = State(initialValue: articolo?.prodotto?.marca ?? "")
         _dati = State(initialValue: articolo.map { DatiArticolo(articolo: $0) } ?? DatiArticolo())
         _struttura = State(initialValue: articolo?.struttura ?? struttura)
         _partiRimaste = State(initialValue: articolo?.partiRimaste ?? 1)
@@ -35,8 +43,17 @@ struct ArticoloFormView: View {
         nomeProdotto.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var marcaPulita: String {
+        marca.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var prodottoEsistente: Prodotto? {
-        dispensa.prodotto(nominato: nomePulito)
+        dispensa.prodotto(nominato: nomePulito, marca: marcaPulita)
+    }
+
+    /// Vero quando al salvataggio verrà creato un nuovo prodotto.
+    private var prodottoNuovo: Bool {
+        !nomePulito.isEmpty && prodottoEsistente == nil
     }
 
     /// Prodotti che contengono il testo scritto (al massimo 5), escluso quello già scelto.
@@ -44,7 +61,7 @@ struct ArticoloFormView: View {
         guard nomeInModifica, !nomePulito.isEmpty else { return [] }
         return (dispensa.prodotti ?? [])
             .filter { $0.nome.localizedStandardContains(nomePulito) && $0 !== prodottoEsistente }
-            .sorted { $0.nome.localizedStandardCompare($1.nome) == .orderedAscending }
+            .sorted { $0.nomeConMarca.localizedStandardCompare($1.nomeConMarca) == .orderedAscending }
             .prefix(5)
             .map { $0 }
     }
@@ -75,6 +92,17 @@ struct ArticoloFormView: View {
             .onChange(of: dati.partiTotali) {
                 partiRimaste = min(partiRimaste, dati.partiTotali)
             }
+            .onChange(of: nomePulito) {
+                proponiDaOmonimo()
+            }
+            .onChange(of: marcaPulita) {
+                proponiDaOmonimo()
+            }
+            .sheet(isPresented: $mostraNuovaCategoria) {
+                CategoriaFormView(dispensa: dispensa) { nuova in
+                    categoria = nuova
+                }
+            }
         }
 #if os(macOS)
         .frame(minWidth: 440, minHeight: 560)
@@ -90,14 +118,41 @@ struct ArticoloFormView: View {
                 Button {
                     scegli(prodotto)
                 } label: {
-                    Label(prodotto.nome, systemImage: "arrow.up.left")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text(prodotto.nomeConMarca)
+                            if let categoria = prodotto.categoria {
+                                Text(categoria.percorsoTestuale)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } icon: {
+                        Image(systemName: "arrow.up.left")
+                    }
                 }
+            }
+            TextField("Marca", text: $marca, prompt: Text("Marca (facoltativa)"))
+            if prodottoNuovo {
+                PickerCategoria(
+                    titolo: "Categoria",
+                    selezione: $categoria,
+                    categorie: dispensa.categorieInOrdine,
+                    etichettaNessuna: "Nessuna"
+                )
+                Button("Nuova categoria…", systemImage: "plus") { mostraNuovaCategoria = true }
             }
         } header: {
             Text("Prodotto")
         } footer: {
-            if !nomePulito.isEmpty, prodottoEsistente == nil {
-                Text("Verrà creato il nuovo prodotto «\(nomePulito)».")
+            if prodottoNuovo {
+                if marcaPulita.isEmpty {
+                    Text("Verrà creato il nuovo prodotto «\(nomePulito)».")
+                } else {
+                    Text("Verrà creato il nuovo prodotto «\(nomePulito)» (\(marcaPulita)).")
+                }
+            } else if let categoria = prodottoEsistente?.categoria {
+                Text("Categoria: \(categoria.percorsoTestuale)")
             }
         }
     }
@@ -121,6 +176,14 @@ struct ArticoloFormView: View {
             Stepper(value: $dati.partiTotali, in: 1...100) {
                 LabeledContent("Parti per confezione") {
                     Text(dati.partiTotali, format: .number)
+                }
+            }
+            if prodottoNuovo, dati.partiTotali > 1 {
+                Picker("Tipo di parte", selection: $tipoParte) {
+                    Text("Non indicato").tag(nil as TipoParte?)
+                    ForEach(TipoParte.allCases) { tipo in
+                        Text(tipo.nomeSingolare).tag(tipo as TipoParte?)
+                    }
                 }
             }
             if articolo != nil, dati.partiTotali > 1 {
@@ -192,6 +255,7 @@ struct ArticoloFormView: View {
     /// Sceglie un prodotto suggerito; per un nuovo articolo propone i valori della sua confezione.
     private func scegli(_ prodotto: Prodotto) {
         nomeProdotto = prodotto.nome
+        marca = prodotto.marca ?? ""
         nomeInModifica = false
         if articolo == nil {
             var proposti = DatiArticolo(prodotto: prodotto)
@@ -202,12 +266,27 @@ struct ArticoloFormView: View {
         }
     }
 
+    /// Per un prodotto nuovo con lo stesso nome di uno esistente (es. un'altra marca),
+    /// propone la sua categoria e il suo tipo di parte.
+    private func proponiDaOmonimo() {
+        guard prodottoNuovo, let omonimo = dispensa.prodottoOmonimo(nominato: nomePulito) else { return }
+        categoria = omonimo.categoria
+        tipoParte = omonimo.tipoParte
+    }
+
     private func salva() {
         guard let struttura else { return }
         if let quantita = dati.quantitaPerParte, quantita <= 0 {
             dati.quantitaPerParte = nil
         }
-        let prodotto = modelContext.trovaOCreaProdotto(nominato: nomePulito, in: dispensa, dati: dati)
+        let prodotto = modelContext.trovaOCreaProdotto(
+            nominato: nomePulito,
+            marca: marcaPulita,
+            in: dispensa,
+            dati: dati,
+            categoria: categoria,
+            tipoParte: tipoParte
+        )
         if let articolo {
             dati.applica(a: articolo)
             articolo.partiRimaste = min(partiRimaste, dati.partiTotali)

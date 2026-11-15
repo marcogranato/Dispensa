@@ -14,15 +14,23 @@ struct CategoriaFormView: View {
     let dispensa: Dispensa
     /// `nil` per creare una nuova categoria.
     let categoria: Categoria?
+    /// Chiamato con la categoria appena creata (es. per sceglierla subito nel modulo dell'articolo).
+    let alSalvataggio: ((Categoria) -> Void)?
 
     @State private var nome: String
     @State private var icona: String
     @State private var genitore: Categoria?
     @State private var errore: ErroreGestioneCategorie?
 
-    init(dispensa: Dispensa, categoria: Categoria? = nil, genitore: Categoria? = nil) {
+    init(
+        dispensa: Dispensa,
+        categoria: Categoria? = nil,
+        genitore: Categoria? = nil,
+        alSalvataggio: ((Categoria) -> Void)? = nil
+    ) {
         self.dispensa = dispensa
         self.categoria = categoria
+        self.alSalvataggio = alSalvataggio
         _nome = State(initialValue: categoria?.nome ?? "")
         _icona = State(initialValue: categoria?.icona ?? "")
         _genitore = State(initialValue: categoria?.genitore ?? genitore)
@@ -102,7 +110,8 @@ struct CategoriaFormView: View {
             if let categoria {
                 try modelContext.modificaCategoria(categoria, nome: nome, icona: icona, sotto: genitore)
             } else {
-                try modelContext.creaCategoria(nome: nome, icona: icona, sotto: genitore, in: dispensa)
+                let nuova = try modelContext.creaCategoria(nome: nome, icona: icona, sotto: genitore, in: dispensa)
+                alSalvataggio?(nuova)
             }
             dismiss()
         } catch let errore as ErroreGestioneCategorie {

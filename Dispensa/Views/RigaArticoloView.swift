@@ -6,7 +6,7 @@
 import SwiftUI
 import SwiftData
 
-/// Riga di un articolo negli elenchi: nome, parti e quantità, scadenza evidenziata.
+/// Riga di un articolo negli elenchi: nome, marca, parti e quantità, scadenza evidenziata.
 struct RigaArticoloView: View {
     let articolo: Articolo
 
@@ -15,7 +15,8 @@ struct RigaArticoloView: View {
             ? String(localized: "\(articolo.partiRimaste) di \(articolo.partiTotali)")
             : nil
         let quantita = Formattazione.quantita(articolo.quantitaPerParte, unita: articolo.unita)
-        let testo = [parti, quantita].compactMap { $0 }.joined(separator: " · ")
+        // La marca distingue articoli dello stesso prodotto di marche diverse (es. Penne rigate Barilla e De Cecco).
+        let testo = [articolo.prodotto?.marca, parti, quantita].compactMap { $0 }.joined(separator: " · ")
         return testo.isEmpty ? nil : testo
     }
 

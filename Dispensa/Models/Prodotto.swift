@@ -48,6 +48,12 @@ final class Prodotto {
         set { tipoParteRaw = newValue?.rawValue }
     }
 
+    /// Es. "Penne rigate · Barilla", o solo il nome se la marca manca.
+    var nomeConMarca: String {
+        guard let marca, !marca.isEmpty else { return nome }
+        return "\(nome) · \(marca)"
+    }
+
     /// Confezione composta da più parti (es. 4 pacchetti di biscotti).
     var isMultipack: Bool { partiPerConfezione > 1 }
 

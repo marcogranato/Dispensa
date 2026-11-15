@@ -35,6 +35,14 @@ struct CategorieView: View {
                 ForEach(dispensa.categorieInOrdine) { categoria in
                     riga(categoria)
                 }
+#if os(macOS)
+                // Sul Mac le finestre sovrapposte mostrano solo i pulsanti di conferma e annullamento:
+                // il "+" della barra non comparirebbe.
+                if !(dispensa.categorie?.isEmpty ?? true) {
+                    Button("Nuova categoria", systemImage: "plus") { modulo = .nuova(genitore: nil) }
+                        .buttonStyle(.borderless)
+                }
+#endif
             }
             .navigationTitle("Categorie")
             .overlay {
@@ -112,6 +120,20 @@ struct CategorieView: View {
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
                 .accessibilityLabel(Text("Prodotti: \(prodotti)"))
+#if os(macOS)
+            // Sul Mac il menu contestuale (clic destro) non si vede: le azioni sono anche in un pulsante visibile.
+            Menu {
+                pulsanteAggiungiSottocategoria(categoria)
+                pulsanteModifica(categoria)
+                pulsanteElimina(categoria)
+            } label: {
+                Label("Azioni", systemImage: "ellipsis.circle")
+                    .labelStyle(.iconOnly)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+#endif
         }
         .padding(.leading, CGFloat(categoria.livello - 1) * 24)
         .contentShape(Rectangle())

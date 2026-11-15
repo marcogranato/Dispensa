@@ -96,6 +96,37 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// Due articoli con lo stesso nome e marche diverse diventano due prodotti distinti.
+    @MainActor
+    func testProdottiDiMarcheDiverse() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+
+        for marca in ["Barilla", "De Cecco"] {
+            app.buttons["Aggiungi articolo"].tap()
+            scrivi("Penne", nelPrimoCampoDi: app)
+            scrivi(marca, nelCampoConEsempio: "Marca (facoltativa)", in: app)
+            XCTAssertTrue(app.staticTexts["Verrà creato il nuovo prodotto «Penne» (\(marca))."].waitForExistence(timeout: 5))
+            app.buttons["Salva"].tap()
+        }
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
+
+        apri(scheda: "Prodotti", in: app)
+        let righe = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Penne"))
+        XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(righe.count, 2)
+        allegaScreenshot(app)
+    }
+
+    /// Scrive in un campo trovato dal suo testo di esempio (placeholder).
+    @MainActor
+    private func scrivi(_ testo: String, nelCampoConEsempio esempio: String, in app: XCUIApplication) {
+        let campo = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", esempio)).firstMatch
+        XCTAssertTrue(campo.waitForExistence(timeout: 5))
+        campo.tap()
+        campo.typeText(testo)
+    }
+
     /// Aggiunge un articolo da 6 parti, ne preleva una e butta il resto: l'articolo esce dalla dispensa.
     @MainActor
     func testPrelevaEButta() throws {
@@ -181,6 +212,24 @@ final class DispensaUITests: XCTestCase {
 
         app.navigationBars["Pasta"].buttons["Modifica"].tap()
         XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
+    }
+
+    /// Un prodotto senza articoli si elimina dalla sua scheda, senza conferma, e si torna all'elenco.
+    @MainActor
+    func testEliminaProdottoDallaScheda() throws {
+        let app = avviaConDispensa()
+
+        apri(scheda: "Prodotti", in: app)
+        app.buttons["Aggiungi un prodotto"].tap()
+        scrivi("Pasta", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        tocca(rigaCheIniziaCon: "Pasta", in: app)
+        let elimina = app.buttons["Elimina prodotto"]
+        XCTAssertTrue(elimina.waitForExistence(timeout: 5))
+        elimina.tap()
+
+        XCTAssertTrue(app.buttons["Aggiungi un prodotto"].waitForExistence(timeout: 5))
     }
 
     /// Un articolo aggiunto in una struttura compare nella scheda Articoli, con la sua struttura, e si apre.

@@ -45,27 +45,56 @@ struct DatiArticolo {
 }
 
 extension Dispensa {
-    /// Il prodotto con questo nome (senza distinguere maiuscole e accenti), se esiste.
-    func prodotto(nominato nome: String) -> Prodotto? {
-        let nome = nome.trimmingCharacters(in: .whitespacesAndNewlines)
-        return (prodotti ?? []).first {
-            $0.nome.compare(nome, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+    /// Il prodotto con questo nome e questa marca, se esiste. Maiuscole, accenti e spazi non contano;
+    /// una marca vuota corrisponde solo ai prodotti senza marca.
+    func prodotto(nominato nome: String, marca: String?) -> Prodotto? {
+        (prodotti ?? []).first {
+            Self.testoEquivalente($0.nome, nome) && Self.testoEquivalente($0.marca, marca)
         }
+    }
+
+    /// Un prodotto con lo stesso nome, di qualunque marca, da cui copiare categoria e tipo di parte.
+    /// Preferisce quelli già classificati.
+    func prodottoOmonimo(nominato nome: String) -> Prodotto? {
+        let omonimi = (prodotti ?? []).filter { Self.testoEquivalente($0.nome, nome) }
+        return omonimi.first { $0.categoria != nil } ?? omonimi.first
+    }
+
+    /// Vero se i due testi sono uguali senza contare maiuscole, accenti e spazi ai lati;
+    /// `nil` e testo vuoto sono equivalenti.
+    static func testoEquivalente(_ primo: String?, _ secondo: String?) -> Bool {
+        let a = primo?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let b = secondo?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return a.compare(b, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
     }
 }
 
 extension ModelContext {
-    /// Restituisce il prodotto con questo nome; se non esiste lo crea, usando `dati` come valori predefiniti.
-    func trovaOCreaProdotto(nominato nome: String, in dispensa: Dispensa, dati: DatiArticolo) -> Prodotto {
-        if let esistente = dispensa.prodotto(nominato: nome) {
+    /// Restituisce il prodotto con questo nome e questa marca; se non esiste lo crea, usando `dati`
+    /// come confezione predefinita e la categoria e il tipo di parte indicati.
+    /// Un prodotto nuovo prende l'emoji di un prodotto con lo stesso nome, se ce n'è uno.
+    func trovaOCreaProdotto(
+        nominato nome: String,
+        marca: String? = nil,
+        in dispensa: Dispensa,
+        dati: DatiArticolo,
+        categoria: Categoria? = nil,
+        tipoParte: TipoParte? = nil
+    ) -> Prodotto {
+        if let esistente = dispensa.prodotto(nominato: nome, marca: marca) {
             return esistente
         }
+        let marca = marca?.trimmingCharacters(in: .whitespacesAndNewlines)
         let nuovo = Prodotto(nome: nome.trimmingCharacters(in: .whitespacesAndNewlines))
+        nuovo.marca = (marca?.isEmpty ?? true) ? nil : marca
         nuovo.partiPerConfezione = dati.partiTotali
         nuovo.quantitaPerParte = dati.quantitaPerParte
         nuovo.unita = dati.unita
+        nuovo.tipoParte = dati.partiTotali > 1 ? tipoParte : nil
+        nuovo.icona = dispensa.prodottoOmonimo(nominato: nome)?.icona
         insert(nuovo)
         nuovo.dispensa = dispensa
+        nuovo.categoria = categoria
         return nuovo
     }
 

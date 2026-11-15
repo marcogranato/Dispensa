@@ -66,6 +66,67 @@ struct AggiuntaArticoliTests {
         #expect(prodotto.unita == .grammi)
     }
 
+    // MARK: - Nome e marca
+
+    private func creaProdotto(_ nome: String, marca: String? = nil) -> Prodotto {
+        let prodotto = Prodotto(nome: nome)
+        prodotto.marca = marca
+        context.insert(prodotto)
+        prodotto.dispensa = dispensa
+        return prodotto
+    }
+
+    @Test func ilProdottoSiRiconosceDaNomeEMarca() {
+        let barilla = creaProdotto("Penne rigate", marca: "Barilla")
+        let senzaMarca = creaProdotto("Penne rigate")
+
+        #expect(context.trovaOCreaProdotto(nominato: "penne RIGATE", marca: " barilla ", in: dispensa, dati: DatiArticolo()) === barilla)
+        #expect(context.trovaOCreaProdotto(nominato: "Penne rigate", marca: "", in: dispensa, dati: DatiArticolo()) === senzaMarca)
+        #expect(context.trovaOCreaProdotto(nominato: "Penne rigate", in: dispensa, dati: DatiArticolo()) === senzaMarca)
+
+        let deCecco = context.trovaOCreaProdotto(nominato: "Penne rigate", marca: " De Cecco ", in: dispensa, dati: DatiArticolo())
+        #expect(deCecco !== barilla && deCecco !== senzaMarca)
+        #expect(deCecco.marca == "De Cecco")
+        #expect(dispensa.prodotti?.count == 3)
+    }
+
+    @Test func ilProdottoNuovoPrendeCategoriaTipoDiParteEdEmoji() throws {
+        let pasta = try context.creaCategoria(nome: "Pasta secca", sotto: nil, in: dispensa)
+        let barilla = creaProdotto("Penne rigate", marca: "Barilla")
+        barilla.icona = "🍝"
+        var dati = DatiArticolo()
+        dati.partiTotali = 2
+
+        let deCecco = context.trovaOCreaProdotto(
+            nominato: "Penne rigate", marca: "De Cecco", in: dispensa, dati: dati,
+            categoria: pasta, tipoParte: .pacchetto
+        )
+
+        #expect(deCecco.categoria === pasta)
+        #expect(deCecco.tipoParte == .pacchetto)
+        #expect(deCecco.icona == "🍝")
+    }
+
+    @Test func ilTipoDiParteSiIgnoraPerUnaParteSola() {
+        let prodotto = context.trovaOCreaProdotto(nominato: "Latte", in: dispensa, dati: DatiArticolo(), tipoParte: .bottiglia)
+        #expect(prodotto.tipoParte == nil)
+    }
+
+    @Test func lOmonimoPreferitoEQuelloClassificato() throws {
+        let pasta = try context.creaCategoria(nome: "Pasta secca", sotto: nil, in: dispensa)
+        _ = creaProdotto("Penne rigate", marca: "Rummo")
+        let classificato = creaProdotto("Penne rigate", marca: "Barilla")
+        classificato.categoria = pasta
+
+        #expect(dispensa.prodottoOmonimo(nominato: "penne rigate") === classificato)
+        #expect(dispensa.prodottoOmonimo(nominato: "Fusilli") == nil)
+    }
+
+    @Test func nomeConMarca() {
+        #expect(creaProdotto("Penne rigate", marca: "Barilla").nomeConMarca == "Penne rigate · Barilla")
+        #expect(creaProdotto("Latte").nomeConMarca == "Latte")
+    }
+
     @Test func aggiungeConfezioniUguali() throws {
         let prodotto = Prodotto(nome: "Latte")
         context.insert(prodotto)

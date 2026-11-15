@@ -16,6 +16,7 @@ struct DettaglioProdottoView: View {
     @State private var mostraModifica = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
+    @State private var prodottoDaEliminare: Prodotto?
 
     /// Vero quando il prodotto è stato eliminato.
     private var eliminato: Bool {
@@ -87,10 +88,16 @@ struct DettaglioProdottoView: View {
                     Text("Articoli nello storico: \(nelloStorico)")
                 }
             }
+
+            Section {
+                Button("Elimina prodotto", systemImage: "trash", role: .destructive) { prodottoDaEliminare = prodotto }
+                    .tint(.red)
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(prodotto.nome)
         .azioniArticolo($azione, daEliminare: $daEliminare)
+        .eliminazioneProdotto($prodottoDaEliminare)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Modifica") { mostraModifica = true }

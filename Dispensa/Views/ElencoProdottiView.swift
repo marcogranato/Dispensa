@@ -8,7 +8,6 @@ import SwiftData
 
 /// Catalogo dei prodotti di una dispensa, con ricerca.
 struct ElencoProdottiView: View {
-    @Environment(\.modelContext) private var modelContext
     let dispensa: Dispensa
 
     @State private var ricerca = ""
@@ -16,7 +15,6 @@ struct ElencoProdottiView: View {
     @State private var mostraCategorie = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
-    @State private var errore: ErroreGestioneArticoli?
 
     private var prodotti: [Prodotto] {
         let testo = ricerca.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -69,31 +67,7 @@ struct ElencoProdottiView: View {
         .sheet(item: $prodottoInModifica) { prodotto in
             ProdottoFormView(dispensa: dispensa, prodotto: prodotto)
         }
-        .confirmationDialog(
-            "Eliminare il prodotto?",
-            isPresented: Binding(
-                get: { prodottoDaEliminare != nil },
-                set: { if !$0 { prodottoDaEliminare = nil } }
-            ),
-            titleVisibility: .visible,
-            presenting: prodottoDaEliminare
-        ) { prodotto in
-            Button("Elimina", role: .destructive) { elimina(prodotto) }
-        } message: { prodotto in
-            Text("Articoli di «\(prodotto.nome)» nello storico: \(prodotto.articoli?.count ?? 0). Verranno eliminati anche loro.")
-        }
-        .alert(
-            "Impossibile eliminare",
-            isPresented: Binding(
-                get: { errore != nil },
-                set: { if !$0 { errore = nil } }
-            ),
-            presenting: errore
-        ) { _ in
-            Button("OK") {}
-        } message: { errore in
-            Text(errore.localizedDescription)
-        }
+        .eliminazioneProdotto($prodottoDaEliminare)
     }
 
     private func riga(_ prodotto: Prodotto) -> some View {
@@ -142,26 +116,7 @@ struct ElencoProdottiView: View {
     }
 
     private func pulsanteElimina(_ prodotto: Prodotto) -> some View {
-        Button("Elimina", systemImage: "trash", role: .destructive) {
-            let articoli = prodotto.articoli ?? []
-            if articoli.contains(where: { $0.stato == .attivo }) {
-                errore = .prodottoConArticoliPresenti
-            } else if articoli.isEmpty {
-                elimina(prodotto)
-            } else {
-                prodottoDaEliminare = prodotto
-            }
-        }
-    }
-
-    private func elimina(_ prodotto: Prodotto) {
-        do {
-            try modelContext.eliminaProdotto(prodotto)
-        } catch let errore as ErroreGestioneArticoli {
-            self.errore = errore
-        } catch {
-            assertionFailure("Errore inatteso: \(error)")
-        }
+        Button("Elimina", systemImage: "trash", role: .destructive) { prodottoDaEliminare = prodotto }
     }
 }
 

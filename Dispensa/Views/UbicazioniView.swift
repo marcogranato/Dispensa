@@ -46,6 +46,12 @@ struct UbicazioniView: View {
                     ForEach(ubicazioni) { ubicazione in
                         riga(ubicazione)
                     }
+#if os(macOS)
+                    // Sul Mac le finestre sovrapposte mostrano solo i pulsanti di conferma e annullamento:
+                    // il "+" della barra non comparirebbe.
+                    Button("Nuova ubicazione", systemImage: "plus") { apriAlertNome(per: nil) }
+                        .buttonStyle(.borderless)
+#endif
                 } footer: {
                     if ubicazioni.isEmpty {
                         Text("Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti.")

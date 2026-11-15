@@ -49,6 +49,12 @@ struct ProdottoFormView: View {
 
     private var multipack: Bool { partiPerConfezione > 1 }
 
+    /// Un altro prodotto con lo stesso nome e la stessa marca: non se ne possono avere due.
+    private var duplicato: Prodotto? {
+        guard let trovato = dispensa.prodotto(nominato: nomePulito, marca: marca), trovato !== prodotto else { return nil }
+        return trovato
+    }
+
     /// Es. "400 g" per 4 parti da 100 g; `nil` se non serve mostrarla.
     private var quantitaTotale: String? {
         guard multipack, let quantitaPerParte, quantitaPerParte > 0 else { return nil }
@@ -71,7 +77,7 @@ struct ProdottoFormView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Salva", action: salva)
-                        .disabled(nomePulito.isEmpty)
+                        .disabled(nomePulito.isEmpty || duplicato != nil)
                 }
             }
         }
@@ -105,7 +111,10 @@ struct ProdottoFormView: View {
         } header: {
             Text("Identificazione e classificazione")
         } footer: {
-            if icona.isEmpty, let ereditata = categoria?.iconaEffettiva {
+            if let duplicato {
+                Label("Esiste già il prodotto «\(duplicato.nomeConMarca)». Cambia il nome o la marca.", systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.red)
+            } else if icona.isEmpty, let ereditata = categoria?.iconaEffettiva {
                 Text("Senza emoji si usa quella della categoria: \(ereditata). La lettura del codice con la fotocamera arriverà in seguito.")
             } else {
                 Text("La lettura del codice con la fotocamera arriverà in seguito.")
