@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "it",
   "strings" : {
+    "%@ (dalla categoria superiore)" : {
+
+    },
     "%@ %@" : {
       "localizations" : {
         "it" : {
@@ -11,8 +14,25 @@
         }
       }
     },
-    "%lld" : {
-
+    "%lld %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "%lld %@ da %@ (%@)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@ da %3$@ (%4$@)"
+          }
+        }
+      }
     },
     "%lld × %@" : {
       "localizations" : {
@@ -46,10 +66,25 @@
     "Aggiungi frigorifero, congelatore, scaffali e gli altri spazi dove conservi il cibo." : {
 
     },
+    "Aggiungi sottocategoria" : {
+
+    },
+    "Aggiungi struttura" : {
+
+    },
     "Aggiungi un prodotto" : {
 
     },
+    "Aggiungi una categoria" : {
+
+    },
     "Aggiungi una struttura" : {
+
+    },
+    "Allo stesso livello esiste già una categoria con questo nome." : {
+
+    },
+    "Altre informazioni" : {
 
     },
     "Altro" : {
@@ -93,6 +128,24 @@
     "Avariato" : {
 
     },
+    "Bottiglia" : {
+
+    },
+    "bottiglie" : {
+
+    },
+    "brick" : {
+
+    },
+    "Brick" : {
+
+    },
+    "Bustina" : {
+
+    },
+    "bustine" : {
+
+    },
     "Butta" : {
 
     },
@@ -117,6 +170,15 @@
     "Categoria" : {
 
     },
+    "Categoria eliminata" : {
+
+    },
+    "Categoria: %@" : {
+
+    },
+    "Categorie" : {
+
+    },
     "Cerca per nome" : {
 
     },
@@ -132,7 +194,13 @@
     "Codice a barre o QR (facoltativo)" : {
 
     },
+    "Confezionamento" : {
+
+    },
     "Confezione" : {
+
+    },
+    "confezioni" : {
 
     },
     "Confezioni da aggiungere" : {
@@ -168,6 +236,15 @@
     "Date" : {
 
     },
+    "Dentro" : {
+
+    },
+    "Descrizione" : {
+
+    },
+    "Descrizione (facoltativa)" : {
+
+    },
     "Disattivare lo storico?" : {
 
     },
@@ -186,13 +263,22 @@
     "Elimina articolo" : {
 
     },
+    "Elimina categoria" : {
+
+    },
     "Elimina dallo storico" : {
 
     },
     "Elimina lo storico esistente" : {
 
     },
+    "Elimina prodotto" : {
+
+    },
     "Elimina selezionati (%lld)" : {
+
+    },
+    "Elimina ubicazione" : {
 
     },
     "Eliminare il prodotto?" : {
@@ -204,13 +290,19 @@
     "Eliminare l'ubicazione?" : {
 
     },
+    "Eliminare la categoria?" : {
+
+    },
     "Eliminare la dispensa?" : {
 
     },
     "Eliminare la struttura?" : {
 
     },
-    "Es. Biscotti, Latte, Acqua" : {
+    "Emoji" : {
+
+    },
+    "Emoji (facoltativa)" : {
 
     },
     "Es. Casa, Casa al mare" : {
@@ -222,6 +314,12 @@
     "Es. Latte, Biscotti" : {
 
     },
+    "Es. Penne rigate, Latte, Acqua" : {
+
+    },
+    "Esiste già il prodotto «%@». Cambia il nome o la marca." : {
+
+    },
     "Estraibile" : {
 
     },
@@ -231,7 +329,7 @@
     "Facoltative" : {
 
     },
-    "Fine" : {
+    "Fino a tre livelli: categoria, sottocategoria e tipologia." : {
 
     },
     "Frigorifero" : {
@@ -255,10 +353,10 @@
     "Grammi" : {
 
     },
-    "Hashtag" : {
+    "I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa." : {
 
     },
-    "I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa." : {
+    "Identificazione e classificazione" : {
 
     },
     "Il numero di parti non è valido." : {
@@ -268,6 +366,9 @@
 
     },
     "Impossibile eliminare" : {
+
+    },
+    "Impossibile salvare" : {
 
     },
     "In dispensa" : {
@@ -291,6 +392,9 @@
     "L'articolo non è più in dispensa." : {
 
     },
+    "La categoria appartiene a un'altra dispensa." : {
+
+    },
     "La confezione sarà vuota e passerà nello storico." : {
 
     },
@@ -300,13 +404,25 @@
     "La confezione verrà divisa: le parti spostate diventano un nuovo articolo con le stesse date." : {
 
     },
-    "La lettura con la fotocamera arriverà in seguito." : {
+    "La lettura del codice con la fotocamera arriverà in seguito." : {
 
     },
     "La struttura appartiene a un'altra dispensa." : {
 
     },
     "La struttura originale non esiste più: scegline un'altra." : {
+
+    },
+    "Lattina" : {
+
+    },
+    "lattine" : {
+
+    },
+    "Le categorie possono avere al massimo tre livelli: categoria, sottocategoria e tipologia." : {
+
+    },
+    "Le categorie raggruppano i prodotti, fino a tre livelli: per esempio Pasta e riso ▸ Pasta secca ▸ Pasta di semola." : {
 
     },
     "Litri" : {
@@ -333,6 +449,9 @@
     "Modifica articolo" : {
 
     },
+    "Modifica categoria" : {
+
+    },
     "Modifica dispensa" : {
 
     },
@@ -352,6 +471,12 @@
 
     },
     "Nessuna" : {
+
+    },
+    "Nessuna (categoria principale)" : {
+
+    },
+    "Nessuna categoria" : {
 
     },
     "Nessuna dispensa" : {
@@ -381,6 +506,18 @@
     "Note" : {
 
     },
+    "Note personali" : {
+
+    },
+    "Note personali (facoltative)" : {
+
+    },
+    "Nuova categoria" : {
+
+    },
+    "Nuova categoria…" : {
+
+    },
     "Nuova dispensa" : {
 
     },
@@ -403,6 +540,15 @@
 
     },
     "Operazione non riuscita" : {
+
+    },
+    "pacchetti" : {
+
+    },
+    "Pacchetto" : {
+
+    },
+    "parti" : {
 
     },
     "Parti" : {
@@ -430,7 +576,19 @@
     "Parti rimaste" : {
 
     },
+    "Per classificare un prodotto scegli questa categoria nella sua scheda." : {
+
+    },
+    "Per spostare qui una struttura esistente cambia l'ubicazione nella sua scheda." : {
+
+    },
+    "pezzi" : {
+
+    },
     "Pezzi" : {
+
+    },
+    "Pezzo" : {
 
     },
     "Preleva" : {
@@ -443,6 +601,9 @@
 
     },
     "Prodotti" : {
+
+    },
+    "Prodotti: %lld" : {
 
     },
     "Prodotto" : {
@@ -466,7 +627,19 @@
     "pz" : {
 
     },
+    "Quantità" : {
+
+    },
+    "Quantità e misura" : {
+
+    },
+    "Quantità netta" : {
+
+    },
     "Quantità per parte" : {
+
+    },
+    "Quantità totale" : {
 
     },
     "Qui compariranno gli articoli consumati o buttati." : {
@@ -514,16 +687,57 @@
     "Scaffale" : {
 
     },
+    "Scatoletta" : {
+
+    },
+    "scatolette" : {
+
+    },
     "Scegli" : {
 
     },
     "Scegli una struttura in cui rimettere l'articolo." : {
 
     },
+    "Scrivi il nome della categoria." : {
+
+    },
     "Se non indichi un nome, viene usato il tipo." : {
 
     },
+    "Senza categoria" : {
+
+    },
+    "Senza emoji si usa quella della categoria superiore: %@" : {
+
+    },
+    "Senza emoji si usa quella della categoria: %@. La lettura del codice con la fotocamera arriverà in seguito." : {
+
+    },
     "Senza ubicazione" : {
+
+    },
+    "Sottocategorie eliminate insieme: %lld. Prodotti che passeranno a «%@»: %lld." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sottocategorie eliminate insieme: %1$lld. Prodotti che passeranno a «%2$@»: %3$lld."
+          }
+        }
+      }
+    },
+    "Sottocategorie eliminate insieme: %lld. Prodotti che resteranno senza categoria: %lld." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sottocategorie eliminate insieme: %1$lld. Prodotti che resteranno senza categoria: %2$lld."
+          }
+        }
+      }
+    },
+    "Sottocategorie: %lld" : {
 
     },
     "Sposta" : {
@@ -553,6 +767,9 @@
     "Strutture collegate: %lld. Non verranno eliminate, ma resteranno senza ubicazione." : {
 
     },
+    "Strutture: %lld" : {
+
+    },
     "Suggerimenti" : {
 
     },
@@ -568,13 +785,22 @@
     "Tipo" : {
 
     },
+    "Tipo di parte" : {
+
+    },
     "Tipo personalizzato" : {
 
     },
     "Ubicazione" : {
 
     },
+    "Ubicazione eliminata" : {
+
+    },
     "Ubicazioni" : {
+
+    },
+    "Una categoria non può stare dentro sé stessa o una sua sottocategoria." : {
 
     },
     "Unità" : {
@@ -583,8 +809,30 @@
     "Usa Elimina solo per un articolo inserito per errore: non finirà nello storico. Per il cibo consumato o buttato usa Preleva o Butta." : {
 
     },
-    "Valori proposti quando aggiungi un articolo di questo prodotto. Es. una scatola di biscotti con 6 pacchi da 150 g." : {
+    "Valori proposti quando aggiungi un articolo di questo prodotto. Es. una scatola di biscotti con 4 pacchetti da 100 g." : {
 
+    },
+    "Vaschetta" : {
+
+    },
+    "vaschette" : {
+
+    },
+    "vasetti" : {
+
+    },
+    "Vasetto" : {
+
+    },
+    "Verrà creato il nuovo prodotto «%@» (%@)." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Verrà creato il nuovo prodotto «%1$@» (%2$@)."
+          }
+        }
+      }
     },
     "Verrà creato il nuovo prodotto «%@»." : {
 

@@ -24,20 +24,21 @@ struct StrutturaFormView: View {
     @State private var numeroCassetti: Int
     @State private var note: String
 
-    init(dispensa: Dispensa, struttura: Struttura? = nil) {
+    /// `ubicazione` è quella proposta per una nuova struttura.
+    init(dispensa: Dispensa, struttura: Struttura? = nil, ubicazione: Ubicazione? = nil) {
         self.dispensa = dispensa
         self.struttura = struttura
         _nome = State(initialValue: struttura?.nome ?? "")
         _tipo = State(initialValue: struttura?.tipo ?? .frigorifero)
         _tipoPersonalizzato = State(initialValue: struttura?.tipoPersonalizzato ?? "")
-        _ubicazione = State(initialValue: struttura?.ubicazione)
+        _ubicazione = State(initialValue: struttura?.ubicazione ?? ubicazione)
         _numeroRipiani = State(initialValue: struttura?.numeroRipiani ?? 0)
         _numeroCassetti = State(initialValue: struttura?.numeroCassetti ?? 0)
         _note = State(initialValue: struttura?.note ?? "")
     }
 
     private var ubicazioni: [Ubicazione] {
-        (dispensa.ubicazioni ?? []).sorted { $0.nome.localizedStandardCompare($1.nome) == .orderedAscending }
+        dispensa.ubicazioniOrdinate
     }
 
     private var tipoPersonalizzatoPulito: String {

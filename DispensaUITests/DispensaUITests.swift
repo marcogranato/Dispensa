@@ -238,6 +238,41 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Aggiungi una categoria"].waitForExistence(timeout: 5))
     }
 
+    /// Le ubicazioni si aprono dalla scheda Strutture; la scheda di un'ubicazione mostra le sue strutture
+    /// e ne crea di nuove già collegate.
+    @MainActor
+    func testUbicazioni() throws {
+        let app = avviaConDispensa()
+
+        let ubicazioni = app.buttons["Ubicazioni"]
+        XCTAssertTrue(ubicazioni.waitForExistence(timeout: 5))
+        ubicazioni.tap()
+        let suggerimento = app.buttons["Cucina"]
+        XCTAssertTrue(suggerimento.waitForExistence(timeout: 5))
+        suggerimento.tap()
+
+        tocca(rigaCheIniziaCon: "Cucina", in: app)
+        XCTAssertTrue(app.navigationBars["Cucina"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Strutture: 0"].exists)
+
+        app.buttons["Aggiungi struttura"].tap()
+        XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.staticTexts["Strutture: 1"].waitForExistence(timeout: 5))
+        allegaScreenshot(app)
+
+        // Con una struttura collegata l'eliminazione chiede conferma; poi si torna all'elenco.
+        app.buttons["Elimina ubicazione"].tap()
+        let conferma = app.buttons["Elimina"]
+        XCTAssertTrue(conferma.waitForExistence(timeout: 5))
+        conferma.tap()
+        XCTAssertTrue(app.navigationBars["Ubicazioni"].waitForExistence(timeout: 5))
+
+        // La struttura resta, senza ubicazione.
+        app.buttons["BackButton"].tap()
+        XCTAssertTrue(app.staticTexts["Senza ubicazione"].waitForExistence(timeout: 5))
+    }
+
     /// Un prodotto senza articoli si elimina dalla sua scheda, senza conferma, e si torna all'elenco.
     @MainActor
     func testEliminaProdottoDallaScheda() throws {

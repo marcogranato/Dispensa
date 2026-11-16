@@ -9,11 +9,11 @@ import SwiftData
 /// Strutture di una dispensa, raggruppate per ubicazione.
 struct ElencoStruttureView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.apriNellaPila) private var apri
 
     let dispensa: Dispensa
 
     @State private var mostraNuovaStruttura = false
-    @State private var mostraUbicazioni = false
     @State private var strutturaInModifica: Struttura?
     @State private var strutturaDaEliminare: Struttura?
 
@@ -68,7 +68,7 @@ struct ElencoStruttureView: View {
         }
         .toolbar {
             ToolbarItem {
-                Button("Ubicazioni", systemImage: "mappin.and.ellipse") { mostraUbicazioni = true }
+                Button("Ubicazioni", systemImage: "mappin.and.ellipse") { apri?(ElencoUbicazioni(dispensa: dispensa)) }
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuova struttura", systemImage: "plus") { mostraNuovaStruttura = true }
@@ -79,9 +79,6 @@ struct ElencoStruttureView: View {
         }
         .sheet(item: $strutturaInModifica) { struttura in
             StrutturaFormView(dispensa: dispensa, struttura: struttura)
-        }
-        .sheet(isPresented: $mostraUbicazioni) {
-            UbicazioniView(dispensa: dispensa)
         }
         .confirmationDialog(
             "Eliminare la struttura?",
@@ -100,25 +97,7 @@ struct ElencoStruttureView: View {
 
     private func riga(_ struttura: Struttura) -> some View {
         RigaNavigabile(valore: struttura) {
-            HStack {
-                Label {
-                    VStack(alignment: .leading) {
-                        Text(struttura.nome)
-                        if struttura.nomeTipo != struttura.nome {
-                            Text(struttura.nomeTipo)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                } icon: {
-                    Image(systemName: struttura.tipo.simbolo)
-                }
-                Spacer()
-                Text(struttura.articoliAttivi.count, format: .number)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .accessibilityLabel(Text("Articoli presenti: \(struttura.articoliAttivi.count)"))
-            }
+            RigaStrutturaView(struttura: struttura)
         }
         .contextMenu {
             pulsanteModifica(struttura)
@@ -147,6 +126,34 @@ struct ElencoStruttureView: View {
 
     private func elimina(_ struttura: Struttura) {
         modelContext.eliminaStruttura(struttura)
+    }
+}
+
+/// Riga di una struttura: simbolo, nome (con la tipologia se diversa) e numero di articoli presenti.
+struct RigaStrutturaView: View {
+    let struttura: Struttura
+
+    var body: some View {
+        HStack {
+            Label {
+                VStack(alignment: .leading) {
+                    Text(struttura.nome)
+                        .foregroundStyle(.primary)
+                    if struttura.nomeTipo != struttura.nome {
+                        Text(struttura.nomeTipo)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } icon: {
+                Image(systemName: struttura.tipo.simbolo)
+            }
+            Spacer()
+            Text(struttura.articoliAttivi.count, format: .number)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .accessibilityLabel(Text("Articoli presenti: \(struttura.articoliAttivi.count)"))
+        }
     }
 }
 

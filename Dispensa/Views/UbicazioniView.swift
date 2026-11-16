@@ -6,173 +6,106 @@
 import SwiftUI
 import SwiftData
 
-/// Gestione delle ubicazioni (cucina, cantina, …) di una dispensa.
+/// Valore di navigazione per aprire l'elenco delle ubicazioni di una dispensa (vedi `PilaDiNavigazione`).
+struct ElencoUbicazioni: Hashable {
+    let dispensa: Dispensa
+}
+
+/// Ubicazioni (cucina, cantina, …) di una dispensa, aperte dalla scheda Strutture.
+/// Il clic su un'ubicazione apre la sua scheda; rinomina ed eliminazione anche da scorrimento e menu contestuale.
 struct UbicazioniView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
 
     let dispensa: Dispensa
 
-    @State private var mostraAlertNome = false
-    /// Ubicazione da rinominare; `nil` quando se ne crea una nuova.
-    @State private var ubicazioneInModifica: Ubicazione?
-    @State private var nomeInserito = ""
+    @State private var nome: NomeUbicazione?
     @State private var ubicazioneDaEliminare: Ubicazione?
 
     private static let suggerimenti: [LocalizedStringResource] = [
         "Cucina", "Cantina", "Salone", "Ripostiglio", "Garage", "Taverna", "Giardino",
     ]
 
-    private var ubicazioni: [Ubicazione] {
-        (dispensa.ubicazioni ?? []).sorted { $0.nome.localizedStandardCompare($1.nome) == .orderedAscending }
-    }
-
     private var suggerimentiDisponibili: [String] {
-        Self.suggerimenti.map { String(localized: $0) }.filter { !esiste($0) }
-    }
-
-    private var nomePulito: String {
-        nomeInserito.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var nomeValido: Bool {
-        !nomePulito.isEmpty && !esiste(nomePulito, escludendo: ubicazioneInModifica)
+        Self.suggerimenti.map { String(localized: $0) }.filter { !dispensa.esisteUbicazione(nominata: $0) }
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach(ubicazioni) { ubicazione in
-                        riga(ubicazione)
+        let ubicazioni = dispensa.ubicazioniOrdinate
+        List {
+            Section {
+                ForEach(ubicazioni) { ubicazione in
+                    RigaNavigabile(valore: ubicazione) {
+                        RigaUbicazioneView(ubicazione: ubicazione)
                     }
-#if os(macOS)
-                    // Sul Mac le finestre sovrapposte mostrano solo i pulsanti di conferma e annullamento:
-                    // il "+" della barra non comparirebbe.
-                    Button("Nuova ubicazione", systemImage: "plus") { apriAlertNome(per: nil) }
-                        .buttonStyle(.borderless)
-#endif
-                } footer: {
-                    if ubicazioni.isEmpty {
-                        Text("Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti.")
+                    .contextMenu {
+                        pulsanteRinomina(ubicazione)
+                        pulsanteElimina(ubicazione)
+                    }
+                    .swipeActions {
+                        pulsanteElimina(ubicazione)
+                        pulsanteRinomina(ubicazione)
                     }
                 }
+            } footer: {
+                if ubicazioni.isEmpty {
+                    Text("Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti.")
+                }
+            }
 
-                if !suggerimentiDisponibili.isEmpty {
-                    Section("Suggerimenti") {
-                        ForEach(suggerimentiDisponibili, id: \.self) { nome in
-                            Button {
-                                aggiungi(nome)
-                            } label: {
-                                Label(nome, systemImage: "plus.circle")
-                            }
+            if !suggerimentiDisponibili.isEmpty {
+                Section("Suggerimenti") {
+                    ForEach(suggerimentiDisponibili, id: \.self) { suggerimento in
+                        Button {
+                            modelContext.aggiungiUbicazione(nominata: suggerimento, in: dispensa)
+                        } label: {
+                            Label(suggerimento, systemImage: "plus.circle")
                         }
                     }
                 }
             }
-            .navigationTitle("Ubicazioni")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Fine") { dismiss() }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Nuova ubicazione", systemImage: "plus") { apriAlertNome(per: nil) }
-                }
-            }
-            .alert(
-                ubicazioneInModifica == nil ? Text("Nuova ubicazione") : Text("Rinomina ubicazione"),
-                isPresented: $mostraAlertNome
-            ) {
-                TextField("Nome", text: $nomeInserito)
-                Button("Annulla", role: .cancel) {}
-                Button("Salva", action: salvaNome)
-                    .disabled(!nomeValido)
-            }
-            .confirmationDialog(
-                "Eliminare l'ubicazione?",
-                isPresented: Binding(
-                    get: { ubicazioneDaEliminare != nil },
-                    set: { if !$0 { ubicazioneDaEliminare = nil } }
-                ),
-                titleVisibility: .visible,
-                presenting: ubicazioneDaEliminare
-            ) { ubicazione in
-                Button("Elimina", role: .destructive) { modelContext.delete(ubicazione) }
-            } message: { ubicazione in
-                let numero = ubicazione.strutture?.count ?? 0
-                Text("Strutture collegate: \(numero). Non verranno eliminate, ma resteranno senza ubicazione.")
+        }
+        .navigationTitle("Ubicazioni")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Nuova ubicazione", systemImage: "plus") { nome = .nuova }
             }
         }
-#if os(macOS)
-        .frame(minWidth: 400, minHeight: 400)
-#endif
-    }
-
-    private func riga(_ ubicazione: Ubicazione) -> some View {
-        HStack {
-            Label(ubicazione.nome, systemImage: "mappin.and.ellipse")
-            Spacer()
-            Text("\(ubicazione.strutture?.count ?? 0)")
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-        }
-        .contentShape(Rectangle())
-        .contextMenu {
-            pulsanteRinomina(ubicazione)
-            pulsanteElimina(ubicazione)
-        }
-        .swipeActions {
-            pulsanteElimina(ubicazione)
-            pulsanteRinomina(ubicazione)
-        }
+        .nomeUbicazione($nome, dispensa: dispensa)
+        .eliminazioneUbicazione($ubicazioneDaEliminare)
     }
 
     private func pulsanteRinomina(_ ubicazione: Ubicazione) -> some View {
-        Button("Rinomina", systemImage: "pencil") { apriAlertNome(per: ubicazione) }
+        Button("Rinomina", systemImage: "pencil") { nome = .rinomina(ubicazione) }
             .tint(.accentColor)
     }
 
     private func pulsanteElimina(_ ubicazione: Ubicazione) -> some View {
-        Button("Elimina", systemImage: "trash", role: .destructive) {
-            if ubicazione.strutture?.isEmpty ?? true {
-                modelContext.delete(ubicazione)
-            } else {
-                ubicazioneDaEliminare = ubicazione
-            }
-        }
+        Button("Elimina", systemImage: "trash", role: .destructive) { ubicazioneDaEliminare = ubicazione }
     }
+}
 
-    private func apriAlertNome(per ubicazione: Ubicazione?) {
-        ubicazioneInModifica = ubicazione
-        nomeInserito = ubicazione?.nome ?? ""
-        mostraAlertNome = true
-    }
+/// Riga di un'ubicazione: nome e numero di strutture.
+struct RigaUbicazioneView: View {
+    let ubicazione: Ubicazione
 
-    private func salvaNome() {
-        guard nomeValido else { return }
-        if let ubicazioneInModifica {
-            ubicazioneInModifica.nome = nomePulito
-        } else {
-            aggiungi(nomePulito)
-        }
-    }
-
-    private func aggiungi(_ nome: String) {
-        let ubicazione = Ubicazione(nome: nome)
-        modelContext.insert(ubicazione)
-        ubicazione.dispensa = dispensa
-    }
-
-    /// Vero se nella dispensa esiste già un'ubicazione con questo nome (senza distinguere maiuscole).
-    private func esiste(_ nome: String, escludendo esclusa: Ubicazione? = nil) -> Bool {
-        (dispensa.ubicazioni ?? []).contains {
-            $0 !== esclusa && $0.nome.compare(nome, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+    var body: some View {
+        let strutture = ubicazione.strutture?.count ?? 0
+        HStack {
+            Label(ubicazione.nome, systemImage: "mappin.and.ellipse")
+                .foregroundStyle(.primary)
+            Spacer()
+            Text(strutture, format: .number)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .accessibilityLabel(Text("Strutture: \(strutture)"))
         }
     }
 }
 
 #Preview {
     let dispensa = try! ModelContainer.anteprima.mainContext.fetch(FetchDescriptor<Dispensa>(sortBy: [SortDescriptor(\.nome)])).first!
-    UbicazioniView(dispensa: dispensa)
-        .modelContainer(.anteprima)
+    PilaDiNavigazione {
+        UbicazioniView(dispensa: dispensa)
+    }
+    .modelContainer(.anteprima)
 }
