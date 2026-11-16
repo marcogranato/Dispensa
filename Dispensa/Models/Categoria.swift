@@ -78,6 +78,13 @@ final class Categoria {
         return risultato
     }
 
+    /// Prodotti di questa categoria e di tutte le sue sottocategorie, per nome e marca.
+    var prodottiCompresi: [Prodotto] {
+        ([self] + discendenti)
+            .flatMap { $0.prodotti ?? [] }
+            .sorted { $0.nomeConMarca.localizedStandardCompare($1.nomeConMarca) == .orderedAscending }
+    }
+
     private var iconaValida: String? {
         guard let icona, !icona.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
         return icona

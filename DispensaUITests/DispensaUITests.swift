@@ -214,6 +214,30 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
     }
 
+    /// Le categorie si aprono dalla scheda Prodotti; il tocco su una categoria apre la sua scheda.
+    @MainActor
+    func testCategorie() throws {
+        let app = avviaConDispensa()
+
+        apri(scheda: "Prodotti", in: app)
+        app.buttons["Categorie"].tap()
+        let aggiungi = app.buttons["Aggiungi una categoria"]
+        XCTAssertTrue(aggiungi.waitForExistence(timeout: 5))
+        aggiungi.tap()
+        scrivi("Pasta", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        tocca(rigaCheIniziaCon: "Pasta", in: app)
+        XCTAssertTrue(app.navigationBars["Pasta"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Prodotti: 0"].exists)
+        XCTAssertTrue(app.buttons["Elimina categoria"].exists)
+        allegaScreenshot(app)
+
+        // Una categoria vuota si elimina senza conferma e si torna all'elenco.
+        app.buttons["Elimina categoria"].tap()
+        XCTAssertTrue(app.buttons["Aggiungi una categoria"].waitForExistence(timeout: 5))
+    }
+
     /// Un prodotto senza articoli si elimina dalla sua scheda, senza conferma, e si torna all'elenco.
     @MainActor
     func testEliminaProdottoDallaScheda() throws {
