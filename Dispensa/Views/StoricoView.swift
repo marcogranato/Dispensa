@@ -170,7 +170,14 @@ private struct RigaStoricoView: View {
                 .foregroundStyle(articolo.stato == .buttato ? .orange : .green)
                 .accessibilityHidden(true)
             VStack(alignment: .leading) {
-                Text(articolo.nomeVisualizzato)
+                // L'emoji del prodotto sta vicino al nome, per non confondersi con l'icona consumato/buttato.
+                HStack(spacing: 4) {
+                    if let emoji = articolo.prodotto?.iconaEffettiva {
+                        Text(emoji)
+                            .accessibilityHidden(true)
+                    }
+                    Text(articolo.nomeVisualizzato)
+                }
                 Text(dettagli)
                     .font(.caption)
                     .foregroundStyle(.secondary)

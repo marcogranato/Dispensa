@@ -84,6 +84,9 @@
     "Allo stesso livello esiste già una categoria con questo nome." : {
 
     },
+    "Altra emoji" : {
+
+    },
     "Altre informazioni" : {
 
     },
@@ -128,6 +131,9 @@
     "Avariato" : {
 
     },
+    "Bevande" : {
+
+    },
     "Bottiglia" : {
 
     },
@@ -162,6 +168,9 @@
 
     },
     "Caratteristiche" : {
+
+    },
+    "Carne e pesce" : {
 
     },
     "Cassetti" : {
@@ -251,7 +260,13 @@
     "Dispensa" : {
 
     },
+    "Dispensa e condimenti" : {
+
+    },
     "Dispensa: %@" : {
+
+    },
+    "Dolci e snack" : {
 
     },
     "Elimina" : {
@@ -302,9 +317,6 @@
     "Emoji" : {
 
     },
-    "Emoji (facoltativa)" : {
-
-    },
     "Es. Casa, Casa al mare" : {
 
     },
@@ -333,6 +345,9 @@
 
     },
     "Frigorifero" : {
+
+    },
+    "Frutta e verdura" : {
 
     },
     "g" : {
@@ -413,6 +428,9 @@
     "La struttura originale non esiste più: scegline un'altra." : {
 
     },
+    "Latticini e uova" : {
+
+    },
     "Lattina" : {
 
     },
@@ -473,6 +491,9 @@
     "Nessuna" : {
 
     },
+    "Nessuna (%@)" : {
+
+    },
     "Nessuna (categoria principale)" : {
 
     },
@@ -480,6 +501,9 @@
 
     },
     "Nessuna dispensa" : {
+
+    },
+    "Nessuna emoji" : {
 
     },
     "Nessuna struttura" : {
@@ -546,6 +570,9 @@
 
     },
     "Pacchetto" : {
+
+    },
+    "Pane, pasta e cereali" : {
 
     },
     "parti" : {
@@ -702,6 +729,9 @@
     "Scrivi il nome della categoria." : {
 
     },
+    "Scrivi un'emoji" : {
+
+    },
     "Se non indichi un nome, viene usato il tipo." : {
 
     },
@@ -771,6 +801,9 @@
 
     },
     "Suggerimenti" : {
+
+    },
+    "Surgelati e casa" : {
 
     },
     "Svuota storico" : {

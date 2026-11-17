@@ -97,7 +97,7 @@ struct RigaCategoriaView: View {
         let prodotti = categoria.prodottiCompresi.count
         HStack {
             Group {
-                if let icona = categoria.icona {
+                if let icona = categoria.iconaEffettiva {
                     Text(icona)
                 } else {
                     Image(systemName: "folder")

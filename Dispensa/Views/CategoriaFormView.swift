@@ -51,11 +51,7 @@ struct CategoriaFormView: View {
             Form {
                 Section {
                     TextField("Nome", text: $nome)
-                    TextField("Emoji (facoltativa)", text: $icona)
-                        .onChange(of: icona) { _, nuovo in
-                            let ridotta = Categoria.iconaNormalizzata(nuovo) ?? ""
-                            if ridotta != nuovo { icona = ridotta }
-                        }
+                    SelettoreEmoji(titolo: "Emoji", selezione: $icona, ereditata: genitore?.iconaEffettiva)
                 } footer: {
                     if icona.isEmpty, let ereditata = genitore?.iconaEffettiva {
                         Text("Senza emoji si usa quella della categoria superiore: \(ereditata)")

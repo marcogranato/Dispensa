@@ -81,6 +81,7 @@ struct ElencoProdottiView: View {
         // Il click apre la scheda del prodotto; la modifica è nel menu contestuale o nella scheda.
         return RigaNavigabile(valore: prodotto) {
             HStack {
+                IconaProdottoView(icona: prodotto.iconaEffettiva)
                 VStack(alignment: .leading) {
                     Text(prodotto.nome)
                         .foregroundStyle(.primary)

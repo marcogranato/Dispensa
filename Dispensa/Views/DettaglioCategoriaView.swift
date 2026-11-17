@@ -103,13 +103,16 @@ struct DettaglioCategoriaView: View {
 
     /// Nome e marca del prodotto; se sta in una sottocategoria, anche il suo nome.
     private func rigaProdotto(_ prodotto: Prodotto) -> some View {
-        VStack(alignment: .leading) {
-            Text(prodotto.nomeConMarca)
-                .foregroundStyle(.primary)
-            if let sua = prodotto.categoria, sua !== categoria {
-                Text(sua.nome)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        HStack {
+            IconaProdottoView(icona: prodotto.iconaEffettiva)
+            VStack(alignment: .leading) {
+                Text(prodotto.nomeConMarca)
+                    .foregroundStyle(.primary)
+                if let sua = prodotto.categoria, sua !== categoria {
+                    Text(sua.nome)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }

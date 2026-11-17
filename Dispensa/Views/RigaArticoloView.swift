@@ -24,6 +24,7 @@ struct RigaArticoloView: View {
         // Prima prova tutto su una riga; se non ci sta (nome lungo, testo grande) va su due righe.
         ViewThatFits(in: .horizontal) {
             HStack(alignment: .firstTextBaseline) {
+                icona
                 Text(articolo.nomeVisualizzato)
                     .lineLimit(1)
                     .fixedSize()
@@ -37,6 +38,7 @@ struct RigaArticoloView: View {
                     .fixedSize()
             }
             HStack {
+                icona
                 VStack(alignment: .leading) {
                     Text(articolo.nomeVisualizzato)
                     if let dettagli {
@@ -47,6 +49,10 @@ struct RigaArticoloView: View {
                 scadenza
             }
         }
+    }
+
+    private var icona: some View {
+        IconaProdottoView(icona: articolo.prodotto?.iconaEffettiva)
     }
 
     private func testoDettagli(_ testo: String) -> some View {

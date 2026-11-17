@@ -98,11 +98,7 @@ struct ProdottoFormView: View {
                 etichettaNessuna: "Nessuna"
             )
             TextField("Marca", text: $marca, prompt: Text("Marca (facoltativa)"))
-            TextField("Emoji", text: $icona, prompt: Text("Emoji (facoltativa)"))
-                .onChange(of: icona) { _, nuovo in
-                    let ridotta = Categoria.iconaNormalizzata(nuovo) ?? ""
-                    if ridotta != nuovo { icona = ridotta }
-                }
+            SelettoreEmoji(titolo: "Emoji", selezione: $icona, ereditata: categoria?.iconaEffettiva)
             TextField("Codice a barre", text: $codiceBarre, prompt: Text("Codice a barre o QR (facoltativo)"))
                 .autocorrectionDisabled()
 #if os(iOS)
