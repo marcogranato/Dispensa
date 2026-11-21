@@ -20,11 +20,8 @@ struct ElencoArticoliView: View {
     }
 
     private var articoli: [Articolo] {
-        let testo = ricerca.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trovati = testo.isEmpty
-            ? presenti
-            : presenti.filter { $0.nomeVisualizzato.localizedStandardContains(testo) }
-        return Articolo.ordinatiPerScadenza(trovati)
+        // Regole di ricerca in Services/RicercaProdotti.swift.
+        Articolo.ordinatiPerScadenza(presenti.filter { $0.corrisponde(a: ricerca) })
     }
 
     private var senzaStrutture: Bool {
@@ -38,7 +35,7 @@ struct ElencoArticoliView: View {
             }
         }
         .navigationTitle("Articoli")
-        .searchable(text: $ricerca, prompt: Text("Cerca per nome"))
+        .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {

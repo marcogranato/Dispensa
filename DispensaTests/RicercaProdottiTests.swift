@@ -101,6 +101,58 @@ struct RicercaProdottiTests {
         #expect(nomi("  ") == ["Caffè", "Penne"])
     }
 
+    @Test func cercaPerEtichettaConESenzaCancelletto() throws {
+        let colazione = try context.creaEtichetta(nome: "colazione", in: dispensa)
+        creaProdotto("Biscotti").etichette = [colazione]
+        creaProdotto("Coca-Cola")
+
+        func nomi(_ testo: String) -> [String] {
+            dispensa.gruppiDiProdotti(cercando: testo).flatMap(\.prodotti).map(\.nome)
+        }
+        #expect(nomi("colazione") == ["Biscotti"])
+        // Senza "#" trova anche il nome; con "#" solo le etichette.
+        #expect(nomi("cola") == ["Biscotti", "Coca-Cola"])
+        #expect(nomi("#cola") == ["Biscotti"])
+        #expect(nomi("#COLAZIONE") == ["Biscotti"])
+        #expect(nomi("#bio") == [])
+        #expect(nomi(" # ") == ["Biscotti", "Coca-Cola"])
+    }
+
+    @Test func gliArticoliSiCercanoAncheperStruttura() throws {
+        let c = try creaCategorie()
+        let colazione = try context.creaEtichetta(nome: "colazione", in: dispensa)
+        let latte = creaProdotto("Latte", marca: "Granarolo", in: c.latticini)
+        latte.etichette = [colazione]
+        let penne = creaProdotto("Penne", in: c.semola)
+        let frigo = Struttura(nome: "Frigorifero", tipo: .frigorifero)
+        let scaffale = Struttura(nome: "Scaffale alto", tipo: .scaffale)
+        context.insert(frigo)
+        context.insert(scaffale)
+
+        func articolo(_ prodotto: Prodotto?, in struttura: Struttura) -> Articolo {
+            let articolo = Articolo()
+            context.insert(articolo)
+            articolo.prodotto = prodotto
+            articolo.struttura = struttura
+            articolo.dispensa = dispensa
+            return articolo
+        }
+        let diLatte = articolo(latte, in: frigo)
+        let diPenne = articolo(penne, in: scaffale)
+        let sconosciuto = articolo(nil, in: scaffale)
+
+        #expect(diLatte.corrisponde(a: "frigo"))
+        #expect(!diPenne.corrisponde(a: "frigo"))
+        #expect(diLatte.corrisponde(a: "granarolo"))
+        #expect(diPenne.corrisponde(a: "pasta"))
+        #expect(diLatte.corrisponde(a: "#colaz"))
+        // Con "#" la struttura non conta.
+        #expect(!diPenne.corrisponde(a: "#scaffale"))
+        #expect(sconosciuto.corrisponde(a: "sconosciuto"))
+        #expect(sconosciuto.corrisponde(a: "alto"))
+        #expect(sconosciuto.corrisponde(a: ""))
+    }
+
     @Test func percorsoSottoLaCategoriaPrincipale() throws {
         let c = try creaCategorie()
         let penne = creaProdotto("Penne", in: c.semola)

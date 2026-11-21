@@ -14,17 +14,52 @@ struct GruppoProdotti: Identifiable {
     var id: String { categoria?.id.uuidString ?? "senza-categoria" }
 }
 
+/// Il testo di una ricerca, già interpretato.
+enum TestoRicerca {
+    /// Testo vuoto (o il solo "#"): trova tutto.
+    case tutto
+    /// "#cola": cerca solo nei nomi delle etichette.
+    case etichetta(String)
+    /// Qualunque altro testo: cerca in nome, marca, categorie, etichette, codice (e struttura per gli articoli).
+    case libero(String)
+
+    init(_ ricerca: String) {
+        let testo = ricerca.trimmingCharacters(in: .whitespacesAndNewlines)
+        if testo.hasPrefix("#") {
+            let nome = Etichetta.nomeNormalizzato(testo)
+            self = nome.isEmpty ? .tutto : .etichetta(nome)
+        } else {
+            self = testo.isEmpty ? .tutto : .libero(testo)
+        }
+    }
+}
+
 extension Prodotto {
-    /// Vero se il testo compare nel nome, nella marca o nel nome di una delle sue categorie
-    /// (quella del prodotto o una superiore), oppure è esattamente il codice a barre.
+    /// Vero se il testo compare nel nome, nella marca, nel nome di una delle sue categorie
+    /// (quella del prodotto o una superiore) o di una sua etichetta, oppure è esattamente il codice a barre.
+    /// Un testo che inizia con "#" cerca solo nelle etichette ("#cola" trova #colazione).
     /// Maiuscole e accenti non contano; un testo vuoto trova tutto.
     func corrisponde(a ricerca: String) -> Bool {
-        let testo = ricerca.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !testo.isEmpty else { return true }
-        return nome.localizedStandardContains(testo)
-            || (marca?.localizedStandardContains(testo) ?? false)
-            || codiceBarre == testo
-            || (categoria?.percorso.contains { $0.nome.localizedStandardContains(testo) } ?? false)
+        corrisponde(a: TestoRicerca(ricerca))
+    }
+
+    func corrisponde(a ricerca: TestoRicerca) -> Bool {
+        switch ricerca {
+        case .tutto:
+            return true
+        case .etichetta(let testo):
+            return haEtichetta(che: testo)
+        case .libero(let testo):
+            return nome.localizedStandardContains(testo)
+                || (marca?.localizedStandardContains(testo) ?? false)
+                || codiceBarre == testo
+                || (categoria?.percorso.contains { $0.nome.localizedStandardContains(testo) } ?? false)
+                || haEtichetta(che: testo)
+        }
+    }
+
+    private func haEtichetta(che testo: String) -> Bool {
+        (etichette ?? []).contains { $0.nome.localizedStandardContains(testo) }
     }
 
     /// La categoria principale del prodotto (la radice del suo percorso).
@@ -44,6 +79,27 @@ extension Prodotto {
         let perNome = a.nome.localizedStandardCompare(b.nome)
         if perNome != .orderedSame { return perNome == .orderedAscending }
         return (a.marca ?? "").localizedStandardCompare(b.marca ?? "") == .orderedAscending
+    }
+}
+
+extension Articolo {
+    /// Vero se il suo prodotto corrisponde alla ricerca (vedi `Prodotto.corrisponde(a:)`)
+    /// o se il testo compare nel nome della sua struttura ("frigo" trova gli articoli del frigorifero).
+    func corrisponde(a ricerca: String) -> Bool {
+        let testo = TestoRicerca(ricerca)
+        switch testo {
+        case .tutto:
+            return true
+        case .etichetta:
+            return prodotto?.corrisponde(a: testo) ?? false
+        case .libero(let libero):
+            if let prodotto {
+                if prodotto.corrisponde(a: testo) { return true }
+            } else if nomeVisualizzato.localizedStandardContains(libero) {
+                return true
+            }
+            return struttura?.nome.localizedStandardContains(libero) ?? false
+        }
     }
 }
 

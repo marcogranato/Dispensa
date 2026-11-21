@@ -21,10 +21,8 @@ struct StoricoView: View {
 #endif
 
     private var articoli: [Articolo] {
-        let testo = ricerca.trimmingCharacters(in: .whitespacesAndNewlines)
-        let storico = dispensa.articoliNelloStorico
-        guard !testo.isEmpty else { return storico }
-        return storico.filter { $0.nomeVisualizzato.localizedStandardContains(testo) }
+        // Regole di ricerca in Services/RicercaProdotti.swift.
+        dispensa.articoliNelloStorico.filter { $0.corrisponde(a: ricerca) }
     }
 
     private var selezionati: [Articolo] {
@@ -53,7 +51,7 @@ struct StoricoView: View {
             }
         }
         .navigationTitle("Storico")
-        .searchable(text: $ricerca, prompt: Text("Cerca per nome"))
+        .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
 #if os(iOS)
         .environment(\.editMode, $modalitaModifica)
 #endif

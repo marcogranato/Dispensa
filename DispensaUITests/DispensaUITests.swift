@@ -251,6 +251,14 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Biscotti"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["#colazione"].exists)
         allegaScreenshot(app)
+
+        // Nella scheda Prodotti la ricerca con "#" trova il prodotto dall'etichetta.
+        app.navigationBars.buttons["BackButton"].tap()
+        let campoRicerca = app.searchFields.firstMatch
+        XCTAssertTrue(campoRicerca.waitForExistence(timeout: 5))
+        campoRicerca.tap()
+        campoRicerca.typeText("#colaz")
+        XCTAssertTrue(app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Biscotti")).firstMatch.waitForExistence(timeout: 5))
     }
 
     /// Le categorie si aprono dalla scheda Prodotti; il tocco su una categoria apre la sua scheda.

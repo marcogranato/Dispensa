@@ -219,9 +219,6 @@
     "Categorie" : {
 
     },
-    "Cerca per nome" : {
-
-    },
     "Chilogrammi" : {
 
     },
@@ -600,7 +597,10 @@
     "Nome" : {
 
     },
-    "Nome, marca, categoria o codice" : {
+    "Nome, marca, categoria, #etichetta o codice" : {
+
+    },
+    "Nome, marca, categoria, #etichetta, struttura o codice" : {
 
     },
     "Non ci sono altre strutture in questa dispensa." : {

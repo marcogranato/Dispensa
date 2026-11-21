@@ -31,7 +31,7 @@ struct ElencoProdottiView: View {
             }
         }
         .navigationTitle("Prodotti")
-        .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria o codice"))
+        .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
         .overlay {
             if dispensa.prodotti?.isEmpty ?? true {
                 ContentUnavailableView {
