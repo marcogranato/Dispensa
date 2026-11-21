@@ -17,6 +17,15 @@ final class Etichetta {
     var dispensa: Dispensa?
     var prodotti: [Prodotto]? = []
 
+    /// Colore facoltativo; senza colore l'etichetta è mostrata in grigio chiaro.
+    var colore: ColoreEtichetta? {
+        get { coloreRaw.flatMap(ColoreEtichetta.init(rawValue:)) }
+        set { coloreRaw = newValue?.rawValue }
+    }
+
+    /// Es. "#colazione" (il nome si salva senza cancelletto).
+    var nomeConCancelletto: String { "#\(nome)" }
+
     init(nome: String) {
         self.nome = nome
     }

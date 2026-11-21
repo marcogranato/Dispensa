@@ -214,6 +214,45 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
     }
 
+    /// Le etichette si aprono dalla scheda Prodotti, si creano e si danno a un prodotto dal suo modulo.
+    @MainActor
+    func testEtichette() throws {
+        let app = avviaConDispensa()
+
+        apri(scheda: "Prodotti", in: app)
+        app.buttons["Etichette"].tap()
+        let aggiungi = app.buttons["Aggiungi un'etichetta"]
+        XCTAssertTrue(aggiungi.waitForExistence(timeout: 5))
+        aggiungi.tap()
+        // Il cancelletto e gli spazi vengono tolti dal nome.
+        scrivi("#cola zione", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        tocca(rigaCheIniziaCon: "#colazione", in: app)
+        XCTAssertTrue(app.navigationBars["#colazione"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Prodotti: 0"].exists)
+        app.navigationBars.buttons["BackButton"].tap()
+        app.navigationBars.buttons["BackButton"].tap()
+
+        // Nuovo prodotto con l'etichetta, scelta dall'elenco con le spunte.
+        let aggiungiProdotto = app.buttons["Aggiungi un prodotto"]
+        XCTAssertTrue(aggiungiProdotto.waitForExistence(timeout: 5))
+        aggiungiProdotto.tap()
+        scrivi("Biscotti", nelPrimoCampoDi: app)
+        app.buttons["Aggiungi etichette"].tap()
+        let riga = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "#colazione")).firstMatch
+        XCTAssertTrue(riga.waitForExistence(timeout: 5))
+        riga.tap()
+        app.buttons["Fine"].tap()
+        XCTAssertTrue(app.buttons["Cambia etichette"].waitForExistence(timeout: 5))
+        app.buttons["Salva"].tap()
+
+        tocca(rigaCheIniziaCon: "Biscotti", in: app)
+        XCTAssertTrue(app.navigationBars["Biscotti"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["#colazione"].exists)
+        allegaScreenshot(app)
+    }
+
     /// Le categorie si aprono dalla scheda Prodotti; il tocco su una categoria apre la sua scheda.
     @MainActor
     func testCategorie() throws {

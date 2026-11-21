@@ -26,6 +26,7 @@ struct ProdottoFormView: View {
     @State private var unita: Unita?
     @State private var descrizione: String
     @State private var note: String
+    @State private var etichette: Set<UUID>
 
     init(dispensa: Dispensa, prodotto: Prodotto? = nil) {
         self.dispensa = dispensa
@@ -41,6 +42,7 @@ struct ProdottoFormView: View {
         _unita = State(initialValue: prodotto?.unita)
         _descrizione = State(initialValue: prodotto?.descrizione ?? "")
         _note = State(initialValue: prodotto?.note ?? "")
+        _etichette = State(initialValue: Set((prodotto?.etichette ?? []).map(\.id)))
     }
 
     private var nomePulito: String {
@@ -65,6 +67,7 @@ struct ProdottoFormView: View {
         NavigationStack {
             Form {
                 sezioneIdentificazione
+                sezioneEtichette
                 sezioneQuantita
                 sezioneConfezionamento
                 sezioneAltreInformazioni
@@ -115,6 +118,14 @@ struct ProdottoFormView: View {
             } else {
                 Text("La lettura del codice con la fotocamera arriverà in seguito.")
             }
+        }
+    }
+
+    private var sezioneEtichette: some View {
+        Section {
+            SelettoreEtichette(dispensa: dispensa, selezione: $etichette)
+        } header: {
+            Text("Etichette")
         }
     }
 
@@ -196,6 +207,7 @@ struct ProdottoFormView: View {
         prodottoDaSalvare.unita = unita
         prodottoDaSalvare.descrizione = Self.testoFacoltativo(descrizione)
         prodottoDaSalvare.note = Self.testoFacoltativo(note)
+        prodottoDaSalvare.etichette = dispensa.etichetteOrdinate.filter { etichette.contains($0.id) }
         dismiss()
     }
 

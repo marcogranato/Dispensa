@@ -66,6 +66,14 @@ struct DettaglioProdottoView: View {
                 }
             }
 
+            let etichette = prodotto.etichetteOrdinate
+            if !etichette.isEmpty {
+                Section("Etichette") {
+                    GettoniEtichetteView(etichette: etichette)
+                        .padding(.vertical, 2)
+                }
+            }
+
             if let descrizione = prodotto.descrizione {
                 Section("Descrizione") {
                     Text(descrizione)

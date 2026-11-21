@@ -1,6 +1,16 @@
 {
   "sourceLanguage" : "it",
   "strings" : {
+    "«%@» verrà tolta dai prodotti che la usano: %lld. I prodotti restano." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "«%1$@» verrà tolta dai prodotti che la usano: %2$lld. I prodotti restano."
+          }
+        }
+      }
+    },
     "%@ (dalla categoria superiore)" : {
 
     },
@@ -63,6 +73,9 @@
     "Aggiungi articolo" : {
 
     },
+    "Aggiungi etichette" : {
+
+    },
     "Aggiungi frigorifero, congelatore, scaffali e gli altri spazi dove conservi il cibo." : {
 
     },
@@ -73,6 +86,9 @@
 
     },
     "Aggiungi un prodotto" : {
+
+    },
+    "Aggiungi un'etichetta" : {
 
     },
     "Aggiungi una categoria" : {
@@ -94,6 +110,12 @@
 
     },
     "Annulla" : {
+
+    },
+    "Anteprima" : {
+
+    },
+    "Arancione" : {
 
     },
     "Articoli" : {
@@ -131,7 +153,13 @@
     "Avariato" : {
 
     },
+    "Azzurro" : {
+
+    },
     "Bevande" : {
+
+    },
+    "Blu" : {
 
     },
     "Bottiglia" : {
@@ -162,6 +190,9 @@
 
     },
     "Buttato (%@)" : {
+
+    },
+    "Cambia etichette" : {
 
     },
     "Cantina" : {
@@ -201,6 +232,9 @@
 
     },
     "Codice a barre o QR (facoltativo)" : {
+
+    },
+    "Colore" : {
 
     },
     "Confezionamento" : {
@@ -284,6 +318,9 @@
     "Elimina dallo storico" : {
 
     },
+    "Elimina etichetta" : {
+
+    },
     "Elimina lo storico esistente" : {
 
     },
@@ -300,6 +337,9 @@
 
     },
     "Eliminare l'articolo?" : {
+
+    },
+    "Eliminare l'etichetta?" : {
 
     },
     "Eliminare l'ubicazione?" : {
@@ -320,6 +360,9 @@
     "Es. Casa, Casa al mare" : {
 
     },
+    "Es. colazione, senzaglutine" : {
+
+    },
     "Es. Credenza, Cantinetta" : {
 
     },
@@ -332,13 +375,25 @@
     "Esiste già il prodotto «%@». Cambia il nome o la marca." : {
 
     },
+    "Esiste già un'etichetta con questo nome." : {
+
+    },
     "Estraibile" : {
+
+    },
+    "Etichetta eliminata" : {
+
+    },
+    "Etichette" : {
 
     },
     "Facoltativa" : {
 
     },
     "Facoltative" : {
+
+    },
+    "Fine" : {
 
     },
     "Fino a tre livelli: categoria, sottocategoria e tipologia." : {
@@ -356,6 +411,9 @@
     "Garage" : {
 
     },
+    "Giallo" : {
+
+    },
     "Giardino" : {
 
     },
@@ -368,10 +426,16 @@
     "Grammi" : {
 
     },
+    "Grigio" : {
+
+    },
     "I prodotti sono le schede riutilizzabili (nome, marca, confezione) degli articoli che metti in dispensa." : {
 
     },
     "Identificazione e classificazione" : {
+
+    },
+    "Il cancelletto si aggiunge da solo; gli spazi vengono tolti." : {
 
     },
     "Il numero di parti non è valido." : {
@@ -443,6 +507,9 @@
     "Le categorie raggruppano i prodotti, fino a tre livelli: per esempio Pasta e riso ▸ Pasta secca ▸ Pasta di semola." : {
 
     },
+    "Le etichette sono hashtag da dare ai prodotti, per esempio #colazione o #senzaglutine." : {
+
+    },
     "Litri" : {
 
     },
@@ -450,6 +517,12 @@
 
     },
     "Marca (facoltativa)" : {
+
+    },
+    "Marrone" : {
+
+    },
+    "Menta" : {
 
     },
     "Millilitri" : {
@@ -473,6 +546,9 @@
     "Modifica dispensa" : {
 
     },
+    "Modifica etichetta" : {
+
+    },
     "Modifica prodotto" : {
 
     },
@@ -483,6 +559,9 @@
 
     },
     "Nessun articolo" : {
+
+    },
+    "Nessun colore" : {
 
     },
     "Nessun prodotto" : {
@@ -506,10 +585,16 @@
     "Nessuna emoji" : {
 
     },
+    "Nessuna etichetta" : {
+
+    },
     "Nessuna struttura" : {
 
     },
     "Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti." : {
+
+    },
+    "Nessuno" : {
 
     },
     "Nome" : {
@@ -519,6 +604,9 @@
 
     },
     "Non ci sono altre strutture in questa dispensa." : {
+
+    },
+    "Non ci sono ancora etichette: creane una." : {
 
     },
     "Non indicata" : {
@@ -546,6 +634,12 @@
 
     },
     "Nuova dispensa…" : {
+
+    },
+    "Nuova etichetta" : {
+
+    },
+    "Nuova etichetta…" : {
 
     },
     "Nuova struttura" : {
@@ -604,6 +698,9 @@
 
     },
     "Per classificare un prodotto scegli questa categoria nella sua scheda." : {
+
+    },
+    "Per dare questa etichetta a un prodotto sceglila nel modulo del prodotto." : {
 
     },
     "Per spostare qui una struttura esistente cambia l'ubicazione nella sua scheda." : {
@@ -693,6 +790,12 @@
     "Ripostiglio" : {
 
     },
+    "Rosa" : {
+
+    },
+    "Rosso" : {
+
+    },
     "Salone" : {
 
     },
@@ -724,6 +827,9 @@
 
     },
     "Scegli una struttura in cui rimettere l'articolo." : {
+
+    },
+    "Scrivi il nome dell'etichetta." : {
 
     },
     "Scrivi il nome della categoria." : {
@@ -857,6 +963,9 @@
     "Vasetto" : {
 
     },
+    "Verde" : {
+
+    },
     "Verrà creato il nuovo prodotto «%@» (%@)." : {
       "localizations" : {
         "it" : {
@@ -874,6 +983,9 @@
 
     },
     "Verranno eliminati tutti gli articoli consumati e buttati di «%@». L'operazione non si può annullare." : {
+
+    },
+    "Viola" : {
 
     }
   },

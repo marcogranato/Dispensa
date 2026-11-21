@@ -50,6 +50,9 @@ struct ElencoProdottiView: View {
             ToolbarItem {
                 Button("Categorie", systemImage: "list.bullet.indent") { apri?(ElencoCategorie(dispensa: dispensa)) }
             }
+            ToolbarItem {
+                Button("Etichette", systemImage: "number") { apri?(ElencoEtichette(dispensa: dispensa)) }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo prodotto", systemImage: "plus") { mostraNuovoProdotto = true }
             }
@@ -103,6 +106,10 @@ struct ElencoProdottiView: View {
                         Text(dettagli.joined(separator: " · "))
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                    }
+                    let etichette = prodotto.etichetteOrdinate
+                    if !etichette.isEmpty {
+                        GettoniEtichetteView(etichette: etichette)
                     }
                 }
                 Spacer()

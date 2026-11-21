@@ -7,8 +7,8 @@ import SwiftUI
 
 /// `NavigationStack` di una scheda, con tutte le destinazioni dichiarate una sola volta alla base.
 /// Le righe degli elenchi aprono i dettagli con `RigaNavigabile` passando una `Struttura`, un `Articolo`,
-/// un `Prodotto`, una `Categoria` o un'`Ubicazione`; gli elenchi delle categorie e delle ubicazioni
-/// si aprono con `ElencoCategorie` ed `ElencoUbicazioni`.
+/// un `Prodotto`, una `Categoria`, un'`Etichetta` o un'`Ubicazione`; gli elenchi di categorie, etichette
+/// e ubicazioni si aprono con `ElencoCategorie`, `ElencoEtichette` ed `ElencoUbicazioni`.
 ///
 /// Le destinazioni non vanno dichiarate nelle singole schermate: sul Mac, cambiando scheda o
 /// chiudendo un foglio, quelle dichiarazioni possono non essere più visibili e i link smettono di funzionare.
@@ -33,6 +33,12 @@ struct PilaDiNavigazione<Contenuto: View>: View {
                 }
                 .navigationDestination(for: ElencoCategorie.self) { elenco in
                     CategorieView(dispensa: elenco.dispensa)
+                }
+                .navigationDestination(for: Etichetta.self) { etichetta in
+                    DettaglioEtichettaView(etichetta: etichetta)
+                }
+                .navigationDestination(for: ElencoEtichette.self) { elenco in
+                    EtichetteView(dispensa: elenco.dispensa)
                 }
                 .navigationDestination(for: Ubicazione.self) { ubicazione in
                     DettaglioUbicazioneView(ubicazione: ubicazione)
