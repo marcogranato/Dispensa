@@ -14,7 +14,7 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 | **Prodotto** | La "scheda" riutilizzabile: nome, marca, codice a barre, categoria, emoji, descrizione, note, etichette, immagine, valori predefiniti della confezione. Si riconosce da **nome + marca**. |
 | **Categoria** | Classificazione dei prodotti in un albero di massimo 3 livelli: categoria ▸ sottocategoria ▸ tipologia (es. Pasta e riso ▸ Pasta secca ▸ Pasta di semola). |
 | **Articolo** | L'oggetto fisico presente in una struttura: quantità, parti rimaste, date. Più articoli possono riferirsi allo stesso prodotto (es. tre cartoni di latte con scadenze diverse). |
-| **Etichetta** | Hashtag (es. #senzaglutine), assegnato al Prodotto ed ereditato dai suoi articoli. |
+| **Etichetta** | Hashtag (es. #senzaglutine) con un colore facoltativo, assegnato al Prodotto ed ereditato dai suoi articoli. |
 | **Storico** | Articoli usciti dalla dispensa (consumati o buttati), conservati per statistiche su costi e sprechi. |
 
 ## Stato dello sviluppo
@@ -23,7 +23,7 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 |---|---|---|
 | 1 | Modello dati; gestione di Dispense, Ubicazioni e Strutture | ✅ Completata |
 | 2 | Articoli e Prodotti: aggiungere, modificare, spostare, prelevare, buttare, storico | ✅ Completata |
-| 3 | Navigazione a schede ed elenco di tutti gli articoli; classificazione e dettagli dei prodotti (categorie, emoji); etichette, ricerca, filtri, ordinamento | In corso |
+| 3 | Navigazione a schede ed elenco di tutti gli articoli; classificazione e dettagli dei prodotti (categorie, emoji); etichette, ricerca, filtri, ordinamento | ✅ Completata |
 | 4 | Tabelle con colonne configurabili e filtri salvati | Da fare |
 | 5 | Immagini e scanner di codici a barre/QR; più codici a barre per prodotto (da valutare) | Da fare |
 | 6 | Notifiche locali per gli articoli in scadenza | Da fare |
@@ -40,7 +40,13 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
    4. Categorie (dalla scheda Prodotti) e Ubicazioni (dalla scheda Strutture) aperte come schermate, ognuna con la sua scheda;
    5. emoji davanti al nome nelle righe di articoli, prodotti, storico e categorie; selettore di emoji a griglia nei moduli;
    6. scheda Prodotti divisa per categoria principale e ricerca che trova anche le categorie.
-4. Etichette, ricerca, filtri, ordinamento — **prossimo passo**. Il modello dati delle etichette esiste già, manca l'interfaccia. Deciso: un'etichetta è solo un hashtag (la classificazione la fanno le categorie). Da decidere: colore subito o dopo; filtri su tutte le date o solo sulla scadenza.
+4. ✅ Etichette, ricerca, filtri, ordinamento (deciso: un'etichetta è solo un hashtag, con il colore subito; filtri su tutte le date):
+   1. etichette con colore, con la loro schermata (dalla scheda Prodotti) e il selettore nel modulo del prodotto;
+   2. una sola ricerca per le tre schede: nome, marca, categoria, etichetta, codice e, per gli articoli, struttura; "#" cerca solo nelle etichette;
+   3. filtri nelle schede Articoli e Storico;
+   4. ordinamento in Articoli, Storico, Prodotti e nella scheda della struttura.
+
+Prossima: la fase 4, da pianificare.
 
 ### Da provare a mano
 
@@ -51,9 +57,11 @@ Queste funzioni compilano e la loro logica è coperta da test, ma nessun test UI
 - selezione multipla nello storico e "Rimetti in dispensa" di un articolo con più parti;
 - domanda sullo storico esistente quando lo si disattiva;
 - selettore di emoji (foglio su iPhone, finestrella sul Mac, "Altra emoji" dalla tastiera);
+- selettore delle etichette nel modulo del prodotto e palette dei colori;
+- foglio dei filtri, in particolare le date "Dal/Al", e menu "Ordina" con i suoi criteri;
 - tutta l'app su iPad (le schede possono diventare una barra laterale, come sul Mac).
 
-Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`), da rilanciare: dopo l'arrivo delle emoji nelle righe non è ancora stato eseguito. Il resto dell'app sul Mac va provato a mano, in particolare la navigazione di Categorie e Ubicazioni (clic sulle righe, "+", Indietro, cambio di scheda), "Elimina prodotto" e la scheda Prodotti divisa per categoria.
+Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`), da rilanciare: dopo l'arrivo delle emoji nelle righe non è ancora stato eseguito. Il resto dell'app sul Mac va provato a mano, in particolare la navigazione di Categorie e Ubicazioni (clic sulle righe, "+", Indietro, cambio di scheda), "Elimina prodotto", la scheda Prodotti divisa per categoria, le etichette, i filtri e il menu "Ordina".
 
 ### Difetti noti
 
@@ -86,7 +94,7 @@ Decisioni prese:
 - Quantità per parte (es. 1 kg, 1 l) e confezioni composte da più parti (es. scatola di biscotti con 6 pacchi, cassa di bottiglie).
 - Prelievo **solo a parti intere** (es. 1 pacco su 6). Non si preleva una quantità parziale di una parte.
 - Date opzionali e modificabili: inserimento (predefinita: oggi), produzione/confezionamento, scadenza.
-- Una categoria facoltativa e, in seguito, uno o più hashtag (tramite il Prodotto, fase 3).
+- Una categoria facoltativa e uno o più hashtag (tramite il Prodotto).
 - Codici a barre e QR code (scanner solo su iPhone/iPad, fase 5; su Mac inserimento manuale). Per ora il codice si scrive a mano nel prodotto.
 - Immagine (priorità bassa, fase 5).
 
@@ -96,8 +104,8 @@ Decisioni prese:
 - Si possono aggiungere più confezioni uguali in una volta (diventano articoli separati).
 - Spostamento anche parziale: spostando solo alcune parti, la confezione si divide e le parti spostate diventano un nuovo articolo con le stesse date.
 - Un Prodotto si può eliminare solo se non ha articoli presenti; i suoi articoli nello storico vengono eliminati insieme (con avviso).
-- Gli articoli di una struttura sono ordinati per scadenza (prima i più urgenti, senza data in fondo).
-- La scheda Articoli mostra gli articoli di tutte le strutture, ordinati per scadenza, con la struttura in cui si trovano e la ricerca per nome; da lì si possono anche aggiungere articoli, scegliendo la struttura nel modulo.
+- Gli articoli di una struttura sono all'inizio ordinati per scadenza (prima i più urgenti, senza data in fondo); l'ordine si può cambiare.
+- La scheda Articoli mostra gli articoli di tutte le strutture, con la struttura in cui si trovano, ricerca, filtri e ordinamento; da lì si possono anche aggiungere articoli, scegliendo la struttura nel modulo.
 - La scheda di un prodotto mostra categoria, marca, codice, confezione, descrizione, note e gli articoli presenti di quel prodotto con la loro struttura.
 - Nel modulo dell'articolo le date facoltative (produzione, scadenza) stanno su una riga: "Aggiungi" se mancano, altrimenti la data e un pulsante per toglierla.
 - Un articolo è "in scadenza" (arancione) quando mancano 3 giorni o meno, "scaduto" (rosso) quando la data è passata. Il numero di giorni diventerà un'impostazione nella fase 6. Lo stato è indicato anche da un'icona, non solo dal colore.
@@ -113,6 +121,21 @@ Decisioni prese:
 - Le categorie si aprono dalla scheda Prodotti; la scheda di una categoria mostra sottocategorie e prodotti, compresi quelli delle sottocategorie.
 - La scheda Prodotti è divisa per categoria principale, in ordine alfabetico, con "Senza categoria" in fondo; nella riga compare la sottocategoria.
 - Rimandati: un albero di categorie preimpostato (a una fase successiva; per ora, solo nelle versioni di sviluppo, "Aggiungi categorie di prova"); più codici a barre per lo stesso prodotto (da valutare nella fase 5).
+
+### Etichette, ricerca, filtri e ordinamento
+
+- **Etichette:** il nome si salva senza "#" e senza spazi; due etichette della stessa dispensa non possono avere lo stesso nome (maiuscole e accenti non contano). Il colore è facoltativo (senza colore il gettone è grigio). Le etichette si gestiscono dalla scheda Prodotti e si assegnano nel modulo del prodotto; eliminandone una usata, l'app chiede conferma e la toglie dai prodotti.
+- **Ricerca** (uguale nelle schede Articoli, Prodotti e Storico): trova il testo nel nome, nella marca, nella categoria del prodotto o in una superiore, nelle etichette e, per gli articoli, nel nome della struttura; il codice a barre va scritto per intero. Un testo che inizia con "#" cerca solo nelle etichette ("#cola" trova #colazione, non la Coca-Cola). Maiuscole e accenti non contano.
+- **Filtri** (schede Articoli e Storico): strutture, tipo di struttura, categorie, etichette, stato di scadenza, date di inserimento, produzione e scadenza; nello storico anche esito (consumato o buttato) e data di uscita.
+  - Dentro un gruppo basta una delle scelte (frigorifero O dispensa); tra gruppi devono valere tutte (frigorifero E scaduti).
+  - Una categoria comprende le sue sottocategorie.
+  - Le date si confrontano a giorni interi, estremi compresi; un articolo senza quella data è escluso.
+  - Con filtri attivi, la prima riga dell'elenco li conta e permette di azzerarli.
+- **Ordinamento** (pulsante "Ordina"): si sceglie il criterio e il verso.
+  - Articoli: scadenza (iniziale, dalla più vicina), nome, data di inserimento, struttura. Scheda della struttura: gli stessi, tranne la struttura. Storico: data di uscita (iniziale, dalla più recente), nome, scadenza. Prodotti: nome (iniziale), data di creazione, articoli presenti; l'ordine vale dentro ogni sezione di categoria.
+  - Le date mancanti (e gli articoli senza struttura) vanno sempre in fondo; a parità si ordina per scadenza e poi per nome.
+  - Cambiando criterio, il verso torna quello naturale (date di uscita e di creazione dalla più recente, articoli presenti dal numero più alto, il resto in crescente).
+- Filtri e ordine non si salvano: tornano quelli iniziali cambiando dispensa o chiudendo l'app. Filtri salvati e viste predefinite sono della fase 4.
 
 ### Uscita dalla dispensa e storico
 
@@ -134,7 +157,9 @@ Decisioni prese:
 - Filtri salvati e richiamabili; una vista predefinita per ogni tipo di elenco.
 - Ricerca per nome, etichetta, codice.
 
-Già disponibile: elenco degli articoli di tutte le strutture (scheda Articoli) con ricerca per nome; ricerca per nome, marca, categoria (comprese le categorie superiori) o codice nel catalogo prodotti; ricerca per nome nello storico.
+Già disponibile (fase 3): elenco degli articoli di tutte le strutture (scheda Articoli); ricerca, filtri e ordinamento come descritti in "Etichette, ricerca, filtri e ordinamento".
+
+Resta per la fase 4: colonne configurabili, filtri salvati e richiamabili, vista predefinita per ogni elenco, filtri anche nella scheda della struttura e nei Prodotti.
 
 ## Condivisione (futura, richiede account Apple a pagamento)
 
