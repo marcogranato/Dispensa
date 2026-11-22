@@ -6,19 +6,20 @@
 import SwiftUI
 import SwiftData
 
-/// Catalogo dei prodotti di una dispensa, con ricerca.
+/// Catalogo dei prodotti di una dispensa diviso per categoria, con ricerca e ordinamento.
 struct ElencoProdottiView: View {
     @Environment(\.apriNellaPila) private var apri
     let dispensa: Dispensa
 
     @State private var ricerca = ""
+    @State private var ordine = OrdineProdotti.prodotti
     @State private var mostraNuovoProdotto = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
 
     var body: some View {
-        // Ricerca, raggruppamento e ordine sono in Services/RicercaProdotti.swift.
-        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca)
+        // Ricerca e raggruppamento in Services/RicercaProdotti.swift, ordine in OrdinamentoElenchi.swift.
+        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, ordine: ordine)
         List {
             ForEach(gruppi) { gruppo in
                 Section {
@@ -47,6 +48,9 @@ struct ElencoProdottiView: View {
             }
         }
         .toolbar {
+            ToolbarItem {
+                MenuOrdinamento(criteri: CriterioProdotti.allCases, ordine: $ordine)
+            }
             ToolbarItem {
                 Button("Categorie", systemImage: "list.bullet.indent") { apri?(ElencoCategorie(dispensa: dispensa)) }
             }
@@ -83,7 +87,7 @@ struct ElencoProdottiView: View {
     }
 
     private func riga(_ prodotto: Prodotto) -> some View {
-        let presenti = (prodotto.articoli ?? []).filter { $0.stato == .attivo }.count
+        let presenti = prodotto.numeroArticoliPresenti
         let dettagli = [
             prodotto.marca,
             // La sezione dice già la categoria principale: qui serve solo la parte sotto.

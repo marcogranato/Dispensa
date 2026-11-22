@@ -162,6 +162,37 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(vino.exists)
     }
 
+    /// Ordina gli articoli per nome dalla Z alla A: il vino passa sopra il latte.
+    @MainActor
+    func testOrdinamento() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        for nome in ["Latte", "Vino"] {
+            app.buttons["Aggiungi articolo"].tap()
+            scrivi(nome, nelPrimoCampoDi: app)
+            app.buttons["Salva"].tap()
+        }
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
+
+        apri(scheda: "Articoli", in: app)
+        let latte = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        let vino = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Vino")).firstMatch
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+        // Senza scadenza vale l'ordine per nome: prima il latte.
+        XCTAssertLessThan(latte.frame.minY, vino.frame.minY)
+
+        app.buttons["Ordina"].tap()
+        app.buttons["Nome"].tap()
+        app.buttons["Ordina"].tap()
+        let zA = app.buttons["Z → A"]
+        XCTAssertTrue(zA.waitForExistence(timeout: 5))
+        zA.tap()
+
+        XCTAssertTrue(vino.waitForExistence(timeout: 5))
+        XCTAssertLessThan(vino.frame.minY, latte.frame.minY)
+        allegaScreenshot(app)
+    }
+
     /// Scrive in un campo trovato dal suo testo di esempio (placeholder).
     @MainActor
     private func scrivi(_ testo: String, nelCampoConEsempio esempio: String, in app: XCUIApplication) {

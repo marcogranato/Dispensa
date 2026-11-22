@@ -6,13 +6,14 @@
 import SwiftUI
 import SwiftData
 
-/// Articoli consumati o buttati di una dispensa, dal più recente.
+/// Articoli consumati o buttati di una dispensa (all'inizio dal più recente), con ricerca, filtri e ordinamento.
 struct StoricoView: View {
     @Environment(\.modelContext) private var modelContext
     let dispensa: Dispensa
 
     @State private var ricerca = ""
     @State private var filtro = FiltroArticoli()
+    @State private var ordine = OrdineArticoli.storico
     @State private var selezione = Set<Articolo.ID>()
     @State private var daRimettere: Articolo?
     @State private var confermaSvuota = false
@@ -22,8 +23,8 @@ struct StoricoView: View {
 #endif
 
     private var articoli: [Articolo] {
-        // Regole di ricerca e filtri in Services/RicercaProdotti.swift e FiltriArticoli.swift.
-        filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) }
+        // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
+        ordine.ordina(filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) })
     }
 
     private var selezionati: [Articolo] {
@@ -118,6 +119,9 @@ struct StoricoView: View {
             }
         }
 #endif
+        ToolbarItem {
+            MenuOrdinamento(criteri: CriterioArticoli.perStorico, ordine: $ordine)
+        }
         ToolbarItem(placement: .primaryAction) {
             if selezionati.isEmpty {
                 Button("Svuota storico", systemImage: "trash", role: .destructive) { confermaSvuota = true }

@@ -6,12 +6,13 @@
 import SwiftUI
 import SwiftData
 
-/// Articoli presenti in tutte le strutture di una dispensa, ordinati per scadenza, con ricerca per nome.
+/// Articoli presenti in tutte le strutture di una dispensa, con ricerca, filtri e ordinamento.
 struct ElencoArticoliView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
     @State private var filtro = FiltroArticoli()
+    @State private var ordine = OrdineArticoli.articoli
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
@@ -21,8 +22,8 @@ struct ElencoArticoliView: View {
     }
 
     private var articoli: [Articolo] {
-        // Regole di ricerca e filtri in Services/RicercaProdotti.swift e FiltriArticoli.swift.
-        Articolo.ordinatiPerScadenza(filtro.applica(presenti).filter { $0.corrisponde(a: ricerca) })
+        // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
+        ordine.ordina(filtro.applica(presenti).filter { $0.corrisponde(a: ricerca) })
     }
 
     private var senzaStrutture: Bool {
@@ -45,6 +46,9 @@ struct ElencoArticoliView: View {
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
+            ToolbarItem {
+                MenuOrdinamento(criteri: CriterioArticoli.perArticoli, ordine: $ordine)
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }
                     .disabled(senzaStrutture)

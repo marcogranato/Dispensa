@@ -6,7 +6,7 @@
 import SwiftUI
 import SwiftData
 
-/// Caratteristiche di una struttura e articoli presenti, ordinati per scadenza.
+/// Caratteristiche di una struttura e articoli presenti (all'inizio per scadenza, l'ordine si può cambiare).
 struct DettaglioStrutturaView: View {
     let struttura: Struttura
 
@@ -14,6 +14,7 @@ struct DettaglioStrutturaView: View {
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
+    @State private var ordine = OrdineArticoli.articoli
 
     var body: some View {
         Form {
@@ -46,7 +47,7 @@ struct DettaglioStrutturaView: View {
             }
 
             Section {
-                ForEach(Articolo.ordinatiPerScadenza(struttura.articoliAttivi)) { articolo in
+                ForEach(ordine.ordina(struttura.articoliAttivi)) { articolo in
                     RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
                 }
                 Button("Aggiungi articolo", systemImage: "plus.circle") { mostraNuovoArticolo = true }
@@ -60,6 +61,9 @@ struct DettaglioStrutturaView: View {
         .toolbar {
             ToolbarItem {
                 Button("Modifica") { mostraModifica = true }
+            }
+            ToolbarItem {
+                MenuOrdinamento(criteri: CriterioArticoli.perStruttura, ordine: $ordine)
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }

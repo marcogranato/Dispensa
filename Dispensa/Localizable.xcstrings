@@ -27,6 +27,16 @@
         }
       }
     },
+    "%@, %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
     "%lld %@" : {
       "localizations" : {
         "it" : {
@@ -68,6 +78,9 @@
       }
     },
     "%lld parti" : {
+
+    },
+    "A → Z" : {
 
     },
     "Aggiungi" : {
@@ -138,6 +151,9 @@
       }
     },
     "Articoli nello storico: %lld" : {
+
+    },
+    "Articoli presenti" : {
 
     },
     "Articoli presenti in «%@»: %lld. Verranno eliminati; lo storico resta." : {
@@ -289,6 +305,33 @@
 
     },
     "Dal" : {
+
+    },
+    "Dal meno recente" : {
+
+    },
+    "Dal numero più alto" : {
+
+    },
+    "Dal numero più basso" : {
+
+    },
+    "Dal più recente" : {
+
+    },
+    "Dalla meno recente" : {
+
+    },
+    "Dalla più lontana" : {
+
+    },
+    "Dalla più recente" : {
+
+    },
+    "Dalla più vicina" : {
+
+    },
+    "Data di creazione" : {
 
     },
     "Data di inserimento" : {
@@ -708,6 +751,12 @@
     "Operazione non riuscita" : {
 
     },
+    "Ordina" : {
+
+    },
+    "Ordina per" : {
+
+    },
     "pacchetti" : {
 
     },
@@ -1045,7 +1094,13 @@
     "Verranno eliminati tutti gli articoli consumati e buttati di «%@». L'operazione non si può annullare." : {
 
     },
+    "Verso" : {
+
+    },
     "Viola" : {
+
+    },
+    "Z → A" : {
 
     }
   },
