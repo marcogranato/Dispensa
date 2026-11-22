@@ -11,8 +11,7 @@ struct ElencoArticoliView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var filtro = FiltroArticoli()
-    @State private var ordine = OrdineArticoli.articoli
+    @State private var stato = StatoArticoli.articoli
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
@@ -23,7 +22,7 @@ struct ElencoArticoliView: View {
 
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
-        ordine.ordina(filtro.applica(presenti).filter { $0.corrisponde(a: ricerca) })
+        stato.ordine.ordina(stato.filtro.applica(presenti).filter { $0.corrisponde(a: ricerca) })
     }
 
     private var senzaStrutture: Bool {
@@ -33,22 +32,21 @@ struct ElencoArticoliView: View {
     var body: some View {
         let articoli = self.articoli
         List {
-            if !filtro.vuoto, !articoli.isEmpty {
-                RigaFiltriAttivi(filtro: $filtro)
+            if stato.mostraRiga, !articoli.isEmpty {
+                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
             }
             ForEach(articoli) { articolo in
                 RigaArticoloConAzioni(articolo: articolo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
             }
         }
         .navigationTitle("Articoli")
-        .filtriArticoli($filtro, dispensa: dispensa, contesto: .articoli)
+        .menuVista($stato, dispensa: dispensa) {
+            FiltriArticoliView(dispensa: dispensa, contesto: .articoli, filtro: $stato.filtro)
+        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
-            ToolbarItem {
-                MenuOrdinamento(criteri: CriterioArticoli.perArticoli, ordine: $ordine)
-            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }
                     .disabled(senzaStrutture)
@@ -75,10 +73,10 @@ struct ElencoArticoliView: View {
                 description: Text("Gli articoli di tutte le strutture compariranno qui.")
             )
         } else if articoli.isEmpty {
-            if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+            if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                 ContentUnavailableView.search(text: ricerca)
             } else {
-                NessunRisultatoConFiltri(filtro: $filtro)
+                NessunRisultatoConFiltri(stato: $stato)
             }
         }
     }

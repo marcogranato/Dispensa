@@ -6,7 +6,7 @@
 import Foundation
 
 /// Un criterio con cui si può ordinare un elenco, con i nomi da mostrare nel menu "Ordina".
-protocol CriterioOrdinamento: Hashable, Identifiable {
+protocol CriterioOrdinamento: Hashable, Identifiable, RawRepresentable where RawValue == String {
     var nomeLocalizzato: LocalizedStringResource { get }
     /// Il verso proposto quando si sceglie il criterio (es. le date di uscita dalla più recente).
     var crescenteNaturale: Bool { get }

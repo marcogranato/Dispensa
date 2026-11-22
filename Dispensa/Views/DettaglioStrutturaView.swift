@@ -15,13 +15,12 @@ struct DettaglioStrutturaView: View {
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
     @State private var ricerca = ""
-    @State private var filtro = FiltroArticoli()
-    @State private var ordine = OrdineArticoli.articoli
+    @State private var stato = StatoArticoli.struttura
 
     /// Gli articoli presenti che passano ricerca e filtri, nell'ordine scelto.
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
-        ordine.ordina(filtro.applica(struttura.articoliAttivi).filter { $0.corrisponde(a: ricerca) })
+        stato.ordine.ordina(stato.filtro.applica(struttura.articoliAttivi).filter { $0.corrisponde(a: ricerca) })
     }
 
     var body: some View {
@@ -57,8 +56,8 @@ struct DettaglioStrutturaView: View {
             }
 
             Section {
-                if !filtro.vuoto {
-                    RigaFiltriAttivi(filtro: $filtro)
+                if stato.mostraRiga {
+                    RigaFiltriAttivi(stato: $stato, dispensa: struttura.dispensa)
                 }
                 ForEach(articoli) { articolo in
                     RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
@@ -79,14 +78,15 @@ struct DettaglioStrutturaView: View {
         .formStyle(.grouped)
         .navigationTitle(struttura.nome)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
-        .filtriArticoli($filtro, dispensa: struttura.dispensa, contesto: .struttura)
+        .menuVista($stato, dispensa: struttura.dispensa) {
+            if let dispensa = struttura.dispensa {
+                FiltriArticoliView(dispensa: dispensa, contesto: .struttura, filtro: $stato.filtro)
+            }
+        }
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
             ToolbarItem {
                 Button("Modifica") { mostraModifica = true }
-            }
-            ToolbarItem {
-                MenuOrdinamento(criteri: CriterioArticoli.perStruttura, ordine: $ordine)
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }

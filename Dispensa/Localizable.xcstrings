@@ -30,16 +30,6 @@
         }
       }
     },
-    "%@, %@" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@"
-          }
-        }
-      }
-    },
     "%lld %@" : {
       "localizations" : {
         "it" : {
@@ -84,6 +74,9 @@
 
     },
     "A → Z" : {
+
+    },
+    "Aggiorna «%@»" : {
 
     },
     "Aggiungi" : {
@@ -185,10 +178,10 @@
     "Articolo non più in dispensa" : {
 
     },
-    "Attivi: %lld" : {
+    "Avariato" : {
 
     },
-    "Avariato" : {
+    "Azioni per %@" : {
 
     },
     "Azzera" : {
@@ -261,6 +254,9 @@
 
     },
     "Categorie" : {
+
+    },
+    "Categorie ed etichette" : {
 
     },
     "Chilogrammi" : {
@@ -464,6 +460,9 @@
     "Esiste già un'etichetta con questo nome." : {
 
     },
+    "Esiste già una vista con questo nome. Per cambiarla, applicala e scegli «Aggiorna»." : {
+
+    },
     "Esito" : {
 
     },
@@ -488,6 +487,12 @@
     "Filtri attivi: %lld" : {
 
     },
+    "Filtri e ordine attuali verranno salvati con questo nome." : {
+
+    },
+    "Filtri…" : {
+
+    },
     "Fine" : {
 
     },
@@ -504,6 +509,9 @@
 
     },
     "Garage" : {
+
+    },
+    "Gestisci viste…" : {
 
     },
     "Giallo" : {
@@ -699,6 +707,9 @@
 
     },
     "Nessuna ubicazione. Aggiungine una o scegli tra i suggerimenti." : {
+
+    },
+    "Nessuna vista salvata" : {
 
     },
     "Nessuno" : {
@@ -903,6 +914,9 @@
     "Rinomina ubicazione" : {
 
     },
+    "Rinomina vista" : {
+
+    },
     "Ripiani" : {
 
     },
@@ -919,6 +933,12 @@
 
     },
     "Salva" : {
+
+    },
+    "Salva come vista…" : {
+
+    },
+    "Salva vista" : {
 
     },
     "Scade il %@" : {
@@ -948,6 +968,9 @@
     "Scegli" : {
 
     },
+    "Scegli i filtri e l'ordine, poi «Salva come vista…» nel menu Vista." : {
+
+    },
     "Scegli una struttura in cui rimettere l'articolo." : {
 
     },
@@ -955,6 +978,9 @@
 
     },
     "Scrivi il nome della categoria." : {
+
+    },
+    "Scrivi il nome della vista." : {
 
     },
     "Scrivi un'emoji" : {
@@ -1123,6 +1149,18 @@
 
     },
     "Viola" : {
+
+    },
+    "Vista" : {
+
+    },
+    "Vista: %@" : {
+
+    },
+    "Vista: %@ (modificata)" : {
+
+    },
+    "Viste salvate" : {
 
     },
     "Z → A" : {

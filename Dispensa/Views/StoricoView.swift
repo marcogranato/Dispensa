@@ -12,8 +12,7 @@ struct StoricoView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var filtro = FiltroArticoli()
-    @State private var ordine = OrdineArticoli.storico
+    @State private var stato = StatoArticoli.storico
     @State private var selezione = Set<Articolo.ID>()
     @State private var daRimettere: Articolo?
     @State private var confermaSvuota = false
@@ -24,7 +23,7 @@ struct StoricoView: View {
 
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
-        ordine.ordina(filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) })
+        stato.ordine.ordina(stato.filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) })
     }
 
     private var selezionati: [Articolo] {
@@ -33,8 +32,8 @@ struct StoricoView: View {
 
     var body: some View {
         List(selection: $selezione) {
-            if !filtro.vuoto, !articoli.isEmpty {
-                RigaFiltriAttivi(filtro: $filtro)
+            if stato.mostraRiga, !articoli.isEmpty {
+                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
             }
             ForEach(articoli) { articolo in
                 RigaStoricoView(articolo: articolo)
@@ -56,7 +55,9 @@ struct StoricoView: View {
             }
         }
         .navigationTitle("Storico")
-        .filtriArticoli($filtro, dispensa: dispensa, contesto: .storico)
+        .menuVista($stato, dispensa: dispensa) {
+            FiltriArticoliView(dispensa: dispensa, contesto: .storico, filtro: $stato.filtro)
+        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
 #if os(iOS)
         .environment(\.editMode, $modalitaModifica)
@@ -102,10 +103,10 @@ struct StoricoView: View {
                 )
             }
         } else if articoli.isEmpty {
-            if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+            if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                 ContentUnavailableView.search(text: ricerca)
             } else {
-                NessunRisultatoConFiltri(filtro: $filtro)
+                NessunRisultatoConFiltri(stato: $stato)
             }
         }
     }
@@ -119,9 +120,6 @@ struct StoricoView: View {
             }
         }
 #endif
-        ToolbarItem {
-            MenuOrdinamento(criteri: CriterioArticoli.perStorico, ordine: $ordine)
-        }
         ToolbarItem(placement: .primaryAction) {
             if selezionati.isEmpty {
                 Button("Svuota storico", systemImage: "trash", role: .destructive) { confermaSvuota = true }

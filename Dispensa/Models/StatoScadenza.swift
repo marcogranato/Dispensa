@@ -6,7 +6,7 @@
 import Foundation
 
 /// Situazione di un articolo rispetto alla sua data di scadenza. Non viene salvato: si calcola.
-enum StatoScadenza: Hashable, CaseIterable, Identifiable {
+enum StatoScadenza: String, Hashable, CaseIterable, Identifiable {
     /// La data di scadenza è passata.
     case scaduto
     /// Scade oggi o entro i giorni di preavviso.

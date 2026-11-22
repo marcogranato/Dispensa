@@ -4,10 +4,11 @@
 //
 
 import Foundation
+import SwiftData
 
 /// Intervallo di giorni per filtrare una data: "dal" e "al" facoltativi, estremi compresi.
 /// Contano solo i giorni, non le ore.
-struct IntervalloDate: Equatable {
+struct IntervalloDate: Equatable, Codable {
     var dal: Date?
     var al: Date?
 
@@ -53,7 +54,7 @@ extension Prodotto {
 ///
 /// Dentro un gruppo basta una delle scelte (frigorifero **o** dispensa); tra gruppi diversi
 /// devono valere tutti (frigorifero **e** scaduti). Un gruppo vuoto non filtra.
-struct FiltroArticoli: FiltroElenco {
+struct FiltroArticoli: FiltroSalvabile {
     var strutture: Set<UUID> = []
     var tipiStruttura: Set<TipoStruttura> = []
     /// Una categoria comprende le sue sottocategorie.
@@ -102,9 +103,47 @@ struct FiltroArticoli: FiltroElenco {
             && uscita.include(articolo.dataUscita, calendario: calendario)
     }
 
+    /// Toglie strutture, categorie ed etichette che non esistono più (es. in una vista salvata).
+    func ripulito(per dispensa: Dispensa) -> FiltroArticoli {
+        var copia = self
+        copia.strutture.formIntersection(dispensa.strutture?.filter { !$0.isDeleted }.map(\.id) ?? [])
+        copia.categorie.formIntersection(dispensa.categorie?.filter { !$0.isDeleted }.map(\.id) ?? [])
+        copia.etichette.formIntersection(dispensa.etichette?.filter { !$0.isDeleted }.map(\.id) ?? [])
+        return copia
+    }
+
     /// Gli articoli che passano i filtri, nello stesso ordine.
     func applica(_ articoli: [Articolo], oggi: Date = .now, calendario: Calendar = .current) -> [Articolo] {
         guard !vuoto else { return articoli }
         return articoli.filter { include($0, oggi: oggi, calendario: calendario) }
+    }
+}
+
+extension TipoStruttura: Codable {}
+extension StatoScadenza: Codable {}
+extension StatoArticolo: Codable {}
+
+extension KeyedDecodingContainer {
+    /// Legge un campo facoltativo; se manca o non è valido restituisce `altrimenti`.
+    func leggi<T: Decodable>(_ chiave: Key, altrimenti: T) -> T {
+        ((try? decodeIfPresent(T.self, forKey: chiave)) ?? nil) ?? altrimenti
+    }
+}
+
+// Nell'estensione, così restano gli inizializzatori automatici (`FiltroArticoli()`, `FiltroArticoli(categorie:)`…).
+extension FiltroArticoli {
+    /// Lettura tollerante: un campo mancante o non valido (es. di una versione futura) torna al valore iniziale.
+    init(from decoder: Decoder) throws {
+        let campi = try decoder.container(keyedBy: CodingKeys.self)
+        strutture = campi.leggi(.strutture, altrimenti: [])
+        tipiStruttura = campi.leggi(.tipiStruttura, altrimenti: [])
+        categorie = campi.leggi(.categorie, altrimenti: [])
+        etichette = campi.leggi(.etichette, altrimenti: [])
+        scadenze = campi.leggi(.scadenze, altrimenti: [])
+        inserimento = campi.leggi(.inserimento, altrimenti: IntervalloDate())
+        produzione = campi.leggi(.produzione, altrimenti: IntervalloDate())
+        scadenza = campi.leggi(.scadenza, altrimenti: IntervalloDate())
+        uscita = campi.leggi(.uscita, altrimenti: IntervalloDate())
+        esiti = campi.leggi(.esiti, altrimenti: [])
     }
 }

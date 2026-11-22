@@ -34,6 +34,9 @@ final class Dispensa {
     @Relationship(deleteRule: .cascade, inverse: \Etichetta.dispensa)
     var etichette: [Etichetta]? = []
 
+    @Relationship(deleteRule: .cascade, inverse: \VistaSalvata.dispensa)
+    var viste: [VistaSalvata]? = []
+
     /// Articoli consumati o buttati, dal più recente.
     var articoliNelloStorico: [Articolo] {
         (articoli ?? [])

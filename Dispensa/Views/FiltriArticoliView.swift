@@ -16,72 +16,46 @@ enum ContestoFiltri {
     case struttura
 }
 
-extension View {
-    /// Aggiunge il pulsante "Filtri" nella barra e il foglio per scegliere i filtri sugli articoli.
-    /// `dispensa` è facoltativa solo per comodità della scheda della struttura (`struttura.dispensa`).
-    func filtriArticoli(_ filtro: Binding<FiltroArticoli>, dispensa: Dispensa?, contesto: ContestoFiltri) -> some View {
-        modifier(PulsanteFiltri(filtro: filtro) {
-            if let dispensa {
-                FiltriArticoliView(dispensa: dispensa, contesto: contesto, filtro: filtro)
-            }
-        })
-    }
-}
-
-/// Pulsante "Filtri" per la barra (icona piena quando ci sono filtri attivi) e il foglio che apre.
-struct PulsanteFiltri<Filtro: FiltroElenco, Foglio: View>: ViewModifier {
-    @Binding var filtro: Filtro
-    @ViewBuilder let foglio: () -> Foglio
-
-    @State private var aperto = false
-
-    func body(content: Content) -> some View {
-        content
-            .toolbar {
-                ToolbarItem {
-                    Button {
-                        aperto = true
-                    } label: {
-                        Label(
-                            "Filtri",
-                            systemImage: filtro.vuoto
-                                ? "line.3.horizontal.decrease.circle"
-                                : "line.3.horizontal.decrease.circle.fill"
-                        )
-                    }
-                    .accessibilityValue(filtro.vuoto ? Text("") : Text("Attivi: \(filtro.numeroAttivi)"))
-                }
-            }
-            .sheet(isPresented: $aperto, content: foglio)
-    }
-}
-
-/// Prima riga di un elenco filtrato: quanti filtri sono attivi e il pulsante per toglierli.
-struct RigaFiltriAttivi<Filtro: FiltroElenco>: View {
-    @Binding var filtro: Filtro
+/// Prima riga di un elenco filtrato: la vista applicata (o quanti filtri sono attivi) e il pulsante per toglierli.
+struct RigaFiltriAttivi<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: View {
+    @Binding var stato: StatoElenco<Filtro, Criterio>
+    let dispensa: Dispensa?
 
     var body: some View {
         HStack {
-            Label("Filtri attivi: \(filtro.numeroAttivi)", systemImage: "line.3.horizontal.decrease.circle.fill")
+            descrizione
                 .foregroundStyle(.secondary)
             Spacer()
-            Button("Azzera") { filtro = Filtro() }
+            Button("Azzera") { stato.azzera() }
                 .buttonStyle(.borderless)
         }
         .font(.subheadline)
     }
+
+    @ViewBuilder
+    private var descrizione: some View {
+        if let dispensa, let vista = stato.vistaApplicata(in: dispensa) {
+            if stato.differisce(da: vista, in: dispensa) {
+                Label("Vista: \(vista.nome) (modificata)", systemImage: "rectangle.stack")
+            } else {
+                Label("Vista: \(vista.nome)", systemImage: "rectangle.stack.fill")
+            }
+        } else {
+            Label("Filtri attivi: \(stato.filtro.numeroAttivi)", systemImage: "line.3.horizontal.decrease.circle.fill")
+        }
+    }
 }
 
 /// Messaggio per un elenco vuoto a causa dei filtri.
-struct NessunRisultatoConFiltri<Filtro: FiltroElenco>: View {
+struct NessunRisultatoConFiltri<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: View {
     var titolo: LocalizedStringKey = "Nessun articolo con questi filtri"
-    @Binding var filtro: Filtro
+    @Binding var stato: StatoElenco<Filtro, Criterio>
 
     var body: some View {
         ContentUnavailableView {
             Label(titolo, systemImage: "line.3.horizontal.decrease.circle")
         } actions: {
-            Button("Azzera filtri") { filtro = Filtro() }
+            Button("Azzera filtri") { stato.azzera() }
         }
     }
 }
@@ -171,6 +145,7 @@ struct FiltriArticoliView: View {
 /// Struttura comune dei fogli dei filtri: il modulo con le sezioni, "Azzera filtri" in fondo e "Fine" in alto.
 struct FoglioFiltri<Filtro: FiltroElenco, Sezioni: View>: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.salvaComeVista) private var salvaComeVista
     @Binding var filtro: Filtro
     @ViewBuilder let sezioni: () -> Sezioni
 
@@ -179,6 +154,12 @@ struct FoglioFiltri<Filtro: FiltroElenco, Sezioni: View>: View {
             Form {
                 sezioni()
                 Section {
+                    if let salvaComeVista {
+                        Button("Salva come vista…", systemImage: "rectangle.stack.badge.plus") {
+                            salvaComeVista()
+                            dismiss()
+                        }
+                    }
                     Button("Azzera filtri", systemImage: "xmark.circle", role: .destructive) {
                         filtro = Filtro()
                     }

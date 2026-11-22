@@ -12,8 +12,7 @@ struct ElencoProdottiView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var filtro = FiltroProdotti()
-    @State private var ordine = OrdineProdotti.prodotti
+    @State private var stato = StatoProdotti.prodotti
     @State private var mostraNuovoProdotto = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
@@ -21,10 +20,10 @@ struct ElencoProdottiView: View {
     var body: some View {
         // Ricerca e raggruppamento in Services/RicercaProdotti.swift, filtri in FiltriProdotti.swift,
         // ordine in OrdinamentoElenchi.swift.
-        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, filtro: filtro, ordine: ordine)
+        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, filtro: stato.filtro, ordine: stato.ordine)
         List {
-            if !filtro.vuoto, !gruppi.isEmpty {
-                RigaFiltriAttivi(filtro: $filtro)
+            if stato.mostraRiga, !gruppi.isEmpty {
+                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
             }
             ForEach(gruppi) { gruppo in
                 Section {
@@ -37,7 +36,9 @@ struct ElencoProdottiView: View {
             }
         }
         .navigationTitle("Prodotti")
-        .filtriProdotti($filtro, dispensa: dispensa)
+        .menuVista($stato, dispensa: dispensa) {
+            FiltriProdottiView(dispensa: dispensa, filtro: $stato.filtro)
+        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
         .overlay {
             if dispensa.prodotti?.isEmpty ?? true {
@@ -50,17 +51,14 @@ struct ElencoProdottiView: View {
                         .buttonStyle(.borderedProminent)
                 }
             } else if gruppi.isEmpty {
-                if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+                if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                     ContentUnavailableView.search(text: ricerca)
                 } else {
-                    NessunRisultatoConFiltri(titolo: "Nessun prodotto con questi filtri", filtro: $filtro)
+                    NessunRisultatoConFiltri(titolo: "Nessun prodotto con questi filtri", stato: $stato)
                 }
             }
         }
         .toolbar {
-            ToolbarItem {
-                MenuOrdinamento(criteri: CriterioProdotti.allCases, ordine: $ordine)
-            }
 #if os(macOS)
             ToolbarItem {
                 pulsanteCategorie

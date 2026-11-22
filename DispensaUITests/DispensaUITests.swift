@@ -146,7 +146,7 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(latte.waitForExistence(timeout: 5))
         XCTAssertTrue(vino.exists)
 
-        app.buttons["Filtri"].tap()
+        scegliNelMenuVista("Filtri…", in: app)
         let cantina = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Cantina")).firstMatch
         XCTAssertTrue(cantina.waitForExistence(timeout: 5))
         cantina.tap()
@@ -181,12 +181,8 @@ final class DispensaUITests: XCTestCase {
         // Senza scadenza vale l'ordine per nome: prima il latte.
         XCTAssertLessThan(latte.frame.minY, vino.frame.minY)
 
-        app.buttons["Ordina"].tap()
-        app.buttons["Nome"].tap()
-        app.buttons["Ordina"].tap()
-        let zA = app.buttons["Z → A"]
-        XCTAssertTrue(zA.waitForExistence(timeout: 5))
-        zA.tap()
+        scegliNelMenuVista("Ordina", "Nome", in: app)
+        scegliNelMenuVista("Ordina", "Z → A", in: app)
 
         XCTAssertTrue(vino.waitForExistence(timeout: 5))
         XCTAssertLessThan(vino.frame.minY, latte.frame.minY)
@@ -234,7 +230,7 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(sale.waitForExistence(timeout: 5))
         XCTAssertTrue(latte.exists)
 
-        app.buttons["Filtri"].tap()
+        scegliNelMenuVista("Filtri…", in: app)
         let senzaArticoli = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Senza articoli")).firstMatch
         XCTAssertTrue(senzaArticoli.waitForExistence(timeout: 5))
         senzaArticoli.tap()
@@ -248,6 +244,62 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Azzera"].tap()
         XCTAssertTrue(latte.waitForExistence(timeout: 5))
         XCTAssertTrue(sale.exists)
+    }
+
+    /// Nei Prodotti salva il filtro "Senza articoli" come vista, azzera e la richiama dal menu Vista.
+    @MainActor
+    func testVisteSalvate() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Latte", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
+
+        apri(scheda: "Prodotti", in: app)
+        let nuovoProdotto = app.buttons["Nuovo prodotto"]
+        XCTAssertTrue(nuovoProdotto.waitForExistence(timeout: 5))
+        nuovoProdotto.tap()
+        scrivi("Sale", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        let latte = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        let sale = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Sale")).firstMatch
+        XCTAssertTrue(sale.waitForExistence(timeout: 5))
+
+        // Filtro e salvataggio dal foglio dei filtri.
+        scegliNelMenuVista("Filtri…", in: app)
+        let senzaArticoli = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Senza articoli")).firstMatch
+        XCTAssertTrue(senzaArticoli.waitForExistence(timeout: 5))
+        senzaArticoli.tap()
+        app.buttons["Salva come vista…"].tap()
+        let campoNome = app.alerts.textFields.firstMatch
+        XCTAssertTrue(campoNome.waitForExistence(timeout: 5))
+        campoNome.typeText("Da ricomprare")
+        app.alerts.buttons["Salva"].tap()
+
+        XCTAssertTrue(app.staticTexts["Vista: Da ricomprare"].waitForExistence(timeout: 5))
+        XCTAssertFalse(latte.exists)
+
+        app.buttons["Azzera"].tap()
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+
+        scegliNelMenuVista("Da ricomprare", in: app)
+        XCTAssertTrue(app.staticTexts["Vista: Da ricomprare"].waitForExistence(timeout: 5))
+        XCTAssertTrue(sale.exists)
+        XCTAssertFalse(latte.exists)
+        allegaScreenshot(app)
+    }
+
+    /// Apre il menu "Vista" nella barra e tocca le voci indicate (anche dentro un sottomenu, es. "Ordina", "Nome").
+    @MainActor
+    private func scegliNelMenuVista(_ voci: String..., in app: XCUIApplication) {
+        app.buttons["Vista"].tap()
+        for voce in voci {
+            let pulsante = app.buttons[voce]
+            XCTAssertTrue(pulsante.waitForExistence(timeout: 5), "Manca «\(voce)» nel menu Vista")
+            pulsante.tap()
+        }
     }
 
     /// Scrive in un campo trovato dal suo testo di esempio (placeholder).

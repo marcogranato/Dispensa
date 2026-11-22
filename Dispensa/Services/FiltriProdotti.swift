@@ -4,9 +4,10 @@
 //
 
 import Foundation
+import SwiftData
 
 /// Se un prodotto ha articoli in dispensa oppure no (es. per trovare quelli finiti, da ricomprare).
-enum PresenzaProdotto: String, CaseIterable, Identifiable, Hashable {
+enum PresenzaProdotto: String, CaseIterable, Identifiable, Hashable, Codable {
     case conArticoli, senzaArticoli
 
     var id: Self { self }
@@ -28,7 +29,7 @@ enum PresenzaProdotto: String, CaseIterable, Identifiable, Hashable {
 
 /// Filtri sulla scheda Prodotti, con le stesse regole di `FiltroArticoli`:
 /// dentro un gruppo basta una delle scelte, tra gruppi diversi devono valere tutti.
-struct FiltroProdotti: FiltroElenco {
+struct FiltroProdotti: FiltroSalvabile {
     /// Una categoria comprende le sue sottocategorie.
     var categorie: Set<UUID> = []
     var etichette: Set<UUID> = []
@@ -48,9 +49,28 @@ struct FiltroProdotti: FiltroElenco {
         return true
     }
 
+    /// Toglie categorie ed etichette che non esistono più (es. in una vista salvata).
+    func ripulito(per dispensa: Dispensa) -> FiltroProdotti {
+        var copia = self
+        copia.categorie.formIntersection(dispensa.categorie?.filter { !$0.isDeleted }.map(\.id) ?? [])
+        copia.etichette.formIntersection(dispensa.etichette?.filter { !$0.isDeleted }.map(\.id) ?? [])
+        return copia
+    }
+
     /// I prodotti che passano i filtri, nello stesso ordine.
     func applica(_ prodotti: [Prodotto]) -> [Prodotto] {
         guard !vuoto else { return prodotti }
         return prodotti.filter(include)
+    }
+}
+
+// Nell'estensione, così restano gli inizializzatori automatici (`FiltroProdotti()`, `FiltroProdotti(categorie:)`…).
+extension FiltroProdotti {
+    /// Lettura tollerante, come per `FiltroArticoli`.
+    init(from decoder: Decoder) throws {
+        let campi = try decoder.container(keyedBy: CodingKeys.self)
+        categorie = campi.leggi(.categorie, altrimenti: [])
+        etichette = campi.leggi(.etichette, altrimenti: [])
+        presenze = campi.leggi(.presenze, altrimenti: [])
     }
 }
