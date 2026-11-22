@@ -6,7 +6,7 @@
 import SwiftUI
 import SwiftData
 
-/// Caratteristiche di una struttura e articoli presenti (all'inizio per scadenza, l'ordine si può cambiare).
+/// Caratteristiche di una struttura e articoli presenti, con ricerca, filtri e ordinamento (all'inizio per scadenza).
 struct DettaglioStrutturaView: View {
     let struttura: Struttura
 
@@ -14,9 +14,19 @@ struct DettaglioStrutturaView: View {
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
+    @State private var ricerca = ""
+    @State private var filtro = FiltroArticoli()
     @State private var ordine = OrdineArticoli.articoli
 
+    /// Gli articoli presenti che passano ricerca e filtri, nell'ordine scelto.
+    private var articoli: [Articolo] {
+        // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
+        ordine.ordina(filtro.applica(struttura.articoliAttivi).filter { $0.corrisponde(a: ricerca) })
+    }
+
     var body: some View {
+        let articoli = self.articoli
+        let totale = struttura.articoliAttivi.count
         Form {
             Section {
                 LabeledContent("Tipo") {
@@ -47,16 +57,29 @@ struct DettaglioStrutturaView: View {
             }
 
             Section {
-                ForEach(ordine.ordina(struttura.articoliAttivi)) { articolo in
+                if !filtro.vuoto {
+                    RigaFiltriAttivi(filtro: $filtro)
+                }
+                ForEach(articoli) { articolo in
                     RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
+                }
+                if articoli.isEmpty, totale > 0 {
+                    Text("Nessun articolo corrisponde alla ricerca o ai filtri.")
+                        .foregroundStyle(.secondary)
                 }
                 Button("Aggiungi articolo", systemImage: "plus.circle") { mostraNuovoArticolo = true }
             } header: {
-                Text("Articoli presenti: \(struttura.articoliAttivi.count)")
+                if articoli.count == totale {
+                    Text("Articoli presenti: \(totale)")
+                } else {
+                    Text("Articoli presenti: \(articoli.count) di \(totale)")
+                }
             }
         }
         .formStyle(.grouped)
         .navigationTitle(struttura.nome)
+        .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
+        .filtriArticoli($filtro, dispensa: struttura.dispensa, contesto: .struttura)
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
             ToolbarItem {

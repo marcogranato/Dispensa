@@ -193,6 +193,63 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// Ricerca nella scheda della struttura e filtro "Senza articoli" nella scheda Prodotti.
+    @MainActor
+    func testFiltriProdottiERicercaInStruttura() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        for nome in ["Latte", "Vino"] {
+            app.buttons["Aggiungi articolo"].tap()
+            scrivi(nome, nelPrimoCampoDi: app)
+            app.buttons["Salva"].tap()
+        }
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
+
+        // Ricerca dentro la struttura: su iPhone il campo compare tirando giù l'elenco.
+        let campoRicerca = app.searchFields.firstMatch
+        if !campoRicerca.exists {
+            app.collectionViews.firstMatch.swipeDown()
+        }
+        XCTAssertTrue(campoRicerca.waitForExistence(timeout: 5))
+        campoRicerca.tap()
+        campoRicerca.typeText("vino")
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1 di 2"].waitForExistence(timeout: 5))
+        let latteInStruttura = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        XCTAssertFalse(latteInStruttura.exists)
+        allegaScreenshot(app)
+
+        // Chiude la ricerca: la tastiera coprirebbe la barra delle schede.
+        app.buttons["Chiudi"].tap()
+
+        // Un prodotto senza articoli.
+        apri(scheda: "Prodotti", in: app)
+        let nuovoProdotto = app.buttons["Nuovo prodotto"]
+        XCTAssertTrue(nuovoProdotto.waitForExistence(timeout: 5))
+        nuovoProdotto.tap()
+        scrivi("Sale", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+
+        let latte = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        let sale = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Sale")).firstMatch
+        XCTAssertTrue(sale.waitForExistence(timeout: 5))
+        XCTAssertTrue(latte.exists)
+
+        app.buttons["Filtri"].tap()
+        let senzaArticoli = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Senza articoli")).firstMatch
+        XCTAssertTrue(senzaArticoli.waitForExistence(timeout: 5))
+        senzaArticoli.tap()
+        app.buttons["Fine"].tap()
+
+        XCTAssertTrue(app.staticTexts["Filtri attivi: 1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(sale.exists)
+        XCTAssertFalse(latte.exists)
+        allegaScreenshot(app)
+
+        app.buttons["Azzera"].tap()
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+        XCTAssertTrue(sale.exists)
+    }
+
     /// Scrive in un campo trovato dal suo testo di esempio (placeholder).
     @MainActor
     private func scrivi(_ testo: String, nelCampoConEsempio esempio: String, in app: XCUIApplication) {
@@ -295,6 +352,7 @@ final class DispensaUITests: XCTestCase {
         let app = avviaConDispensa()
 
         apri(scheda: "Prodotti", in: app)
+        app.buttons["Categorie ed etichette"].tap()
         app.buttons["Etichette"].tap()
         let aggiungi = app.buttons["Aggiungi un'etichetta"]
         XCTAssertTrue(aggiungi.waitForExistence(timeout: 5))
@@ -342,6 +400,7 @@ final class DispensaUITests: XCTestCase {
         let app = avviaConDispensa()
 
         apri(scheda: "Prodotti", in: app)
+        app.buttons["Categorie ed etichette"].tap()
         app.buttons["Categorie"].tap()
         let aggiungi = app.buttons["Aggiungi una categoria"]
         XCTAssertTrue(aggiungi.waitForExistence(timeout: 5))

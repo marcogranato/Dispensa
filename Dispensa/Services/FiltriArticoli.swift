@@ -25,11 +25,35 @@ struct IntervalloDate: Equatable {
     }
 }
 
-/// Filtri sugli articoli (presenti o nello storico). Non viene salvato: i filtri salvati arriveranno nella fase 4.
+/// Un insieme di filtri di un elenco: quanti gruppi sono attivi e il filtro "vuoto" iniziale.
+protocol FiltroElenco: Equatable {
+    init()
+    /// Quanti gruppi di filtri sono impostati.
+    var numeroAttivi: Int { get }
+}
+
+extension FiltroElenco {
+    var vuoto: Bool { numeroAttivi == 0 }
+}
+
+extension Prodotto {
+    /// Vero se la categoria del prodotto, o una superiore, è tra quelle indicate
+    /// (scegliere una categoria comprende le sue sottocategorie).
+    func appartiene(aUnaDi categorie: Set<UUID>) -> Bool {
+        (categoria?.percorso ?? []).contains { categorie.contains($0.id) }
+    }
+
+    /// Vero se il prodotto ha almeno una delle etichette indicate.
+    func haUnaDelle(etichette scelte: Set<UUID>) -> Bool {
+        (etichette ?? []).contains { scelte.contains($0.id) }
+    }
+}
+
+/// Filtri sugli articoli (presenti, nello storico o di una struttura). Non viene salvato: i filtri salvati arriveranno nella fase 4.
 ///
 /// Dentro un gruppo basta una delle scelte (frigorifero **o** dispensa); tra gruppi diversi
 /// devono valere tutti (frigorifero **e** scaduti). Un gruppo vuoto non filtra.
-struct FiltroArticoli: Equatable {
+struct FiltroArticoli: FiltroElenco {
     var strutture: Set<UUID> = []
     var tipiStruttura: Set<TipoStruttura> = []
     /// Una categoria comprende le sue sottocategorie.
@@ -53,8 +77,6 @@ struct FiltroArticoli: Equatable {
         ].filter { $0 }.count
     }
 
-    var vuoto: Bool { numeroAttivi == 0 }
-
     func include(_ articolo: Articolo, oggi: Date = .now, calendario: Calendar = .current) -> Bool {
         if !strutture.isEmpty {
             guard let struttura = articolo.struttura, strutture.contains(struttura.id) else { return false }
@@ -63,13 +85,10 @@ struct FiltroArticoli: Equatable {
             guard let struttura = articolo.struttura, tipiStruttura.contains(struttura.tipo) else { return false }
         }
         if !categorie.isEmpty {
-            // Il percorso comprende la categoria del prodotto e tutte quelle superiori.
-            let percorso = articolo.prodotto?.categoria?.percorso ?? []
-            guard percorso.contains(where: { categorie.contains($0.id) }) else { return false }
+            guard articolo.prodotto?.appartiene(aUnaDi: categorie) ?? false else { return false }
         }
         if !etichette.isEmpty {
-            let sue = articolo.prodotto?.etichette ?? []
-            guard sue.contains(where: { etichette.contains($0.id) }) else { return false }
+            guard articolo.prodotto?.haUnaDelle(etichette: etichette) ?? false else { return false }
         }
         if !scadenze.isEmpty {
             guard scadenze.contains(articolo.statoScadenza(oggi: oggi, calendario: calendario)) else { return false }

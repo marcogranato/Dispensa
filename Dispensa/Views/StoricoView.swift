@@ -56,7 +56,7 @@ struct StoricoView: View {
             }
         }
         .navigationTitle("Storico")
-        .filtriArticoli($filtro, dispensa: dispensa, perStorico: true)
+        .filtriArticoli($filtro, dispensa: dispensa, contesto: .storico)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
 #if os(iOS)
         .environment(\.editMode, $modalitaModifica)

@@ -41,7 +41,7 @@ struct ElencoArticoliView: View {
             }
         }
         .navigationTitle("Articoli")
-        .filtriArticoli($filtro, dispensa: dispensa, perStorico: false)
+        .filtriArticoli($filtro, dispensa: dispensa, contesto: .articoli)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)

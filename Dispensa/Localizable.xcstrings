@@ -14,6 +14,9 @@
         }
       }
     },
+    "«Senza articoli» trova i prodotti finiti, da ricomprare." : {
+
+    },
     "%@ (dalla categoria superiore)" : {
 
     },
@@ -169,6 +172,16 @@
     "Articoli presenti: %lld" : {
 
     },
+    "Articoli presenti: %lld di %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Articoli presenti: %1$lld di %2$lld"
+          }
+        }
+      }
+    },
     "Articolo non più in dispensa" : {
 
     },
@@ -263,6 +276,9 @@
 
     },
     "Colore" : {
+
+    },
+    "Con articoli" : {
 
     },
     "Confezionamento" : {
@@ -646,10 +662,16 @@
     "Nessun articolo con questi filtri" : {
 
     },
+    "Nessun articolo corrisponde alla ricerca o ai filtri." : {
+
+    },
     "Nessun colore" : {
 
     },
     "Nessun prodotto" : {
+
+    },
+    "Nessun prodotto con questi filtri" : {
 
     },
     "Nessuna" : {
@@ -939,6 +961,9 @@
 
     },
     "Se non indichi un nome, viene usato il tipo." : {
+
+    },
+    "Senza articoli" : {
 
     },
     "Senza categoria" : {

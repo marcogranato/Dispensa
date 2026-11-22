@@ -6,17 +6,32 @@
 import SwiftUI
 import SwiftData
 
+/// Dove si usano i filtri sugli articoli: decide quali sezioni compaiono nel foglio.
+enum ContestoFiltri {
+    /// Scheda Articoli: tutti i filtri sugli articoli presenti.
+    case articoli
+    /// Storico: in più esito (consumato o buttato) e data di uscita.
+    case storico
+    /// Scheda di una struttura: senza strutture e tipo di struttura.
+    case struttura
+}
+
 extension View {
-    /// Aggiunge il pulsante "Filtri" nella barra e il foglio per sceglierli (schede Articoli e Storico).
-    func filtriArticoli(_ filtro: Binding<FiltroArticoli>, dispensa: Dispensa, perStorico: Bool) -> some View {
-        modifier(ModificatoreFiltri(filtro: filtro, dispensa: dispensa, perStorico: perStorico))
+    /// Aggiunge il pulsante "Filtri" nella barra e il foglio per scegliere i filtri sugli articoli.
+    /// `dispensa` è facoltativa solo per comodità della scheda della struttura (`struttura.dispensa`).
+    func filtriArticoli(_ filtro: Binding<FiltroArticoli>, dispensa: Dispensa?, contesto: ContestoFiltri) -> some View {
+        modifier(PulsanteFiltri(filtro: filtro) {
+            if let dispensa {
+                FiltriArticoliView(dispensa: dispensa, contesto: contesto, filtro: filtro)
+            }
+        })
     }
 }
 
-private struct ModificatoreFiltri: ViewModifier {
-    @Binding var filtro: FiltroArticoli
-    let dispensa: Dispensa
-    let perStorico: Bool
+/// Pulsante "Filtri" per la barra (icona piena quando ci sono filtri attivi) e il foglio che apre.
+struct PulsanteFiltri<Filtro: FiltroElenco, Foglio: View>: ViewModifier {
+    @Binding var filtro: Filtro
+    @ViewBuilder let foglio: () -> Foglio
 
     @State private var aperto = false
 
@@ -37,22 +52,20 @@ private struct ModificatoreFiltri: ViewModifier {
                     .accessibilityValue(filtro.vuoto ? Text("") : Text("Attivi: \(filtro.numeroAttivi)"))
                 }
             }
-            .sheet(isPresented: $aperto) {
-                FiltriArticoliView(dispensa: dispensa, perStorico: perStorico, filtro: $filtro)
-            }
+            .sheet(isPresented: $aperto, content: foglio)
     }
 }
 
 /// Prima riga di un elenco filtrato: quanti filtri sono attivi e il pulsante per toglierli.
-struct RigaFiltriAttivi: View {
-    @Binding var filtro: FiltroArticoli
+struct RigaFiltriAttivi<Filtro: FiltroElenco>: View {
+    @Binding var filtro: Filtro
 
     var body: some View {
         HStack {
             Label("Filtri attivi: \(filtro.numeroAttivi)", systemImage: "line.3.horizontal.decrease.circle.fill")
                 .foregroundStyle(.secondary)
             Spacer()
-            Button("Azzera") { filtro = FiltroArticoli() }
+            Button("Azzera") { filtro = Filtro() }
                 .buttonStyle(.borderless)
         }
         .font(.subheadline)
@@ -60,25 +73,23 @@ struct RigaFiltriAttivi: View {
 }
 
 /// Messaggio per un elenco vuoto a causa dei filtri.
-struct NessunRisultatoConFiltri: View {
-    @Binding var filtro: FiltroArticoli
+struct NessunRisultatoConFiltri<Filtro: FiltroElenco>: View {
+    var titolo: LocalizedStringKey = "Nessun articolo con questi filtri"
+    @Binding var filtro: Filtro
 
     var body: some View {
         ContentUnavailableView {
-            Label("Nessun articolo con questi filtri", systemImage: "line.3.horizontal.decrease.circle")
+            Label(titolo, systemImage: "line.3.horizontal.decrease.circle")
         } actions: {
-            Button("Azzera filtri") { filtro = FiltroArticoli() }
+            Button("Azzera filtri") { filtro = Filtro() }
         }
     }
 }
 
 /// Foglio con tutti i filtri sugli articoli. Le modifiche valgono subito; "Fine" chiude.
 struct FiltriArticoliView: View {
-    @Environment(\.dismiss) private var dismiss
-
     let dispensa: Dispensa
-    /// Nello storico ci sono anche esito (consumato o buttato) e data di uscita.
-    let perStorico: Bool
+    let contesto: ContestoFiltri
     @Binding var filtro: FiltroArticoli
 
     private var strutture: [Struttura] {
@@ -91,15 +102,15 @@ struct FiltriArticoliView: View {
         return TipoStruttura.allCases.filter(presenti.contains)
     }
 
+    private var perStorico: Bool { contesto == .storico }
+
     var body: some View {
-        NavigationStack {
-            Form {
+        FoglioFiltri(filtro: $filtro) {
+            if contesto != .struttura {
                 if !strutture.isEmpty {
                     Section("Strutture") {
                         ForEach(strutture) { struttura in
-                            rigaConSpunta(filtro.strutture.contains(struttura.id)) {
-                                filtro.strutture.inverti(struttura.id)
-                            } contenuto: {
+                            RigaConSpunta(selezione: $filtro.strutture, valore: struttura.id) {
                                 Label(struttura.nome, systemImage: struttura.tipo.simbolo)
                             }
                         }
@@ -108,49 +119,68 @@ struct FiltriArticoliView: View {
                 if tipi.count > 1 {
                     Section("Tipo di struttura") {
                         ForEach(tipi) { tipo in
-                            rigaConSpunta(filtro.tipiStruttura.contains(tipo)) {
-                                filtro.tipiStruttura.inverti(tipo)
-                            } contenuto: {
+                            RigaConSpunta(selezione: $filtro.tipiStruttura, valore: tipo) {
                                 Label { Text(tipo.nomeLocalizzato) } icon: { Image(systemName: tipo.simbolo) }
                             }
                         }
                     }
                 }
-                sezioneCategorie
-                sezioneEtichette
+            }
+            SezioneFiltroCategorie(dispensa: dispensa, selezione: $filtro.categorie)
+            SezioneFiltroEtichette(dispensa: dispensa, selezione: $filtro.etichette)
 
-                Section("Scadenza") {
-                    ForEach(StatoScadenza.allCases) { stato in
-                        rigaConSpunta(filtro.scadenze.contains(stato)) {
-                            filtro.scadenze.inverti(stato)
-                        } contenuto: {
-                            Label { Text(stato.nomeLocalizzato) } icon: { Image(systemName: stato.simbolo) }
+            Section("Scadenza") {
+                ForEach(StatoScadenza.allCases) { stato in
+                    RigaConSpunta(selezione: $filtro.scadenze, valore: stato) {
+                        Label { Text(stato.nomeLocalizzato) } icon: { Image(systemName: stato.simbolo) }
+                    }
+                }
+            }
+
+            if perStorico {
+                Section("Esito") {
+                    ForEach([StatoArticolo.consumato, .buttato]) { esito in
+                        RigaConSpunta(selezione: $filtro.esiti, valore: esito) {
+                            Text(esito.nomeLocalizzato)
                         }
                     }
                 }
+            }
 
-                if perStorico {
-                    Section("Esito") {
-                        ForEach([StatoArticolo.consumato, .buttato]) { esito in
-                            rigaConSpunta(filtro.esiti.contains(esito)) {
-                                filtro.esiti.inverti(esito)
-                            } contenuto: {
-                                Text(esito.nomeLocalizzato)
-                            }
-                        }
-                    }
-                }
+            sezioneDate("Data di scadenza", intervallo: $filtro.scadenza)
+            sezioneDate("Data di inserimento", intervallo: $filtro.inserimento)
+            sezioneDate("Data di produzione", intervallo: $filtro.produzione)
+            if perStorico {
+                sezioneDate("Data di uscita", intervallo: $filtro.uscita)
+            }
+        }
+    }
 
-                sezioneDate("Data di scadenza", intervallo: $filtro.scadenza)
-                sezioneDate("Data di inserimento", intervallo: $filtro.inserimento)
-                sezioneDate("Data di produzione", intervallo: $filtro.produzione)
-                if perStorico {
-                    sezioneDate("Data di uscita", intervallo: $filtro.uscita)
-                }
+    private func sezioneDate(_ titolo: LocalizedStringKey, intervallo: Binding<IntervalloDate>) -> some View {
+        Section {
+            RigaDataFacoltativa("Dal", data: intervallo.dal)
+            RigaDataFacoltativa("Al", data: intervallo.al)
+        } header: {
+            Text(titolo)
+        }
+    }
+}
 
+// MARK: - Componenti comuni dei fogli dei filtri
+
+/// Struttura comune dei fogli dei filtri: il modulo con le sezioni, "Azzera filtri" in fondo e "Fine" in alto.
+struct FoglioFiltri<Filtro: FiltroElenco, Sezioni: View>: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var filtro: Filtro
+    @ViewBuilder let sezioni: () -> Sezioni
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                sezioni()
                 Section {
                     Button("Azzera filtri", systemImage: "xmark.circle", role: .destructive) {
-                        filtro = FiltroArticoli()
+                        filtro = Filtro()
                     }
                     .disabled(filtro.vuoto)
                 }
@@ -170,16 +200,19 @@ struct FiltriArticoliView: View {
         .frame(minWidth: 420, minHeight: 520)
 #endif
     }
+}
 
-    @ViewBuilder
-    private var sezioneCategorie: some View {
+/// L'albero delle categorie con le spunte (non compare se non ci sono categorie).
+struct SezioneFiltroCategorie: View {
+    let dispensa: Dispensa
+    @Binding var selezione: Set<UUID>
+
+    var body: some View {
         let categorie = dispensa.categorieInOrdine
         if !categorie.isEmpty {
             Section {
                 ForEach(categorie) { categoria in
-                    rigaConSpunta(filtro.categorie.contains(categoria.id)) {
-                        filtro.categorie.inverti(categoria.id)
-                    } contenuto: {
+                    RigaConSpunta(selezione: $selezione, valore: categoria.id) {
                         RigaCategoriaView(categoria: categoria, rientrata: true)
                     }
                 }
@@ -190,39 +223,43 @@ struct FiltriArticoliView: View {
             }
         }
     }
+}
 
-    @ViewBuilder
-    private var sezioneEtichette: some View {
+/// Le etichette con le spunte (non compare se non ci sono etichette).
+struct SezioneFiltroEtichette: View {
+    let dispensa: Dispensa
+    @Binding var selezione: Set<UUID>
+
+    var body: some View {
         let etichette = dispensa.etichetteOrdinate
         if !etichette.isEmpty {
             Section("Etichette") {
                 ForEach(etichette) { etichetta in
-                    rigaConSpunta(filtro.etichette.contains(etichetta.id)) {
-                        filtro.etichette.inverti(etichetta.id)
-                    } contenuto: {
+                    RigaConSpunta(selezione: $selezione, valore: etichetta.id) {
                         GettoneEtichettaView(etichetta)
                     }
                 }
             }
         }
     }
+}
 
-    private func sezioneDate(_ titolo: LocalizedStringKey, intervallo: Binding<IntervalloDate>) -> some View {
-        Section {
-            RigaDataFacoltativa("Dal", data: intervallo.dal)
-            RigaDataFacoltativa("Al", data: intervallo.al)
-        } header: {
-            Text(titolo)
-        }
-    }
+/// Riga che aggiunge o toglie `valore` dalla selezione con un tocco, con la spunta quando è scelta.
+struct RigaConSpunta<Valore: Hashable, Contenuto: View>: View {
+    @Binding var selezione: Set<Valore>
+    let valore: Valore
+    @ViewBuilder let contenuto: () -> Contenuto
 
-    /// Riga che si sceglie o si toglie con un tocco, con la spunta quando è scelta.
-    private func rigaConSpunta<Contenuto: View>(
-        _ scelta: Bool,
-        azione: @escaping () -> Void,
-        @ViewBuilder contenuto: () -> Contenuto
-    ) -> some View {
-        Button(action: azione) {
+    private var scelta: Bool { selezione.contains(valore) }
+
+    var body: some View {
+        Button {
+            if scelta {
+                selezione.remove(valore)
+            } else {
+                selezione.insert(valore)
+            }
+        } label: {
             HStack {
                 contenuto()
                 Spacer()
@@ -236,16 +273,5 @@ struct FiltriArticoliView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(scelta ? .isSelected : [])
-    }
-}
-
-private extension Set {
-    /// Aggiunge l'elemento se manca, lo toglie se c'è.
-    mutating func inverti(_ elemento: Element) {
-        if contains(elemento) {
-            remove(elemento)
-        } else {
-            insert(elemento)
-        }
     }
 }

@@ -6,21 +6,26 @@
 import SwiftUI
 import SwiftData
 
-/// Catalogo dei prodotti di una dispensa diviso per categoria, con ricerca e ordinamento.
+/// Catalogo dei prodotti di una dispensa diviso per categoria, con ricerca, filtri e ordinamento.
 struct ElencoProdottiView: View {
     @Environment(\.apriNellaPila) private var apri
     let dispensa: Dispensa
 
     @State private var ricerca = ""
+    @State private var filtro = FiltroProdotti()
     @State private var ordine = OrdineProdotti.prodotti
     @State private var mostraNuovoProdotto = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
 
     var body: some View {
-        // Ricerca e raggruppamento in Services/RicercaProdotti.swift, ordine in OrdinamentoElenchi.swift.
-        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, ordine: ordine)
+        // Ricerca e raggruppamento in Services/RicercaProdotti.swift, filtri in FiltriProdotti.swift,
+        // ordine in OrdinamentoElenchi.swift.
+        let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, filtro: filtro, ordine: ordine)
         List {
+            if !filtro.vuoto, !gruppi.isEmpty {
+                RigaFiltriAttivi(filtro: $filtro)
+            }
             ForEach(gruppi) { gruppo in
                 Section {
                     ForEach(gruppo.prodotti) { prodotto in
@@ -32,6 +37,7 @@ struct ElencoProdottiView: View {
             }
         }
         .navigationTitle("Prodotti")
+        .filtriProdotti($filtro, dispensa: dispensa)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
         .overlay {
             if dispensa.prodotti?.isEmpty ?? true {
@@ -44,19 +50,33 @@ struct ElencoProdottiView: View {
                         .buttonStyle(.borderedProminent)
                 }
             } else if gruppi.isEmpty {
-                ContentUnavailableView.search(text: ricerca)
+                if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+                    ContentUnavailableView.search(text: ricerca)
+                } else {
+                    NessunRisultatoConFiltri(titolo: "Nessun prodotto con questi filtri", filtro: $filtro)
+                }
             }
         }
         .toolbar {
             ToolbarItem {
                 MenuOrdinamento(criteri: CriterioProdotti.allCases, ordine: $ordine)
             }
+#if os(macOS)
             ToolbarItem {
-                Button("Categorie", systemImage: "list.bullet.indent") { apri?(ElencoCategorie(dispensa: dispensa)) }
+                pulsanteCategorie
             }
             ToolbarItem {
-                Button("Etichette", systemImage: "number") { apri?(ElencoEtichette(dispensa: dispensa)) }
+                pulsanteEtichette
             }
+#else
+            // Su iPhone la barra non ha posto per tutti i pulsanti: "Filtri" e "+" finirebbero in "Altro".
+            ToolbarItem {
+                Menu("Categorie ed etichette", systemImage: "list.bullet.indent") {
+                    pulsanteCategorie
+                    pulsanteEtichette
+                }
+            }
+#endif
             ToolbarItem(placement: .primaryAction) {
                 Button("Nuovo prodotto", systemImage: "plus") { mostraNuovoProdotto = true }
             }
@@ -68,6 +88,14 @@ struct ElencoProdottiView: View {
             ProdottoFormView(dispensa: dispensa, prodotto: prodotto)
         }
         .eliminazioneProdotto($prodottoDaEliminare)
+    }
+
+    private var pulsanteCategorie: some View {
+        Button("Categorie", systemImage: "list.bullet.indent") { apri?(ElencoCategorie(dispensa: dispensa)) }
+    }
+
+    private var pulsanteEtichette: some View {
+        Button("Etichette", systemImage: "number") { apri?(ElencoEtichette(dispensa: dispensa)) }
     }
 
     /// Titolo della sezione: emoji e nome della categoria principale, o "Senza categoria".

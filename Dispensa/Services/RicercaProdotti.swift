@@ -106,9 +106,14 @@ extension Articolo {
 extension Dispensa {
     /// I prodotti che corrispondono alla ricerca, divisi per categoria principale in ordine alfabetico,
     /// con "Senza categoria" in fondo; i gruppi vuoti non compaiono.
+    /// Il filtro si applica prima di formare i gruppi.
     /// Dentro ogni gruppo i prodotti seguono `ordine` (vedi Services/OrdinamentoElenchi.swift).
-    func gruppiDiProdotti(cercando ricerca: String = "", ordine: OrdineProdotti = .prodotti) -> [GruppoProdotti] {
-        let trovati = (prodotti ?? []).filter { $0.corrisponde(a: ricerca) }
+    func gruppiDiProdotti(
+        cercando ricerca: String = "",
+        filtro: FiltroProdotti = FiltroProdotti(),
+        ordine: OrdineProdotti = .prodotti
+    ) -> [GruppoProdotti] {
+        let trovati = filtro.applica(prodotti ?? []).filter { $0.corrisponde(a: ricerca) }
         // I gruppi nascono dai prodotti trovati: così nessun prodotto può restare fuori dall'elenco.
         var principali: [UUID: Categoria] = [:]
         var perCategoria: [UUID?: [Prodotto]] = [:]
