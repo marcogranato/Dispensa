@@ -12,6 +12,7 @@ struct StoricoView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
+    @State private var filtro = FiltroArticoli()
     @State private var selezione = Set<Articolo.ID>()
     @State private var daRimettere: Articolo?
     @State private var confermaSvuota = false
@@ -21,8 +22,8 @@ struct StoricoView: View {
 #endif
 
     private var articoli: [Articolo] {
-        // Regole di ricerca in Services/RicercaProdotti.swift.
-        dispensa.articoliNelloStorico.filter { $0.corrisponde(a: ricerca) }
+        // Regole di ricerca e filtri in Services/RicercaProdotti.swift e FiltriArticoli.swift.
+        filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) }
     }
 
     private var selezionati: [Articolo] {
@@ -31,6 +32,9 @@ struct StoricoView: View {
 
     var body: some View {
         List(selection: $selezione) {
+            if !filtro.vuoto, !articoli.isEmpty {
+                RigaFiltriAttivi(filtro: $filtro)
+            }
             ForEach(articoli) { articolo in
                 RigaStoricoView(articolo: articolo)
                     .swipeActions(edge: .leading) {
@@ -51,6 +55,7 @@ struct StoricoView: View {
             }
         }
         .navigationTitle("Storico")
+        .filtriArticoli($filtro, dispensa: dispensa, perStorico: true)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
 #if os(iOS)
         .environment(\.editMode, $modalitaModifica)
@@ -96,7 +101,11 @@ struct StoricoView: View {
                 )
             }
         } else if articoli.isEmpty {
-            ContentUnavailableView.search(text: ricerca)
+            if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+                ContentUnavailableView.search(text: ricerca)
+            } else {
+                NessunRisultatoConFiltri(filtro: $filtro)
+            }
         }
     }
 

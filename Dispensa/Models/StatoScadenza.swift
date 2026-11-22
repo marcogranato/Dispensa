@@ -6,17 +6,38 @@
 import Foundation
 
 /// Situazione di un articolo rispetto alla sua data di scadenza. Non viene salvato: si calcola.
-enum StatoScadenza: Equatable {
-    case senzaScadenza
-    case valido
-    /// Scade oggi o entro i giorni di preavviso.
-    case inScadenza
+enum StatoScadenza: Hashable, CaseIterable, Identifiable {
     /// La data di scadenza è passata.
     case scaduto
+    /// Scade oggi o entro i giorni di preavviso.
+    case inScadenza
+    case valido
+    case senzaScadenza
 
     /// Giorni di preavviso per considerare un articolo "in scadenza".
     /// Diventerà un'impostazione con le notifiche (fase 6).
     static let giorniPreavviso = 3
+
+    var id: Self { self }
+
+    var nomeLocalizzato: LocalizedStringResource {
+        switch self {
+        case .scaduto: "Scaduti"
+        case .inScadenza: "In scadenza"
+        case .valido: "Non in scadenza"
+        case .senzaScadenza: "Senza scadenza"
+        }
+    }
+
+    /// Lo stesso simbolo usato accanto alla data nelle righe degli articoli (quando c'è).
+    var simbolo: String {
+        switch self {
+        case .scaduto: "exclamationmark.triangle.fill"
+        case .inScadenza: "clock"
+        case .valido: "checkmark.circle"
+        case .senzaScadenza: "calendar.badge.minus"
+        }
+    }
 }
 
 extension Articolo {

@@ -118,6 +118,50 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// Nella scheda Articoli il filtro per struttura lascia solo gli articoli di quella struttura; "Azzera" li riporta tutti.
+    @MainActor
+    func testFiltri() throws {
+        let app = avviaConDispensa()
+
+        // Frigorifero con il latte, Cantina con il vino.
+        creaEApriStruttura(app)
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Latte", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons["BackButton"].tap()
+
+        app.buttons["Nuova struttura"].tap()
+        scrivi("Cantina", nelCampoConEsempio: "Frigorifero", in: app)
+        app.buttons["Salva"].tap()
+        tocca(rigaCheIniziaCon: "Cantina", in: app)
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Vino", nelPrimoCampoDi: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
+
+        apri(scheda: "Articoli", in: app)
+        let latte = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        let vino = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Vino")).firstMatch
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+        XCTAssertTrue(vino.exists)
+
+        app.buttons["Filtri"].tap()
+        let cantina = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Cantina")).firstMatch
+        XCTAssertTrue(cantina.waitForExistence(timeout: 5))
+        cantina.tap()
+        app.buttons["Fine"].tap()
+
+        XCTAssertTrue(app.staticTexts["Filtri attivi: 1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(vino.exists)
+        XCTAssertFalse(latte.exists)
+        allegaScreenshot(app)
+
+        app.buttons["Azzera"].tap()
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+        XCTAssertTrue(vino.exists)
+    }
+
     /// Scrive in un campo trovato dal suo testo di esempio (placeholder).
     @MainActor
     private func scrivi(_ testo: String, nelCampoConEsempio esempio: String, in app: XCUIApplication) {

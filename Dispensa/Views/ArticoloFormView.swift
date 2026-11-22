@@ -220,35 +220,8 @@ struct ArticoloFormView: View {
     private var sezioneDate: some View {
         Section("Date") {
             DatePicker("Inserimento", selection: $dati.dataInserimento, displayedComponents: .date)
-            dataFacoltativa("Produzione", data: $dati.dataProduzione)
-            dataFacoltativa("Scadenza", data: $dati.dataScadenza)
-        }
-    }
-
-    /// Data facoltativa su una sola riga: "Aggiungi" se manca, altrimenti il selettore e un pulsante per toglierla.
-    @ViewBuilder
-    private func dataFacoltativa(_ titolo: LocalizedStringKey, data: Binding<Date?>) -> some View {
-        if let valore = data.wrappedValue {
-            HStack {
-                DatePicker(
-                    titolo,
-                    selection: Binding(get: { valore }, set: { data.wrappedValue = $0 }),
-                    displayedComponents: .date
-                )
-                Button("Rimuovi data", systemImage: "xmark.circle.fill") {
-                    data.wrappedValue = nil
-                }
-                .labelStyle(.iconOnly)
-                .foregroundStyle(.secondary)
-                .buttonStyle(.borderless)
-            }
-        } else {
-            LabeledContent(titolo) {
-                Button("Aggiungi") {
-                    data.wrappedValue = Calendar.current.startOfDay(for: .now)
-                }
-                .buttonStyle(.borderless)
-            }
+            RigaDataFacoltativa("Produzione", data: $dati.dataProduzione)
+            RigaDataFacoltativa("Scadenza", data: $dati.dataScadenza)
         }
     }
 

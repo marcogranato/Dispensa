@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "it",
   "strings" : {
+    "" : {
+
+    },
     "«%@» verrà tolta dai prodotti che la usano: %lld. I prodotti restano." : {
       "localizations" : {
         "it" : {
@@ -97,6 +100,9 @@
     "Aggiungi una struttura" : {
 
     },
+    "Al" : {
+
+    },
     "Allo stesso livello esiste già una categoria con questo nome." : {
 
     },
@@ -150,7 +156,16 @@
     "Articolo non più in dispensa" : {
 
     },
+    "Attivi: %lld" : {
+
+    },
     "Avariato" : {
+
+    },
+    "Azzera" : {
+
+    },
+    "Azzera filtri" : {
 
     },
     "Azzurro" : {
@@ -273,6 +288,21 @@
     "Da ora gli articoli consumati o buttati verranno eliminati. Articoli già nello storico: %lld." : {
 
     },
+    "Dal" : {
+
+    },
+    "Data di inserimento" : {
+
+    },
+    "Data di produzione" : {
+
+    },
+    "Data di scadenza" : {
+
+    },
+    "Data di uscita" : {
+
+    },
     "Date" : {
 
     },
@@ -375,6 +405,9 @@
     "Esiste già un'etichetta con questo nome." : {
 
     },
+    "Esito" : {
+
+    },
     "Estraibile" : {
 
     },
@@ -388,6 +421,12 @@
 
     },
     "Facoltative" : {
+
+    },
+    "Filtri" : {
+
+    },
+    "Filtri attivi: %lld" : {
 
     },
     "Fine" : {
@@ -448,6 +487,9 @@
 
     },
     "In dispensa" : {
+
+    },
+    "In scadenza" : {
 
     },
     "In scadenza il %@" : {
@@ -558,6 +600,9 @@
     "Nessun articolo" : {
 
     },
+    "Nessun articolo con questi filtri" : {
+
+    },
     "Nessun colore" : {
 
     },
@@ -607,6 +652,9 @@
 
     },
     "Non ci sono ancora etichette: creane una." : {
+
+    },
+    "Non in scadenza" : {
 
     },
     "Non indicata" : {
@@ -808,6 +856,9 @@
     "Scadenza" : {
 
     },
+    "Scaduti" : {
+
+    },
     "Scaduto" : {
 
     },
@@ -848,6 +899,9 @@
 
     },
     "Senza emoji si usa quella della categoria: %@. La lettura del codice con la fotocamera arriverà in seguito." : {
+
+    },
+    "Senza scadenza" : {
 
     },
     "Senza ubicazione" : {
@@ -927,6 +981,9 @@
     "Tipo di parte" : {
 
     },
+    "Tipo di struttura" : {
+
+    },
     "Tipo personalizzato" : {
 
     },
@@ -937,6 +994,9 @@
 
     },
     "Ubicazioni" : {
+
+    },
+    "Una categoria comprende le sue sottocategorie." : {
 
     },
     "Una categoria non può stare dentro sé stessa o una sua sottocategoria." : {

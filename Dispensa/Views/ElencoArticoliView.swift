@@ -11,6 +11,7 @@ struct ElencoArticoliView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
+    @State private var filtro = FiltroArticoli()
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
@@ -20,8 +21,8 @@ struct ElencoArticoliView: View {
     }
 
     private var articoli: [Articolo] {
-        // Regole di ricerca in Services/RicercaProdotti.swift.
-        Articolo.ordinatiPerScadenza(presenti.filter { $0.corrisponde(a: ricerca) })
+        // Regole di ricerca e filtri in Services/RicercaProdotti.swift e FiltriArticoli.swift.
+        Articolo.ordinatiPerScadenza(filtro.applica(presenti).filter { $0.corrisponde(a: ricerca) })
     }
 
     private var senzaStrutture: Bool {
@@ -29,12 +30,17 @@ struct ElencoArticoliView: View {
     }
 
     var body: some View {
+        let articoli = self.articoli
         List {
+            if !filtro.vuoto, !articoli.isEmpty {
+                RigaFiltriAttivi(filtro: $filtro)
+            }
             ForEach(articoli) { articolo in
                 RigaArticoloConAzioni(articolo: articolo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
             }
         }
         .navigationTitle("Articoli")
+        .filtriArticoli($filtro, dispensa: dispensa, perStorico: false)
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)
@@ -65,7 +71,11 @@ struct ElencoArticoliView: View {
                 description: Text("Gli articoli di tutte le strutture compariranno qui.")
             )
         } else if articoli.isEmpty {
-            ContentUnavailableView.search(text: ricerca)
+            if filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
+                ContentUnavailableView.search(text: ricerca)
+            } else {
+                NessunRisultatoConFiltri(filtro: $filtro)
+            }
         }
     }
 }
