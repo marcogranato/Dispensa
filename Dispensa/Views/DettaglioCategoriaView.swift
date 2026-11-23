@@ -104,7 +104,7 @@ struct DettaglioCategoriaView: View {
     /// Nome e marca del prodotto; se sta in una sottocategoria, anche il suo nome.
     private func rigaProdotto(_ prodotto: Prodotto) -> some View {
         HStack {
-            IconaProdottoView(icona: prodotto.iconaEffettiva)
+            IconaProdottoView(icona: prodotto.iconaEffettiva, miniatura: prodotto.miniatura)
             VStack(alignment: .leading) {
                 Text(prodotto.nomeConMarca)
                     .foregroundStyle(.primary)

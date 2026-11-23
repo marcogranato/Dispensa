@@ -46,6 +46,12 @@ struct DettaglioProdottoView: View {
 
     private var contenuto: some View {
         Form {
+            if let immagine = prodotto.immagine {
+                Section {
+                    ImmagineSchedaView(dati: immagine)
+                }
+            }
+
             Section {
                 LabeledContent("Categoria") {
                     Text(prodotto.categoria?.percorsoTestuale ?? String(localized: "Senza categoria"))

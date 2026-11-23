@@ -127,7 +127,7 @@ struct DettaglioEtichettaView: View {
                 ForEach(prodotti) { prodotto in
                     RigaNavigabile(valore: prodotto) {
                         HStack {
-                            IconaProdottoView(icona: prodotto.iconaEffettiva)
+                            IconaProdottoView(icona: prodotto.iconaEffettiva, miniatura: prodotto.miniatura)
                             Text(prodotto.nomeConMarca)
                                 .foregroundStyle(.primary)
                         }

@@ -33,6 +33,12 @@ struct DettaglioStrutturaView: View {
         let articoli = self.articoli
         let totale = struttura.articoliAttivi.count
         Form {
+            if let immagine = struttura.immagine {
+                Section {
+                    ImmagineSchedaView(dati: immagine)
+                }
+            }
+
             Section {
                 LabeledContent("Tipo") {
                     HStack {

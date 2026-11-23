@@ -52,7 +52,7 @@ struct RigaArticoloView: View {
     }
 
     private var icona: some View {
-        IconaProdottoView(icona: articolo.prodotto?.iconaEffettiva)
+        IconaProdottoView(icona: articolo.prodotto?.iconaEffettiva, miniatura: articolo.prodotto?.miniatura)
     }
 
     private func testoDettagli(_ testo: String) -> some View {

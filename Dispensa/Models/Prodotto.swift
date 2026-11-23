@@ -23,7 +23,10 @@ final class Prodotto {
     var icona: String?
     var descrizione: String?
     var note: String?
+    /// Foto ridotta (vedi Services/ElaborazioneImmagini.swift), salvata fuori dal database.
     @Attribute(.externalStorage) var immagine: Data?
+    /// Versione piccola della foto, per le righe degli elenchi.
+    var miniatura: Data?
     var dataCreazione: Date = Date.now
 
     var dispensa: Dispensa?

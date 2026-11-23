@@ -23,6 +23,9 @@ struct StrutturaFormView: View {
     @State private var numeroRipiani: Int
     @State private var numeroCassetti: Int
     @State private var note: String
+    @State private var immagine: ImmagineElaborata?
+    /// L'immagine all'apertura: si riscrive solo se cambia.
+    private let immagineIniziale: ImmagineElaborata?
 
     /// `ubicazione` è quella proposta per una nuova struttura.
     init(dispensa: Dispensa, struttura: Struttura? = nil, ubicazione: Ubicazione? = nil) {
@@ -35,6 +38,8 @@ struct StrutturaFormView: View {
         _numeroRipiani = State(initialValue: struttura?.numeroRipiani ?? 0)
         _numeroCassetti = State(initialValue: struttura?.numeroCassetti ?? 0)
         _note = State(initialValue: struttura?.note ?? "")
+        immagineIniziale = ImmagineElaborata(salvata: struttura?.immagine, miniatura: struttura?.miniatura)
+        _immagine = State(initialValue: immagineIniziale)
     }
 
     private var ubicazioni: [Ubicazione] {
@@ -98,6 +103,8 @@ struct StrutturaFormView: View {
                     TextField("Note", text: $note, prompt: Text("Facoltative"), axis: .vertical)
                         .lineLimit(3...6)
                 }
+
+                SezioneImmagine(immagine: $immagine)
             }
             .formStyle(.grouped)
             .navigationTitle(struttura == nil ? Text("Nuova struttura") : Text("Modifica struttura"))
@@ -143,6 +150,10 @@ struct StrutturaFormView: View {
         strutturaDaSalvare.numeroRipiani = numeroRipiani == 0 ? nil : numeroRipiani
         strutturaDaSalvare.numeroCassetti = numeroCassetti == 0 ? nil : numeroCassetti
         strutturaDaSalvare.note = notePulite.isEmpty ? nil : notePulite
+        if immagine != immagineIniziale {
+            strutturaDaSalvare.immagine = immagine?.immagine
+            strutturaDaSalvare.miniatura = immagine?.miniatura
+        }
         dismiss()
     }
 }

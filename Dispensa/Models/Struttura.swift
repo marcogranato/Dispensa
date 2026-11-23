@@ -17,7 +17,10 @@ final class Struttura {
     var numeroRipiani: Int?
     var numeroCassetti: Int?
     var note: String?
+    /// Foto ridotta (vedi Services/ElaborazioneImmagini.swift), salvata fuori dal database.
     @Attribute(.externalStorage) var immagine: Data?
+    /// Versione piccola della foto, per le righe degli elenchi.
+    var miniatura: Data?
     var dataCreazione: Date = Date.now
 
     var dispensa: Dispensa?

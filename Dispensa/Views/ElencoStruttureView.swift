@@ -146,7 +146,12 @@ struct RigaStrutturaView: View {
                     }
                 }
             } icon: {
-                Image(systemName: struttura.tipo.simbolo)
+                // La foto della struttura, se c'è; altrimenti il simbolo del tipo.
+                if let miniatura = struttura.miniatura {
+                    MiniaturaView(dati: miniatura)
+                } else {
+                    Image(systemName: struttura.tipo.simbolo)
+                }
             }
             Spacer()
             Text(struttura.articoliAttivi.count, format: .number)

@@ -27,6 +27,9 @@ struct ProdottoFormView: View {
     @State private var descrizione: String
     @State private var note: String
     @State private var etichette: Set<UUID>
+    @State private var immagine: ImmagineElaborata?
+    /// L'immagine all'apertura: si riscrive solo se cambia.
+    private let immagineIniziale: ImmagineElaborata?
 
     init(dispensa: Dispensa, prodotto: Prodotto? = nil) {
         self.dispensa = dispensa
@@ -43,6 +46,8 @@ struct ProdottoFormView: View {
         _descrizione = State(initialValue: prodotto?.descrizione ?? "")
         _note = State(initialValue: prodotto?.note ?? "")
         _etichette = State(initialValue: Set((prodotto?.etichette ?? []).map(\.id)))
+        immagineIniziale = ImmagineElaborata(salvata: prodotto?.immagine, miniatura: prodotto?.miniatura)
+        _immagine = State(initialValue: immagineIniziale)
     }
 
     private var nomePulito: String {
@@ -67,6 +72,7 @@ struct ProdottoFormView: View {
         NavigationStack {
             Form {
                 sezioneIdentificazione
+                SezioneImmagine(immagine: $immagine)
                 sezioneEtichette
                 sezioneQuantita
                 sezioneConfezionamento
@@ -208,6 +214,10 @@ struct ProdottoFormView: View {
         prodottoDaSalvare.descrizione = Self.testoFacoltativo(descrizione)
         prodottoDaSalvare.note = Self.testoFacoltativo(note)
         prodottoDaSalvare.etichette = dispensa.etichetteOrdinate.filter { etichette.contains($0.id) }
+        if immagine != immagineIniziale {
+            prodottoDaSalvare.immagine = immagine?.immagine
+            prodottoDaSalvare.miniatura = immagine?.miniatura
+        }
         dismiss()
     }
 

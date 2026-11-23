@@ -130,6 +130,9 @@
     "Anteprima" : {
 
     },
+    "Apre l'immagine grande" : {
+
+    },
     "Arancione" : {
 
     },
@@ -230,6 +233,9 @@
 
     },
     "Cambia etichette" : {
+
+    },
+    "Cambia foto" : {
 
     },
     "Cantina" : {
@@ -547,6 +553,12 @@
     "Il prodotto ha ancora articoli in dispensa." : {
 
     },
+    "Immagine" : {
+
+    },
+    "Immagine scelta" : {
+
+    },
     "Impossibile eliminare" : {
 
     },
@@ -736,6 +748,9 @@
     "Non ci sono ancora etichette: creane una." : {
 
     },
+    "Non è stato possibile leggere l'immagine." : {
+
+    },
     "Non in scadenza" : {
 
     },
@@ -905,6 +920,9 @@
     "Quantità totale" : {
 
     },
+    "Questo file non è un'immagine che l'app sa leggere." : {
+
+    },
     "Qui compariranno gli articoli consumati o buttati." : {
 
     },
@@ -974,7 +992,13 @@
     "scatolette" : {
 
     },
+    "Scatta foto" : {
+
+    },
     "Scegli" : {
+
+    },
+    "Scegli foto" : {
 
     },
     "Scegli i filtri e l'ordine, poi «Salva come vista…» nel menu Vista." : {
@@ -1094,6 +1118,9 @@
 
     },
     "Tipo personalizzato" : {
+
+    },
+    "Togli immagine" : {
 
     },
     "Togli predefinita" : {
