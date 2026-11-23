@@ -44,23 +44,22 @@ final class NavigazioneMacUITests: XCTestCase {
 
         // Scheda Articoli: apre il dettaglio del latte.
         app.outlines.staticTexts["Articoli"].click()
-        // Gli articoli sono in tabella: un clic seleziona, il doppio clic apre il dettaglio.
-        let latte = app.tables.staticTexts["Latte"].firstMatch
+        let latte = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
         XCTAssertTrue(latte.waitForExistence(timeout: 5), "articoli: " + app.debugDescription)
-        latte.doubleClick()
+        latte.click()
         XCTAssertTrue(app.buttons["Butta…"].waitForExistence(timeout: 5), "primo click: " + app.debugDescription)
 
         // Strutture e di nuovo Articoli, senza tornare indietro.
         app.outlines.staticTexts["Strutture"].click()
         app.outlines.staticTexts["Articoli"].click()
         XCTAssertTrue(latte.waitForExistence(timeout: 5))
-        latte.doubleClick()
+        latte.click()
         XCTAssertTrue(app.buttons["Butta…"].waitForExistence(timeout: 5), "dopo cambio scheda: " + app.debugDescription)
 
         // Indietro e di nuovo click sulla stessa riga.
         app.toolbars.buttons["Indietro"].click()
         XCTAssertTrue(latte.waitForExistence(timeout: 5))
-        latte.doubleClick()
+        latte.click()
         XCTAssertTrue(app.buttons["Butta…"].waitForExistence(timeout: 5), "dopo indietro: " + app.debugDescription)
 
         // Butta il latte, lo seleziona nello storico, poi apre una struttura.

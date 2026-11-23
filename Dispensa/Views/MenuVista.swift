@@ -19,28 +19,15 @@ extension View {
         dispensa: Dispensa?,
         @ViewBuilder filtri: @escaping () -> Filtri
     ) -> some View {
-        menuVista(stato, dispensa: dispensa, filtri: filtri) { EmptyView() }
-    }
-
-    /// Come sopra, con in più le voci `colonne` dopo "Ordina" (il sottomenu "Colonne" delle tabelle).
-    func menuVista<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento, Filtri: View, Colonne: View>(
-        _ stato: Binding<StatoElenco<Filtro, Criterio>>,
-        dispensa: Dispensa?,
-        @ViewBuilder filtri: @escaping () -> Filtri,
-        @ViewBuilder colonne: @escaping () -> Colonne
-    ) -> some View {
-        modifier(ModificatoreVista(stato: stato, dispensa: dispensa, filtri: filtri, colonne: colonne))
+        modifier(ModificatoreVista(stato: stato, dispensa: dispensa, filtri: filtri))
     }
 }
 
-private struct ModificatoreVista<
-    Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento, Filtri: View, Colonne: View
->: ViewModifier {
+private struct ModificatoreVista<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento, Filtri: View>: ViewModifier {
     @Environment(\.modelContext) private var modelContext
     @Binding var stato: StatoElenco<Filtro, Criterio>
     let dispensa: Dispensa?
     let filtri: () -> Filtri
-    let colonne: () -> Colonne
 
     @State private var mostraFiltri = false
     /// "Salva come vista…" scelto dal foglio dei filtri: il nome si chiede quando il foglio si è chiuso.
@@ -130,7 +117,6 @@ private struct ModificatoreVista<
                 } label: {
                     Label("Ordina", systemImage: "arrow.up.arrow.down")
                 }
-                colonne()
             }
             if let dispensa {
                 Section {

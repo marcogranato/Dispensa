@@ -21,12 +21,12 @@ struct StoricoView: View {
     @State private var modalitaModifica = EditMode.inactive
 #endif
 
+
     init(dispensa: Dispensa) {
         self.dispensa = dispensa
         // L'elenco si apre con la vista predefinita, se c'è.
         _stato = State(initialValue: StatoArticoli.storico.conPredefinita(in: dispensa))
     }
-
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
         stato.ordine.ordina(stato.filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) })
@@ -37,37 +37,33 @@ struct StoricoView: View {
     }
 
     var body: some View {
-        DisposizioneElenco { tabella in
-            Group {
-                if tabella {
-                    VStack(spacing: 0) {
-                        if stato.mostraRiga, !articoli.isEmpty {
-                            RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                            Divider()
-                        }
-                        TabellaStoricoView(
-                            articoli: articoli,
-                            ordine: $stato.ordine,
-                            selezione: $selezione,
-                            rimetti: rimetti,
-                            elimina: { modelContext.eliminaDalloStorico($0) }
-                        )
-                    }
-                } else {
-                    elenco
-                }
+        List(selection: $selezione) {
+            if stato.mostraRiga, !articoli.isEmpty {
+                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
             }
-            .menuVista($stato, dispensa: dispensa) {
-                FiltriArticoliView(dispensa: dispensa, contesto: .storico, filtro: $stato.filtro)
-            } colonne: {
-                if tabella {
-                    MenuColonne(.storico, righe: Articolo.self, colonne: ColonnaStorico.allCases)
-                }
+            ForEach(articoli) { articolo in
+                RigaStoricoView(articolo: articolo)
+                    .swipeActions(edge: .leading) {
+                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
+                            .tint(.blue)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button("Elimina", systemImage: "trash", role: .destructive) {
+                            modelContext.eliminaDalloStorico([articolo])
+                        }
+                    }
+                    .contextMenu {
+                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
+                        Button("Elimina dallo storico", systemImage: "trash", role: .destructive) {
+                            modelContext.eliminaDalloStorico([articolo])
+                        }
+                    }
             }
         }
         .navigationTitle("Storico")
+        .menuVista($stato, dispensa: dispensa) {
+            FiltriArticoliView(dispensa: dispensa, contesto: .storico, filtro: $stato.filtro)
+        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
 #if os(iOS)
         .environment(\.editMode, $modalitaModifica)
@@ -93,32 +89,6 @@ struct StoricoView: View {
             Button("OK") {}
         } message: { errore in
             Text(errore)
-        }
-    }
-
-    private var elenco: some View {
-        List(selection: $selezione) {
-            if stato.mostraRiga, !articoli.isEmpty {
-                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
-            }
-            ForEach(articoli) { articolo in
-                RigaStoricoView(articolo: articolo)
-                    .swipeActions(edge: .leading) {
-                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
-                            .tint(.blue)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button("Elimina", systemImage: "trash", role: .destructive) {
-                            modelContext.eliminaDalloStorico([articolo])
-                        }
-                    }
-                    .contextMenu {
-                        Button("Rimetti in dispensa", systemImage: "arrow.uturn.backward") { rimetti(articolo) }
-                        Button("Elimina dallo storico", systemImage: "trash", role: .destructive) {
-                            modelContext.eliminaDalloStorico([articolo])
-                        }
-                    }
-            }
         }
     }
 
@@ -183,10 +153,12 @@ struct StoricoView: View {
     }
 }
 
-extension Articolo {
-    /// Come è uscito dalla dispensa: "Consumato", "Buttato" o "Buttato (scaduto)".
-    var descrizioneEsito: String {
-        switch (stato, motivoScarto) {
+/// Riga di un articolo nello storico: come è uscito, quando e da dove.
+private struct RigaStoricoView: View {
+    let articolo: Articolo
+
+    private var esito: String {
+        switch (articolo.stato, articolo.motivoScarto) {
         case (.buttato, let motivo?):
             String(localized: "Buttato (\(String(localized: motivo.nomeLocalizzato)))")
         case (.buttato, nil):
@@ -196,16 +168,8 @@ extension Articolo {
         }
     }
 
-    var simboloEsito: String { stato == .buttato ? "trash.slash" : "checkmark.circle" }
-    var coloreEsito: Color { stato == .buttato ? .orange : .green }
-}
-
-/// Riga di un articolo nello storico: come è uscito, quando e da dove.
-private struct RigaStoricoView: View {
-    let articolo: Articolo
-
     private var dettagli: String {
-        var parti = [articolo.descrizioneEsito]
+        var parti = [esito]
         if let dataUscita = articolo.dataUscita {
             parti.append(dataUscita.formatted(date: .abbreviated, time: .omitted))
         }
@@ -217,8 +181,8 @@ private struct RigaStoricoView: View {
 
     var body: some View {
         HStack {
-            Image(systemName: articolo.simboloEsito)
-                .foregroundStyle(articolo.coloreEsito)
+            Image(systemName: articolo.stato == .buttato ? "trash.slash" : "checkmark.circle")
+                .foregroundStyle(articolo.stato == .buttato ? .orange : .green)
                 .accessibilityHidden(true)
             VStack(alignment: .leading) {
                 // L'emoji del prodotto sta vicino al nome, per non confondersi con l'icona consumato/buttato.
