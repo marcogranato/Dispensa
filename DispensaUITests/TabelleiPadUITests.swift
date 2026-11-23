@@ -65,6 +65,39 @@ final class TabelleiPadUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Butta…"].waitForExistence(timeout: 5), app.debugDescription)
     }
 
+    /// I prodotti in tabella, divisi per categoria; il tocco su una riga apre la scheda del prodotto.
+    @MainActor
+    func testTabellaDeiProdotti() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--in-memoria"]
+        app.launch()
+
+        app.buttons["Crea la tua prima dispensa"].tap()
+        scrivi("Casa", in: app)
+        app.buttons["Salva"].tap()
+        XCTAssertTrue(app.buttons["Aggiungi una struttura"].waitForExistence(timeout: 5))
+        app.buttons["Prodotti"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Aggiungi un prodotto"].waitForExistence(timeout: 5))
+        app.buttons["Aggiungi un prodotto"].tap()
+        scrivi("Pasta", in: app)
+        app.buttons["Salva"].tap()
+        // Su iPad il primo tocco può solo chiudere i suggerimenti della tastiera.
+        if app.buttons["Salva"].waitForExistence(timeout: 2) {
+            app.buttons["Salva"].tap()
+        }
+
+        let pasta = app.staticTexts["Pasta"].firstMatch
+        XCTAssertTrue(pasta.waitForExistence(timeout: 5))
+        // iPad non mostra i titoli delle sezioni: la categoria è una colonna.
+        XCTAssertTrue(intestazione("Categoria", in: app).exists, app.debugDescription)
+        XCTAssertTrue(intestazione("Presenti", in: app).exists, app.debugDescription)
+        XCTAssertFalse(intestazione("Codice", in: app).exists)
+        allegaScreenshot(app)
+
+        pasta.tap()
+        XCTAssertTrue(app.navigationBars["Pasta"].waitForExistence(timeout: 5), app.debugDescription)
+    }
+
     // MARK: - Aiuti
 
     /// L'intestazione di una colonna della tabella: un pulsante se la colonna ordina, altrimenti un elemento generico.

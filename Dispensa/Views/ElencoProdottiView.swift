@@ -27,24 +27,49 @@ struct ElencoProdottiView: View {
         // Ricerca e raggruppamento in Services/RicercaProdotti.swift, filtri in FiltriProdotti.swift,
         // ordine in OrdinamentoElenchi.swift.
         let gruppi = dispensa.gruppiDiProdotti(cercando: ricerca, filtro: stato.filtro, ordine: stato.ordine)
-        List {
-            if stato.mostraRiga, !gruppi.isEmpty {
-                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
-            }
-            ForEach(gruppi) { gruppo in
-                Section {
-                    ForEach(gruppo.prodotti) { prodotto in
-                        riga(prodotto)
+        DisposizioneElenco { tabella in
+            Group {
+                if tabella {
+                    VStack(spacing: 0) {
+                        if stato.mostraRiga, !gruppi.isEmpty {
+                            RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                            Divider()
+                        }
+                        TabellaProdottiView(
+                            gruppi: gruppi,
+                            ordine: $stato.ordine,
+                            modifica: { prodottoInModifica = $0 },
+                            elimina: { prodottoDaEliminare = $0 }
+                        )
                     }
-                } header: {
-                    intestazione(gruppo.categoria)
+                } else {
+                    List {
+                        if stato.mostraRiga, !gruppi.isEmpty {
+                            RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
+                        }
+                        ForEach(gruppi) { gruppo in
+                            Section {
+                                ForEach(gruppo.prodotti) { prodotto in
+                                    riga(prodotto)
+                                }
+                            } header: {
+                                IntestazioneCategoria(categoria: gruppo.categoria)
+                            }
+                        }
+                    }
+                }
+            }
+            .menuVista($stato, dispensa: dispensa) {
+                FiltriProdottiView(dispensa: dispensa, filtro: $stato.filtro)
+            } colonne: {
+                if tabella {
+                    MenuColonne(.prodotti, righe: Prodotto.self, colonne: ColonnaProdotti.allCases)
                 }
             }
         }
         .navigationTitle("Prodotti")
-        .menuVista($stato, dispensa: dispensa) {
-            FiltriProdottiView(dispensa: dispensa, filtro: $stato.filtro)
-        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta o codice"))
         .overlay {
             if dispensa.prodotti?.isEmpty ?? true {
@@ -100,22 +125,6 @@ struct ElencoProdottiView: View {
 
     private var pulsanteEtichette: some View {
         Button("Etichette", systemImage: "number") { apri?(ElencoEtichette(dispensa: dispensa)) }
-    }
-
-    /// Titolo della sezione: emoji e nome della categoria principale, o "Senza categoria".
-    @ViewBuilder
-    private func intestazione(_ categoria: Categoria?) -> some View {
-        if let categoria {
-            HStack(spacing: 6) {
-                if let emoji = categoria.iconaEffettiva {
-                    Text(emoji)
-                        .accessibilityHidden(true)
-                }
-                Text(categoria.nome)
-            }
-        } else {
-            Text("Senza categoria")
-        }
     }
 
     private func riga(_ prodotto: Prodotto) -> some View {
