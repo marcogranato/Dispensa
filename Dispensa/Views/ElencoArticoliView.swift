@@ -16,12 +16,12 @@ struct ElencoArticoliView: View {
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
 
-
     init(dispensa: Dispensa) {
         self.dispensa = dispensa
         // L'elenco si apre con la vista predefinita, se c'è.
         _stato = State(initialValue: StatoArticoli.articoli.conPredefinita(in: dispensa))
     }
+
     private var presenti: [Articolo] {
         (dispensa.strutture ?? []).flatMap(\.articoliAttivi)
     }
@@ -37,18 +37,49 @@ struct ElencoArticoliView: View {
 
     var body: some View {
         let articoli = self.articoli
-        List {
-            if stato.mostraRiga, !articoli.isEmpty {
-                RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
+        DisposizioneElenco { tabella in
+            Group {
+                if tabella {
+                    VStack(spacing: 0) {
+                        if stato.mostraRiga, !articoli.isEmpty {
+                            RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                            Divider()
+                        }
+                        TabellaArticoliView(
+                            articoli: articoli,
+                            tipo: .articoli,
+                            ordine: $stato.ordine,
+                            azione: $azione,
+                            daEliminare: $daEliminare
+                        )
+                    }
+                } else {
+                    List {
+                        if stato.mostraRiga, !articoli.isEmpty {
+                            RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
+                        }
+                        ForEach(articoli) { articolo in
+                            RigaArticoloConAzioni(
+                                articolo: articolo,
+                                mostraStruttura: true,
+                                azione: $azione,
+                                daEliminare: $daEliminare
+                            )
+                        }
+                    }
+                }
             }
-            ForEach(articoli) { articolo in
-                RigaArticoloConAzioni(articolo: articolo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
+            .menuVista($stato, dispensa: dispensa) {
+                FiltriArticoliView(dispensa: dispensa, contesto: .articoli, filtro: $stato.filtro)
+            } colonne: {
+                if tabella {
+                    MenuColonne(.articoli, righe: Articolo.self, colonne: ColonnaArticoli.disponibili(per: .articoli))
+                }
             }
         }
         .navigationTitle("Articoli")
-        .menuVista($stato, dispensa: dispensa) {
-            FiltriArticoliView(dispensa: dispensa, contesto: .articoli, filtro: $stato.filtro)
-        }
         .searchable(text: $ricerca, prompt: Text("Nome, marca, categoria, #etichetta, struttura o codice"))
         .overlay { statoVuoto }
         .azioniArticolo($azione, daEliminare: $daEliminare)

@@ -130,6 +130,9 @@
     "Anteprima" : {
 
     },
+    "Apri" : {
+
+    },
     "Arancione" : {
 
     },
@@ -269,6 +272,9 @@
 
     },
     "Codice a barre o QR (facoltativo)" : {
+
+    },
+    "Colonne" : {
 
     },
     "Colore" : {
@@ -523,6 +529,9 @@
     "Gli articoli consumati o buttati restano consultabili nello storico. Se disattivato, vengono eliminati." : {
 
     },
+    "Gli articoli di questa struttura compariranno qui." : {
+
+    },
     "Gli articoli di tutte le strutture compariranno qui." : {
 
     },
@@ -686,6 +695,9 @@
 
     },
     "Nessun prodotto con questi filtri" : {
+
+    },
+    "Nessun risultato" : {
 
     },
     "Nessuna" : {
@@ -930,6 +942,9 @@
 
     },
     "Ripostiglio" : {
+
+    },
+    "Ripristina colonne" : {
 
     },
     "Rosa" : {

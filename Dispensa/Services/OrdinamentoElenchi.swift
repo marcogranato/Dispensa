@@ -88,7 +88,8 @@ extension Ordine where Criterio == CriterioArticoli {
         articoli.sorted(by: precede)
     }
 
-    private func precede(_ a: Articolo, _ b: Articolo) -> Bool {
+    /// Vero se `a` viene prima di `b`.
+    func precede(_ a: Articolo, _ b: Articolo) -> Bool {
         let principale: Bool?
         switch criterio {
         case .scadenza:
@@ -175,6 +176,67 @@ extension Prodotto {
     /// Quanti articoli di questo prodotto sono ora in dispensa.
     var numeroArticoliPresenti: Int {
         (articoli ?? []).filter { $0.stato == .attivo }.count
+    }
+}
+
+// MARK: - Intestazioni delle tabelle
+
+/// Collega l'intestazione di una colonna di tabella a un criterio: cliccandola si sceglie quel criterio,
+/// cliccandola di nuovo si inverte il verso. L'ordine resta quello dello stato dell'elenco.
+struct ComparatoreArticoli: SortComparator, Hashable {
+    let criterio: CriterioArticoli
+    var order: SortOrder
+
+    /// Il comparatore di una colonna, con il verso naturale del criterio.
+    init(_ criterio: CriterioArticoli) {
+        self.criterio = criterio
+        self.order = criterio.crescenteNaturale ? .forward : .reverse
+    }
+
+    init(_ ordine: OrdineArticoli) {
+        self.criterio = ordine.criterio
+        self.order = ordine.crescente ? .forward : .reverse
+    }
+
+    var ordine: OrdineArticoli {
+        var ordine = OrdineArticoli(criterio)
+        ordine.crescente = order == .forward
+        return ordine
+    }
+
+    func compare(_ a: Articolo, _ b: Articolo) -> ComparisonResult {
+        let ordine = self.ordine
+        if ordine.precede(a, b) { return .orderedAscending }
+        if ordine.precede(b, a) { return .orderedDescending }
+        return .orderedSame
+    }
+}
+
+struct ComparatoreProdotti: SortComparator, Hashable {
+    let criterio: CriterioProdotti
+    var order: SortOrder
+
+    init(_ criterio: CriterioProdotti) {
+        self.criterio = criterio
+        self.order = criterio.crescenteNaturale ? .forward : .reverse
+    }
+
+    init(_ ordine: OrdineProdotti) {
+        self.criterio = ordine.criterio
+        self.order = ordine.crescente ? .forward : .reverse
+    }
+
+    var ordine: OrdineProdotti {
+        var ordine = OrdineProdotti(criterio)
+        ordine.crescente = order == .forward
+        return ordine
+    }
+
+    func compare(_ a: Prodotto, _ b: Prodotto) -> ComparisonResult {
+        let ordine = self.ordine
+        if ordine.precede(a, b) { return .orderedAscending }
+        if ordine.precede(b, a) { return .orderedDescending }
+        return .orderedSame
     }
 }
 
