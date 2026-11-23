@@ -553,6 +553,9 @@
     "Impossibile salvare" : {
 
     },
+    "Imposta come predefinita" : {
+
+    },
     "In dispensa" : {
 
     },
@@ -659,6 +662,9 @@
 
     },
     "Modifica struttura" : {
+
+    },
+    "Mostra tutto" : {
 
     },
     "Motivo" : {
@@ -843,6 +849,9 @@
 
     },
     "Pezzo" : {
+
+    },
+    "Predefinita" : {
 
     },
     "Preleva" : {
@@ -1087,6 +1096,9 @@
     "Tipo personalizzato" : {
 
     },
+    "Togli predefinita" : {
+
+    },
     "Ubicazione" : {
 
     },
@@ -1103,6 +1115,9 @@
 
     },
     "Unità" : {
+
+    },
+    "Usa come predefinita" : {
 
     },
     "Usa Elimina solo per un articolo inserito per errore: non finirà nello storico. Per il cibo consumato o buttato usa Preleva o Butta." : {

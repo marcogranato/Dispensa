@@ -60,18 +60,18 @@ struct GestioneVisteTests {
         #expect(vista.ordine(criteri: CriterioProdotti.allCases, iniziale: .prodotti).criterio == .creazione)
     }
 
-    @Test func azzeraTornaAllOrdineInizialeSoloSeCEraUnaVista() throws {
+    @Test func mostraTuttoTornaAllOrdineInizialeSoloSeCEraUnaVista() throws {
         var stato = StatoArticoli.storico
         stato.ordine.criterio = .nome
         stato.filtro.esiti = [.buttato]
-        stato.azzera()
+        stato.mostraTutto()
         #expect(stato.filtro.vuoto)
         #expect(stato.ordine.criterio == .nome)
 
         let vista = try context.creaVista(nome: "Buttati", stato: stato, in: dispensa)
         stato.applica(vista, in: dispensa)
         #expect(stato.mostraRiga)
-        stato.azzera()
+        stato.mostraTutto()
         #expect(stato.vista == nil)
         #expect(stato.ordine == OrdineArticoli.storico)
         #expect(!stato.mostraRiga)
@@ -150,5 +150,69 @@ struct GestioneVisteTests {
         context.delete(dispensa)
         try context.save()
         #expect(try context.fetchCount(FetchDescriptor<VistaSalvata>()) == 0)
+    }
+
+    // MARK: - Vista predefinita
+
+    @Test func unaSolaPredefinitaPerElenco() throws {
+        let prima = try context.creaVista(nome: "Prima", stato: StatoArticoli.articoli, in: dispensa)
+        let seconda = try context.creaVista(nome: "Seconda", stato: StatoArticoli.articoli, in: dispensa)
+        let storico = try context.creaVista(nome: "Storico", stato: StatoArticoli.storico, in: dispensa)
+
+        context.impostaPredefinita(prima)
+        context.impostaPredefinita(storico)
+        #expect(dispensa.vistaPredefinita(per: .articoli) === prima)
+
+        context.impostaPredefinita(seconda)
+        #expect(!prima.predefinita)
+        #expect(dispensa.vistaPredefinita(per: .articoli) === seconda)
+        // Gli altri elenchi non cambiano.
+        #expect(dispensa.vistaPredefinita(per: .storico) === storico)
+
+        context.togliPredefinita(seconda)
+        #expect(dispensa.vistaPredefinita(per: .articoli) == nil)
+    }
+
+    @Test func lElencoSiApreConLaPredefinita() throws {
+        #expect(StatoArticoli.articoli.conPredefinita(in: dispensa) == StatoArticoli.articoli)
+
+        var scelto = StatoArticoli.articoli
+        scelto.filtro.scadenze = [.scaduto]
+        let vista = try context.creaVista(nome: "Scaduti", stato: scelto, in: dispensa)
+        context.impostaPredefinita(vista)
+
+        let aperto = StatoArticoli.articoli.conPredefinita(in: dispensa)
+        #expect(aperto.vista == vista.id)
+        #expect(aperto.filtro.scadenze == [.scaduto])
+        #expect(aperto.sullaPredefinita(in: dispensa))
+        // La scheda della struttura ha le sue viste.
+        #expect(StatoArticoli.struttura.conPredefinita(in: dispensa).vista == nil)
+    }
+
+    @Test func azzeraTornaPrimaAllaPredefinitaPoiATutto() throws {
+        var scelto = StatoProdotti.prodotti
+        scelto.filtro.presenze = [.senzaArticoli]
+        let predefinita = try context.creaVista(nome: "Da ricomprare", stato: scelto, in: dispensa)
+        context.impostaPredefinita(predefinita)
+
+        var stato = StatoProdotti.prodotti.conPredefinita(in: dispensa)
+        stato.filtro.presenze = [.conArticoli]
+        #expect(!stato.sullaPredefinita(in: dispensa))
+
+        stato.azzera(in: dispensa)
+        #expect(stato.sullaPredefinita(in: dispensa))
+        #expect(stato.filtro.presenze == [.senzaArticoli])
+
+        stato.azzera(in: dispensa)
+        #expect(stato.allInizio)
+    }
+
+    @Test func eliminandoLaPredefinitaSiApreSenzaFiltri() throws {
+        var scelto = StatoArticoli.storico
+        scelto.filtro.esiti = [.buttato]
+        let vista = try context.creaVista(nome: "Buttati", stato: scelto, in: dispensa)
+        context.impostaPredefinita(vista)
+        context.eliminaVista(vista)
+        #expect(StatoArticoli.storico.conPredefinita(in: dispensa).allInizio)
     }
 }

@@ -11,11 +11,17 @@ struct ElencoArticoliView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var stato = StatoArticoli.articoli
+    @State private var stato: StatoArticoli
     @State private var mostraNuovoArticolo = false
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
 
+
+    init(dispensa: Dispensa) {
+        self.dispensa = dispensa
+        // L'elenco si apre con la vista predefinita, se c'è.
+        _stato = State(initialValue: StatoArticoli.articoli.conPredefinita(in: dispensa))
+    }
     private var presenti: [Articolo] {
         (dispensa.strutture ?? []).flatMap(\.articoliAttivi)
     }
@@ -76,7 +82,7 @@ struct ElencoArticoliView: View {
             if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                 ContentUnavailableView.search(text: ricerca)
             } else {
-                NessunRisultatoConFiltri(stato: $stato)
+                NessunRisultatoConFiltri(stato: $stato, dispensa: dispensa)
             }
         }
     }

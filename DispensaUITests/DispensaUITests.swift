@@ -291,6 +291,43 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// Nella scheda della struttura salva l'ordine "Z → A" come vista predefinita: riaprendo la struttura
+    /// l'ordine è già quello; "Mostra tutto" torna all'ordine iniziale.
+    @MainActor
+    func testVistaPredefinita() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        for nome in ["Latte", "Vino"] {
+            app.buttons["Aggiungi articolo"].tap()
+            scrivi(nome, nelPrimoCampoDi: app)
+            app.buttons["Salva"].tap()
+        }
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
+
+        scegliNelMenuVista("Ordina", "Nome", in: app)
+        scegliNelMenuVista("Ordina", "Z → A", in: app)
+        scegliNelMenuVista("Salva come vista…", in: app)
+        let campoNome = app.alerts.textFields.firstMatch
+        XCTAssertTrue(campoNome.waitForExistence(timeout: 5))
+        campoNome.typeText("Z → A")
+        app.alerts.buttons["Salva"].tap()
+        scegliNelMenuVista("Usa come predefinita", in: app)
+
+        // Esce e rientra: la struttura si apre con la vista predefinita.
+        app.navigationBars.buttons["BackButton"].tap()
+        tocca(rigaCheIniziaCon: "Frigorifero", in: app)
+        let latte = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        let vino = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Vino")).firstMatch
+        XCTAssertTrue(app.staticTexts["Vista: Z → A"].waitForExistence(timeout: 5))
+        XCTAssertTrue(latte.waitForExistence(timeout: 5))
+        XCTAssertLessThan(vino.frame.minY, latte.frame.minY)
+        allegaScreenshot(app)
+
+        app.buttons["Mostra tutto"].firstMatch.tap()
+        XCTAssertFalse(app.staticTexts["Vista: Z → A"].waitForExistence(timeout: 2))
+        XCTAssertLessThan(latte.frame.minY, vino.frame.minY)
+    }
+
     /// Apre il menu "Vista" nella barra e tocca le voci indicate (anche dentro un sottomenu, es. "Ordina", "Nome").
     @MainActor
     private func scegliNelMenuVista(_ voci: String..., in app: XCUIApplication) {

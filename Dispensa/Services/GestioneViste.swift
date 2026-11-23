@@ -50,8 +50,35 @@ struct StatoElenco<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: Equa
     /// Vero quando in cima all'elenco va mostrata la riga con la vista o i filtri attivi.
     var mostraRiga: Bool { !filtro.vuoto || vista != nil }
 
+    /// Vero se l'elenco è ancora come appena aperto: nessun filtro, nessuna vista, ordine iniziale.
+    var allInizio: Bool { filtro.vuoto && vista == nil && ordine == ordineIniziale }
+
+    /// Lo stato iniziale dell'elenco: con la vista predefinita, se la dispensa ne ha una.
+    func conPredefinita(in dispensa: Dispensa?) -> Self {
+        var stato = self
+        if let dispensa, let predefinita = dispensa.vistaPredefinita(per: tipo) {
+            stato.applica(predefinita, in: dispensa)
+        }
+        return stato
+    }
+
+    /// Vero se è applicata la vista predefinita, senza modifiche.
+    func sullaPredefinita(in dispensa: Dispensa) -> Bool {
+        guard let predefinita = dispensa.vistaPredefinita(per: tipo) else { return false }
+        return vista == predefinita.id && !differisce(da: predefinita, in: dispensa)
+    }
+
+    /// "Azzera": torna alla vista predefinita; se non c'è, o se si è già lì, mostra tutto.
+    mutating func azzera(in dispensa: Dispensa?) {
+        if let dispensa, let predefinita = dispensa.vistaPredefinita(per: tipo), !sullaPredefinita(in: dispensa) {
+            applica(predefinita, in: dispensa)
+        } else {
+            mostraTutto()
+        }
+    }
+
     /// Toglie i filtri e la vista; se c'era una vista, torna anche l'ordine iniziale.
-    mutating func azzera() {
+    mutating func mostraTutto() {
         filtro = Filtro()
         if vista != nil { ordine = ordineIniziale }
         vista = nil
@@ -134,6 +161,11 @@ extension Dispensa {
             .filter { $0.tipo == tipo && !$0.isDeleted }
             .sorted { $0.nome.localizedStandardCompare($1.nome) == .orderedAscending }
     }
+
+    /// La vista con cui si apre l'elenco, se c'è.
+    func vistaPredefinita(per tipo: TipoElenco) -> VistaSalvata? {
+        viste(per: tipo).first { $0.predefinita }
+    }
 }
 
 extension ModelContext {
@@ -168,6 +200,20 @@ extension ModelContext {
             return
         }
         vista.nome = try nomeVistaValido(nome, tipo: tipo, in: dispensa, escludendo: vista)
+    }
+
+    /// Rende la vista predefinita per il suo elenco, togliendo il segno alla precedente.
+    func impostaPredefinita(_ vista: VistaSalvata) {
+        if let dispensa = vista.dispensa, let tipo = vista.tipo {
+            for altra in dispensa.viste(per: tipo) where altra !== vista {
+                altra.predefinita = false
+            }
+        }
+        vista.predefinita = true
+    }
+
+    func togliPredefinita(_ vista: VistaSalvata) {
+        vista.predefinita = false
     }
 
     /// Elimina una vista; non tocca nient'altro.

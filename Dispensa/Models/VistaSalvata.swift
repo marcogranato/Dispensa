@@ -25,6 +25,8 @@ final class VistaSalvata {
     var filtroJSON: Data?
     var criterioRaw: String?
     var crescente: Bool = true
+    /// La vista con cui si apre il suo elenco (al massimo una per elenco).
+    var predefinita: Bool = false
     var dataCreazione: Date = Date.now
 
     var dispensa: Dispensa?

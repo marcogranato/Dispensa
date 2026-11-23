@@ -15,9 +15,15 @@ struct DettaglioStrutturaView: View {
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
     @State private var ricerca = ""
-    @State private var stato = StatoArticoli.struttura
+    @State private var stato: StatoArticoli
 
     /// Gli articoli presenti che passano ricerca e filtri, nell'ordine scelto.
+
+    init(struttura: Struttura) {
+        self.struttura = struttura
+        // L'elenco si apre con la vista predefinita, se c'è.
+        _stato = State(initialValue: StatoArticoli.struttura.conPredefinita(in: struttura.dispensa))
+    }
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
         stato.ordine.ordina(stato.filtro.applica(struttura.articoliAttivi).filter { $0.corrisponde(a: ricerca) })

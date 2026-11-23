@@ -26,8 +26,14 @@ struct RigaFiltriAttivi<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>:
             descrizione
                 .foregroundStyle(.secondary)
             Spacer()
-            Button("Azzera") { stato.azzera() }
-                .buttonStyle(.borderless)
+            // Sulla vista predefinita "Azzera" non cambierebbe niente: si offre di mostrare tutto.
+            if let dispensa, stato.sullaPredefinita(in: dispensa) {
+                Button("Mostra tutto") { stato.mostraTutto() }
+                    .buttonStyle(.borderless)
+            } else {
+                Button("Azzera") { stato.azzera(in: dispensa) }
+                    .buttonStyle(.borderless)
+            }
         }
         .font(.subheadline)
     }
@@ -35,10 +41,20 @@ struct RigaFiltriAttivi<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>:
     @ViewBuilder
     private var descrizione: some View {
         if let dispensa, let vista = stato.vistaApplicata(in: dispensa) {
-            if stato.differisce(da: vista, in: dispensa) {
-                Label("Vista: \(vista.nome) (modificata)", systemImage: "rectangle.stack")
-            } else {
-                Label("Vista: \(vista.nome)", systemImage: "rectangle.stack.fill")
+            Label {
+                HStack(spacing: 4) {
+                    if stato.differisce(da: vista, in: dispensa) {
+                        Text("Vista: \(vista.nome) (modificata)")
+                    } else {
+                        Text("Vista: \(vista.nome)")
+                    }
+                    if vista.predefinita {
+                        Image(systemName: "star.fill")
+                            .accessibilityLabel(Text("Predefinita"))
+                    }
+                }
+            } icon: {
+                Image(systemName: "rectangle.stack.fill")
             }
         } else {
             Label("Filtri attivi: \(stato.filtro.numeroAttivi)", systemImage: "line.3.horizontal.decrease.circle.fill")
@@ -50,12 +66,13 @@ struct RigaFiltriAttivi<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>:
 struct NessunRisultatoConFiltri<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: View {
     var titolo: LocalizedStringKey = "Nessun articolo con questi filtri"
     @Binding var stato: StatoElenco<Filtro, Criterio>
+    let dispensa: Dispensa?
 
     var body: some View {
         ContentUnavailableView {
             Label(titolo, systemImage: "line.3.horizontal.decrease.circle")
         } actions: {
-            Button("Azzera filtri") { stato.azzera() }
+            Button("Azzera filtri") { stato.azzera(in: dispensa) }
         }
     }
 }

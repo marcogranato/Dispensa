@@ -12,11 +12,17 @@ struct ElencoProdottiView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var stato = StatoProdotti.prodotti
+    @State private var stato: StatoProdotti
     @State private var mostraNuovoProdotto = false
     @State private var prodottoInModifica: Prodotto?
     @State private var prodottoDaEliminare: Prodotto?
 
+
+    init(dispensa: Dispensa) {
+        self.dispensa = dispensa
+        // L'elenco si apre con la vista predefinita, se c'è.
+        _stato = State(initialValue: StatoProdotti.prodotti.conPredefinita(in: dispensa))
+    }
     var body: some View {
         // Ricerca e raggruppamento in Services/RicercaProdotti.swift, filtri in FiltriProdotti.swift,
         // ordine in OrdinamentoElenchi.swift.
@@ -54,7 +60,7 @@ struct ElencoProdottiView: View {
                 if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                     ContentUnavailableView.search(text: ricerca)
                 } else {
-                    NessunRisultatoConFiltri(titolo: "Nessun prodotto con questi filtri", stato: $stato)
+                    NessunRisultatoConFiltri(titolo: "Nessun prodotto con questi filtri", stato: $stato, dispensa: dispensa)
                 }
             }
         }

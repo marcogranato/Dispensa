@@ -99,11 +99,18 @@ private struct ModificatoreVista<Filtro: FiltroSalvabile, Criterio: CriterioOrdi
                             } else {
                                 Text(vista.nome)
                             }
+                            // Seconda riga della voce di menu.
+                            if vista.predefinita {
+                                Text("Predefinita")
+                            }
                         }
                     }
                 }
             }
             Section {
+                if attivo {
+                    Button("Mostra tutto", systemImage: "xmark.circle") { stato.mostraTutto() }
+                }
                 Button("Filtri…", systemImage: "line.3.horizontal.decrease.circle") { mostraFiltri = true }
                 Menu {
                     ScelteOrdinamento(criteri: stato.criteri, ordine: $stato.ordine)
@@ -117,6 +124,17 @@ private struct ModificatoreVista<Filtro: FiltroSalvabile, Criterio: CriterioOrdi
                     if let applicata, stato.differisce(da: applicata, in: dispensa) {
                         Button("Aggiorna «\(applicata.nome)»", systemImage: "arrow.triangle.2.circlepath") {
                             modelContext.aggiornaVista(applicata, con: stato)
+                        }
+                    }
+                    if let applicata {
+                        if applicata.predefinita {
+                            Button("Togli predefinita", systemImage: "star.slash") {
+                                modelContext.togliPredefinita(applicata)
+                            }
+                        } else {
+                            Button("Usa come predefinita", systemImage: "star") {
+                                modelContext.impostaPredefinita(applicata)
+                            }
                         }
                     }
                     if !viste.isEmpty {
@@ -179,9 +197,15 @@ struct GestioneVisteView: View {
                 ForEach(viste) { vista in
                     HStack {
                         Text(vista.nome)
+                        if vista.predefinita {
+                            Image(systemName: "star.fill")
+                                .foregroundStyle(.yellow)
+                                .accessibilityLabel(Text("Predefinita"))
+                        }
                         Spacer()
                         // Un menu nella riga: sul Mac non ci sono le azioni a scorrimento.
                         Menu {
+                            pulsantePredefinita(vista)
                             pulsanteRinomina(vista)
                             pulsanteElimina(vista)
                         } label: {
@@ -196,6 +220,7 @@ struct GestioneVisteView: View {
                         pulsanteRinomina(vista)
                     }
                     .contextMenu {
+                        pulsantePredefinita(vista)
                         pulsanteRinomina(vista)
                         pulsanteElimina(vista)
                     }
@@ -241,6 +266,15 @@ struct GestioneVisteView: View {
 #if os(macOS)
         .frame(minWidth: 360, minHeight: 320)
 #endif
+    }
+
+    @ViewBuilder
+    private func pulsantePredefinita(_ vista: VistaSalvata) -> some View {
+        if vista.predefinita {
+            Button("Togli predefinita", systemImage: "star.slash") { modelContext.togliPredefinita(vista) }
+        } else {
+            Button("Imposta come predefinita", systemImage: "star") { modelContext.impostaPredefinita(vista) }
+        }
     }
 
     private func pulsanteRinomina(_ vista: VistaSalvata) -> some View {

@@ -12,7 +12,7 @@ struct StoricoView: View {
     let dispensa: Dispensa
 
     @State private var ricerca = ""
-    @State private var stato = StatoArticoli.storico
+    @State private var stato: StatoArticoli
     @State private var selezione = Set<Articolo.ID>()
     @State private var daRimettere: Articolo?
     @State private var confermaSvuota = false
@@ -21,6 +21,12 @@ struct StoricoView: View {
     @State private var modalitaModifica = EditMode.inactive
 #endif
 
+
+    init(dispensa: Dispensa) {
+        self.dispensa = dispensa
+        // L'elenco si apre con la vista predefinita, se c'è.
+        _stato = State(initialValue: StatoArticoli.storico.conPredefinita(in: dispensa))
+    }
     private var articoli: [Articolo] {
         // Regole in Services/RicercaProdotti.swift, FiltriArticoli.swift e OrdinamentoElenchi.swift.
         stato.ordine.ordina(stato.filtro.applica(dispensa.articoliNelloStorico).filter { $0.corrisponde(a: ricerca) })
@@ -106,7 +112,7 @@ struct StoricoView: View {
             if stato.filtro.vuoto || !ricerca.trimmingCharacters(in: .whitespaces).isEmpty {
                 ContentUnavailableView.search(text: ricerca)
             } else {
-                NessunRisultatoConFiltri(stato: $stato)
+                NessunRisultatoConFiltri(stato: $stato, dispensa: dispensa)
             }
         }
     }
