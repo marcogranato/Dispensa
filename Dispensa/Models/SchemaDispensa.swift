@@ -16,6 +16,7 @@ enum SchemaDispensa {
         Categoria.self,
         Etichetta.self,
         VistaSalvata.self,
+        CodiceBarre.self,
     ]
 
     static var schema: Schema { Schema(modelli) }

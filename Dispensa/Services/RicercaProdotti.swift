@@ -52,7 +52,7 @@ extension Prodotto {
         case .libero(let testo):
             return nome.localizedStandardContains(testo)
                 || (marca?.localizedStandardContains(testo) ?? false)
-                || codiceBarre == testo
+                || haCodice(testo)
                 || (categoria?.percorso.contains { $0.nome.localizedStandardContains(testo) } ?? false)
                 || haEtichetta(che: testo)
         }

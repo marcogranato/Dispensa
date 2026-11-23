@@ -17,7 +17,10 @@ struct DispensaApp: App {
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemoria)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            // Dati salvati prima dei codici multipli: il vecchio codice diventa il primo della lista.
+            container.mainContext.spostaCodiciVecchi()
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

@@ -85,6 +85,9 @@
     "Aggiungi articolo" : {
 
     },
+    "Aggiungi codice" : {
+
+    },
     "Aggiungi etichette" : {
 
     },
@@ -274,7 +277,13 @@
     "Codice a barre" : {
 
     },
-    "Codice a barre o QR (facoltativo)" : {
+    "Codice a barre o QR" : {
+
+    },
+    "Codici" : {
+
+    },
+    "Codici a barre" : {
 
     },
     "Colore" : {
@@ -487,6 +496,9 @@
     "Facoltative" : {
 
     },
+    "Facoltativi. Uno stesso prodotto può averne più d'uno (es. confezione singola e multipla)." : {
+
+    },
     "Filtri" : {
 
     },
@@ -547,6 +559,16 @@
     "Il cancelletto si aggiunge da solo; gli spazi vengono tolti." : {
 
     },
+    "Il codice %@ è già del prodotto «%@»." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Il codice %1$@ è già del prodotto «%2$@»."
+          }
+        }
+      }
+    },
     "Il numero di parti non è valido." : {
 
     },
@@ -602,9 +624,6 @@
 
     },
     "La confezione verrà divisa: le parti spostate diventano un nuovo articolo con le stesse date." : {
-
-    },
-    "La lettura del codice con la fotocamera arriverà in seguito." : {
 
     },
     "La struttura appartiene a un'altra dispensa." : {
@@ -1031,7 +1050,7 @@
     "Senza emoji si usa quella della categoria superiore: %@" : {
 
     },
-    "Senza emoji si usa quella della categoria: %@. La lettura del codice con la fotocamera arriverà in seguito." : {
+    "Senza emoji si usa quella della categoria: %@." : {
 
     },
     "Senza scadenza" : {
@@ -1118,6 +1137,9 @@
 
     },
     "Tipo personalizzato" : {
+
+    },
+    "Togli codice" : {
 
     },
     "Togli immagine" : {

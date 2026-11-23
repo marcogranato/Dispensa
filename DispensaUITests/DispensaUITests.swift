@@ -435,6 +435,39 @@ final class DispensaUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Salva"].waitForExistence(timeout: 5))
     }
 
+    /// Un prodotto con due codici a barre: la ricerca lo trova con il secondo.
+    @MainActor
+    func testCodiciABarre() throws {
+        let app = avviaConDispensa()
+
+        apri(scheda: "Prodotti", in: app)
+        app.buttons["Aggiungi un prodotto"].tap()
+        scrivi("Latte", nelPrimoCampoDi: app)
+        scrivi("8001", nelCampoConEsempio: "Codice a barre o QR", in: app)
+        app.buttons["Aggiungi codice"].tap()
+        let secondo = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "Codice a barre o QR")).element(boundBy: 1)
+        XCTAssertTrue(secondo.waitForExistence(timeout: 5))
+        secondo.tap()
+        secondo.typeText("8002")
+        allegaScreenshot(app)
+        app.buttons["Salva"].tap()
+
+        tocca(rigaCheIniziaCon: "Latte", in: app)
+        // La riga della scheda unisce titolo e valori in un solo testo.
+        let codici = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Codici")).firstMatch
+        XCTAssertTrue(codici.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(codici.label.contains("8001") && codici.label.contains("8002"), codici.label)
+        app.navigationBars.buttons["BackButton"].tap()
+
+        let campoRicerca = app.searchFields.firstMatch
+        XCTAssertTrue(campoRicerca.waitForExistence(timeout: 5))
+        campoRicerca.tap()
+        campoRicerca.typeText("8002")
+        let riga = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
+        XCTAssertTrue(riga.waitForExistence(timeout: 5))
+        allegaScreenshot(app)
+    }
+
     /// Le etichette si aprono dalla scheda Prodotti, si creano e si danno a un prodotto dal suo modulo.
     @MainActor
     func testEtichette() throws {

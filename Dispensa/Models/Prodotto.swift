@@ -13,6 +13,8 @@ final class Prodotto {
     var id: UUID = UUID()
     var nome: String = ""
     var marca: String?
+    /// Vecchio campo per un solo codice: al primo avvio il valore passa in `codici` e il campo si svuota
+    /// (vedi `spostaCodiciVecchi()`). Resta solo per non perdere i dati salvati prima.
     var codiceBarre: String?
     var quantitaPerParte: Double?
     var unitaRaw: String?
@@ -40,6 +42,10 @@ final class Prodotto {
 
     @Relationship(deleteRule: .nullify, inverse: \Articolo.prodotto)
     var articoli: [Articolo]? = []
+
+    /// I codici a barre del prodotto; eliminando il prodotto si eliminano anche loro.
+    @Relationship(deleteRule: .cascade, inverse: \CodiceBarre.prodotto)
+    var codici: [CodiceBarre]? = []
 
     var unita: Unita? {
         get { unitaRaw.flatMap(Unita.init(rawValue:)) }

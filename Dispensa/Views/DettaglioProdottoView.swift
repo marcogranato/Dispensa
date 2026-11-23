@@ -59,8 +59,16 @@ struct DettaglioProdottoView: View {
                 LabeledContent("Marca") {
                     Text(prodotto.marca ?? String(localized: "Non indicata"))
                 }
-                LabeledContent("Codice") {
-                    Text(prodotto.codiceBarre ?? String(localized: "Non indicato"))
+                let codici = prodotto.codiciOrdinati
+                LabeledContent(codici.count > 1 ? "Codici" : "Codice") {
+                    if codici.isEmpty {
+                        Text("Non indicato")
+                    } else {
+                        // Un solo testo, un codice per riga: così VoiceOver li legge tutti.
+                        Text(codici.joined(separator: "\n"))
+                            .multilineTextAlignment(.trailing)
+                            .monospacedDigit()
+                    }
                 }
                 LabeledContent("Confezione") {
                     Text(Formattazione.confezioneEstesa(

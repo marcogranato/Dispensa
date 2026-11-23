@@ -26,7 +26,9 @@ struct RicercaProdottiTests {
         context.insert(prodotto)
         prodotto.dispensa = dispensa
         prodotto.marca = marca
-        prodotto.codiceBarre = codice
+        if let codice {
+            try? context.impostaCodici([codice], a: prodotto)
+        }
         prodotto.categoria = categoria
         return prodotto
     }

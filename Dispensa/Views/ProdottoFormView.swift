@@ -19,7 +19,7 @@ struct ProdottoFormView: View {
     @State private var categoria: Categoria?
     @State private var marca: String
     @State private var icona: String
-    @State private var codiceBarre: String
+    @State private var codici: [CampoCodice]
     @State private var partiPerConfezione: Int
     @State private var tipoParte: TipoParte?
     @State private var quantitaPerParte: Double?
@@ -38,7 +38,9 @@ struct ProdottoFormView: View {
         _categoria = State(initialValue: prodotto?.categoria)
         _marca = State(initialValue: prodotto?.marca ?? "")
         _icona = State(initialValue: prodotto?.icona ?? "")
-        _codiceBarre = State(initialValue: prodotto?.codiceBarre ?? "")
+        // Un campo vuoto pronto per il primo codice.
+        let salvati = prodotto?.codiciOrdinati ?? []
+        _codici = State(initialValue: (salvati.isEmpty ? [""] : salvati).map(CampoCodice.init))
         _partiPerConfezione = State(initialValue: prodotto?.partiPerConfezione ?? 1)
         _tipoParte = State(initialValue: prodotto?.tipoParte)
         _quantitaPerParte = State(initialValue: prodotto?.quantitaPerParte)
@@ -62,6 +64,11 @@ struct ProdottoFormView: View {
         return trovato
     }
 
+    /// Un codice scritto qui che appartiene già a un altro prodotto: non si può salvare.
+    private var codiceUsato: (codice: String, prodotto: Prodotto)? {
+        dispensa.codiceGiaUsato(tra: codici.map(\.testo), escluso: prodotto)
+    }
+
     /// Es. "400 g" per 4 parti da 100 g; `nil` se non serve mostrarla.
     private var quantitaTotale: String? {
         guard multipack, let quantitaPerParte, quantitaPerParte > 0 else { return nil }
@@ -73,6 +80,7 @@ struct ProdottoFormView: View {
             Form {
                 sezioneIdentificazione
                 SezioneImmagine(immagine: $immagine)
+                sezioneCodici
                 sezioneEtichette
                 sezioneQuantita
                 sezioneConfezionamento
@@ -86,7 +94,7 @@ struct ProdottoFormView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Salva", action: salva)
-                        .disabled(nomePulito.isEmpty || duplicato != nil)
+                        .disabled(nomePulito.isEmpty || duplicato != nil || codiceUsato != nil)
                 }
             }
         }
@@ -108,11 +116,6 @@ struct ProdottoFormView: View {
             )
             TextField("Marca", text: $marca, prompt: Text("Marca (facoltativa)"))
             SelettoreEmoji(titolo: "Emoji", selezione: $icona, ereditata: categoria?.iconaEffettiva)
-            TextField("Codice a barre", text: $codiceBarre, prompt: Text("Codice a barre o QR (facoltativo)"))
-                .autocorrectionDisabled()
-#if os(iOS)
-                .textInputAutocapitalization(.never)
-#endif
         } header: {
             Text("Identificazione e classificazione")
         } footer: {
@@ -120,10 +123,54 @@ struct ProdottoFormView: View {
                 Label("Esiste già il prodotto «\(duplicato.nomeConMarca)». Cambia il nome o la marca.", systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
             } else if icona.isEmpty, let ereditata = categoria?.iconaEffettiva {
-                Text("Senza emoji si usa quella della categoria: \(ereditata). La lettura del codice con la fotocamera arriverà in seguito.")
-            } else {
-                Text("La lettura del codice con la fotocamera arriverà in seguito.")
+                Text("Senza emoji si usa quella della categoria: \(ereditata).")
             }
+        }
+    }
+
+    private var sezioneCodici: some View {
+        Section {
+            ForEach($codici) { $campo in
+                HStack {
+                    TextField("Codice a barre", text: $campo.testo, prompt: Text("Codice a barre o QR"))
+                        .autocorrectionDisabled()
+#if os(iOS)
+                        .textInputAutocapitalization(.never)
+#endif
+                    if codici.count > 1 || !campo.testo.isEmpty {
+                        Button("Togli codice", systemImage: "minus.circle.fill") {
+                            togli(campo)
+                        }
+                        .labelStyle(.iconOnly)
+                        .foregroundStyle(.red)
+                        .buttonStyle(.borderless)
+                    }
+                }
+            }
+            Button("Aggiungi codice", systemImage: "plus.circle") {
+                codici.append(CampoCodice(""))
+            }
+        } header: {
+            Text("Codici a barre")
+        } footer: {
+            if let codiceUsato {
+                Label(
+                    "Il codice \(codiceUsato.codice) è già del prodotto «\(codiceUsato.prodotto.nomeConMarca)».",
+                    systemImage: "exclamationmark.triangle"
+                )
+                .foregroundStyle(.red)
+            } else {
+                Text("Facoltativi. Uno stesso prodotto può averne più d'uno (es. confezione singola e multipla).")
+            }
+        }
+    }
+
+    /// Toglie un codice; se era l'unico, svuota il campo.
+    private func togli(_ campo: CampoCodice) {
+        if codici.count > 1 {
+            codici.removeAll { $0.id == campo.id }
+        } else {
+            codici = [CampoCodice("")]
         }
     }
 
@@ -205,7 +252,8 @@ struct ProdottoFormView: View {
         prodottoDaSalvare.categoria = categoria
         prodottoDaSalvare.marca = Self.testoFacoltativo(marca)
         prodottoDaSalvare.icona = Categoria.iconaNormalizzata(icona)
-        prodottoDaSalvare.codiceBarre = Self.testoFacoltativo(codiceBarre)
+        // I codici già usati da altri prodotti sono controllati prima: "Salva" è disattivato.
+        try? modelContext.impostaCodici(codici.map(\.testo), a: prodottoDaSalvare)
         prodottoDaSalvare.partiPerConfezione = partiPerConfezione
         // Il tipo di parte conta solo per le confezioni con più parti.
         prodottoDaSalvare.tipoParte = multipack ? tipoParte : nil
@@ -225,6 +273,16 @@ struct ProdottoFormView: View {
     private static func testoFacoltativo(_ testo: String) -> String? {
         let pulito = testo.trimmingCharacters(in: .whitespacesAndNewlines)
         return pulito.isEmpty ? nil : pulito
+    }
+}
+
+/// Un campo del modulo per un codice a barre (con un id, per poterlo togliere dall'elenco).
+private struct CampoCodice: Identifiable {
+    let id = UUID()
+    var testo: String
+
+    init(_ testo: String) {
+        self.testo = testo
     }
 }
 
