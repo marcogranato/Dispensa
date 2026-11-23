@@ -24,7 +24,7 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 | 1 | Modello dati; gestione di Dispense, Ubicazioni e Strutture | ✅ Completata |
 | 2 | Articoli e Prodotti: aggiungere, modificare, spostare, prelevare, buttare, storico | ✅ Completata |
 | 3 | Navigazione a schede ed elenco di tutti gli articoli; classificazione e dettagli dei prodotti (categorie, emoji); etichette, ricerca, filtri, ordinamento | ✅ Completata |
-| 4 | Tabelle con colonne configurabili e filtri salvati | Da fare |
+| 4 | Filtri in tutti gli elenchi, viste salvate e vista predefinita | ✅ Completata |
 | 5 | Immagini e scanner di codici a barre/QR; più codici a barre per prodotto (da valutare) | Da fare |
 | 6 | Notifiche locali per gli articoli in scadenza | Da fare |
 | 7 | Sincronizzazione iCloud e condivisione (con account a pagamento) | Da fare |
@@ -46,7 +46,15 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
    3. filtri nelle schede Articoli e Storico;
    4. ordinamento in Articoli, Storico, Prodotti e nella scheda della struttura.
 
-Prossima: la fase 4, da pianificare.
+### Fase 4: avanzamento
+
+1. ✅ Filtri anche nella scheda Prodotti (categorie, etichette, con o senza articoli presenti) e ricerca e filtri nella scheda della struttura.
+2. ✅ Viste salvate: un solo menu "Vista" per elenco, con le viste, i filtri, l'ordinamento, "Salva come vista…", "Aggiorna" e "Gestisci viste…".
+3. ✅ Vista predefinita per ogni elenco.
+4. ❌ Tabelle con colonne configurabili su iPad e Mac: provate e poi tolte (vedi "Visualizzazione e filtri"). Il codice resta nel ramo Git `tabelle`.
+5. ⏸ Informazioni nella riga: rimandato.
+
+Prossima: la fase 5, da pianificare.
 
 ### Da provare a mano
 
@@ -59,9 +67,10 @@ Queste funzioni compilano e la loro logica è coperta da test, ma nessun test UI
 - selettore di emoji (foglio su iPhone, finestrella sul Mac, "Altra emoji" dalla tastiera);
 - selettore delle etichette nel modulo del prodotto e palette dei colori;
 - foglio dei filtri, in particolare le date "Dal/Al", e menu "Ordina" con i suoi criteri;
+- menu "Vista" sul Mac: richiesta del nome, "Gestisci viste…" (rinomina, elimina, predefinita) e "Aggiorna";
 - tutta l'app su iPad (le schede possono diventare una barra laterale, come sul Mac).
 
-Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`), da rilanciare: dopo l'arrivo delle emoji nelle righe non è ancora stato eseguito. Il resto dell'app sul Mac va provato a mano, in particolare la navigazione di Categorie e Ubicazioni (clic sulle righe, "+", Indietro, cambio di scheda), "Elimina prodotto", la scheda Prodotti divisa per categoria, le etichette, i filtri e il menu "Ordina".
+Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`), da rilanciare: dopo l'arrivo delle emoji nelle righe non è ancora stato eseguito. Il resto dell'app sul Mac va provato a mano, in particolare la navigazione di Categorie e Ubicazioni (clic sulle righe, "+", Indietro, cambio di scheda), "Elimina prodotto", la scheda Prodotti divisa per categoria, le etichette, i filtri e il menu "Vista".
 
 ### Difetti noti
 
@@ -126,16 +135,25 @@ Decisioni prese:
 
 - **Etichette:** il nome si salva senza "#" e senza spazi; due etichette della stessa dispensa non possono avere lo stesso nome (maiuscole e accenti non contano). Il colore è facoltativo (senza colore il gettone è grigio). Le etichette si gestiscono dalla scheda Prodotti e si assegnano nel modulo del prodotto; eliminandone una usata, l'app chiede conferma e la toglie dai prodotti.
 - **Ricerca** (uguale nelle schede Articoli, Prodotti e Storico): trova il testo nel nome, nella marca, nella categoria del prodotto o in una superiore, nelle etichette e, per gli articoli, nel nome della struttura; il codice a barre va scritto per intero. Un testo che inizia con "#" cerca solo nelle etichette ("#cola" trova #colazione, non la Coca-Cola). Maiuscole e accenti non contano.
-- **Filtri** (schede Articoli e Storico): strutture, tipo di struttura, categorie, etichette, stato di scadenza, date di inserimento, produzione e scadenza; nello storico anche esito (consumato o buttato) e data di uscita.
+- **Filtri** (schede Articoli e Storico, e scheda della struttura senza i filtri sulle strutture): strutture, tipo di struttura, categorie, etichette, stato di scadenza, date di inserimento, produzione e scadenza; nello storico anche esito (consumato o buttato) e data di uscita.
   - Dentro un gruppo basta una delle scelte (frigorifero O dispensa); tra gruppi devono valere tutte (frigorifero E scaduti).
   - Una categoria comprende le sue sottocategorie.
   - Le date si confrontano a giorni interi, estremi compresi; un articolo senza quella data è escluso.
   - Con filtri attivi, la prima riga dell'elenco li conta e permette di azzerarli.
-- **Ordinamento** (pulsante "Ordina"): si sceglie il criterio e il verso.
+- **Filtri dei prodotti** (scheda Prodotti): categorie, etichette e presenza (con articoli presenti o senza, per esempio "da ricomprare"), con le stesse regole.
+- **Ordinamento** (menu Vista ▸ "Ordina"): si sceglie il criterio e il verso.
   - Articoli: scadenza (iniziale, dalla più vicina), nome, data di inserimento, struttura. Scheda della struttura: gli stessi, tranne la struttura. Storico: data di uscita (iniziale, dalla più recente), nome, scadenza. Prodotti: nome (iniziale), data di creazione, articoli presenti; l'ordine vale dentro ogni sezione di categoria.
   - Le date mancanti (e gli articoli senza struttura) vanno sempre in fondo; a parità si ordina per scadenza e poi per nome.
   - Cambiando criterio, il verso torna quello naturale (date di uscita e di creazione dalla più recente, articoli presenti dal numero più alto, il resto in crescente).
-- Filtri e ordine non si salvano: tornano quelli iniziali cambiando dispensa o chiudendo l'app. Filtri salvati e viste predefinite sono della fase 4.
+- Filtri e ordine scelti a mano non si salvano: tornano quelli iniziali (o la vista predefinita) cambiando dispensa o chiudendo l'app. Per ritrovarli si salvano come vista.
+
+### Viste salvate e vista predefinita
+
+- Ogni elenco (Articoli, Storico, Prodotti, scheda della struttura) ha un menu **Vista** con: le viste salvate (una spunta su quella applicata), "Mostra tutto", "Filtri…", "Ordina", "Salva come vista…", "Aggiorna «…»" (se filtri o ordine sono cambiati), "Usa come predefinita" / "Togli predefinita" e "Gestisci viste…".
+- Una **vista** è un nome con filtri e ordine. Appartiene alla dispensa (in futuro sarà condivisa con lei); le viste della scheda della struttura valgono per tutte le strutture. Il nome è obbligatorio e unico tra le viste dello stesso elenco (maiuscole e accenti non contano).
+- Le date dei filtri restano date fisse (niente "ultimi 7 giorni"). Strutture, categorie o etichette eliminate nel frattempo vengono semplicemente ignorate.
+- La **vista predefinita** (al massimo una per elenco, segnata con ★) si applica aprendo l'elenco. "Azzera" riporta alla predefinita; da lì "Mostra tutto" toglie ogni filtro. Eliminandola, l'elenco torna a partire senza filtri.
+- "Gestisci viste…" permette di rinominare, eliminare e scegliere la predefinita; una vista si elimina senza conferma.
 
 ### Uscita dalla dispensa e storico
 
@@ -147,19 +165,22 @@ Decisioni prese:
 - Lo storico si può cancellare in parte (singoli articoli o selezione multipla) o del tutto.
 - Disattivando lo storico in una dispensa che ne ha già, l'app chiede se eliminare quello esistente o conservarlo.
 
-## Visualizzazione e filtri (fasi 3–4)
+## Visualizzazione e filtri (fasi 3–4, completate)
 
 - Tutti i dati sono mostrati come elenchi.
 - Elenco di tutte le strutture; articoli di tutte le strutture, di una o di più strutture.
 - Filtri per tipologia, etichetta e date (tutti i campi data).
 - Ordinamento degli elenchi.
-- Colonne configurabili (mostrare, nascondere, spostare). Su iPad e Mac si usa una tabella; su iPhone si scelgono le informazioni mostrate in ogni riga.
+- Elenchi a righe ("schede") su tutti i dispositivi, con le stesse informazioni su iPhone, iPad e Mac.
 - Filtri salvati e richiamabili; una vista predefinita per ogni tipo di elenco.
 - Ricerca per nome, etichetta, codice.
 
-Già disponibile (fase 3): elenco degli articoli di tutte le strutture (scheda Articoli); ricerca, filtri e ordinamento come descritti in "Etichette, ricerca, filtri e ordinamento".
+Tutto disponibile: vedi "Etichette, ricerca, filtri e ordinamento" e "Viste salvate e vista predefinita".
 
-Resta per la fase 4: colonne configurabili, filtri salvati e richiamabili, vista predefinita per ogni elenco, filtri anche nella scheda della struttura e nei Prodotti.
+Decisioni:
+
+- **Niente tabelle.** Le tabelle con colonne configurabili su iPad e Mac sono state provate e tolte: nascondevano informazioni che le righe mostrano, davano un aspetto da applicazione "vecchia" e su iPhone non ci sarebbero state, rendendo l'esperienza troppo diversa tra i dispositivi. Il codice è conservato nel ramo Git `tabelle`, se un giorno si volesse una tabella come opzione sul Mac.
+- **Rimandato:** scegliere che cosa mostrare nelle righe, come semplice scelta "righe compatte / dettagliate" o informazione per informazione, per ogni elenco.
 
 ## Condivisione (futura, richiede account Apple a pagamento)
 
