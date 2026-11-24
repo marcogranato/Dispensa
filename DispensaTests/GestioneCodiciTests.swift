@@ -107,3 +107,13 @@ struct GestioneCodiciTests {
         #expect(try context.fetchCount(FetchDescriptor<CodiceBarre>()) == 0)
     }
 }
+
+extension GestioneCodiciTests {
+    @Test func doveVaIlCodiceLetto() {
+        #expect(Codici.posizione(del: "8001", in: [""]) == .campoVuoto(0))
+        #expect(Codici.posizione(del: "8001", in: ["7000", " ", ""]) == .campoVuoto(1))
+        #expect(Codici.posizione(del: "8001", in: ["7000"]) == .inFondo)
+        #expect(Codici.posizione(del: "8001", in: []) == .inFondo)
+        #expect(Codici.posizione(del: " 8001\n", in: ["7000", " 8001 ", ""]) == .giaPresente(1))
+    }
+}

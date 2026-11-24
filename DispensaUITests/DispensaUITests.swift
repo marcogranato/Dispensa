@@ -444,6 +444,8 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Aggiungi un prodotto"].tap()
         scrivi("Latte", nelPrimoCampoDi: app)
         scrivi("8001", nelCampoConEsempio: "Codice a barre o QR", in: app)
+        // Sul simulatore lo scanner non c'è: il pulsante non compare.
+        XCTAssertFalse(app.buttons["Scansiona codice"].exists)
         app.buttons["Aggiungi codice"].tap()
         let secondo = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "Codice a barre o QR")).element(boundBy: 1)
         XCTAssertTrue(secondo.waitForExistence(timeout: 5))

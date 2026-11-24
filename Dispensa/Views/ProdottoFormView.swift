@@ -20,6 +20,8 @@ struct ProdottoFormView: View {
     @State private var marca: String
     @State private var icona: String
     @State private var codici: [CampoCodice]
+    /// Il campo del codice appena letto che c'era già: si evidenzia per un attimo.
+    @State private var codiceEvidenziato: CampoCodice.ID?
     @State private var partiPerConfezione: Int
     @State private var tipoParte: TipoParte?
     @State private var quantitaPerParte: Double?
@@ -146,7 +148,9 @@ struct ProdottoFormView: View {
                         .buttonStyle(.borderless)
                     }
                 }
+                .listRowBackground(codiceEvidenziato == campo.id ? Color.yellow.opacity(0.3) : nil)
             }
+            PulsanteScansione(letto: inserisci)
             Button("Aggiungi codice", systemImage: "plus.circle") {
                 codici.append(CampoCodice(""))
             }
@@ -162,6 +166,23 @@ struct ProdottoFormView: View {
             } else {
                 Text("Facoltativi. Uno stesso prodotto può averne più d'uno (es. confezione singola e multipla).")
             }
+        }
+    }
+
+    /// Mette il codice letto dallo scanner nel primo campo vuoto o in fondo; se c'è già, lo evidenzia.
+    private func inserisci(_ letto: String) {
+        switch Codici.posizione(del: letto, in: codici.map(\.testo)) {
+        case .giaPresente(let indice):
+            let id = codici[indice].id
+            codiceEvidenziato = id
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                if codiceEvidenziato == id { codiceEvidenziato = nil }
+            }
+        case .campoVuoto(let indice):
+            codici[indice].testo = letto
+        case .inFondo:
+            codici.append(CampoCodice(letto))
         }
     }
 

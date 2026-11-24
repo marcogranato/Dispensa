@@ -19,7 +19,30 @@ enum ErroreGestioneCodici: LocalizedError, Equatable {
     }
 }
 
+/// Dove mettere un codice appena letto con lo scanner, tra i campi del modulo.
+enum PosizioneCodice: Equatable {
+    /// Il prodotto ha già questo codice, in quel campo: nessun doppione.
+    case giaPresente(Int)
+    /// Il primo campo vuoto.
+    case campoVuoto(Int)
+    /// Un campo nuovo in fondo.
+    case inFondo
+}
+
 enum Codici {
+    /// Dove va il codice `letto` tra i campi scritti nel modulo.
+    static func posizione(del letto: String, in campi: [String]) -> PosizioneCodice {
+        let letto = letto.trimmingCharacters(in: .whitespacesAndNewlines)
+        let puliti = campi.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        if let indice = puliti.firstIndex(of: letto) {
+            return .giaPresente(indice)
+        }
+        if let indice = puliti.firstIndex(where: \.isEmpty) {
+            return .campoVuoto(indice)
+        }
+        return .inFondo
+    }
+
     /// Codici ripuliti dagli spazi, senza vuoti e senza doppioni, nell'ordine in cui sono scritti.
     static func puliti(_ codici: [String]) -> [String] {
         var visti = Set<String>()

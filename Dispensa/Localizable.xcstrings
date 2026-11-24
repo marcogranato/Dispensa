@@ -136,6 +136,9 @@
     "Apre l'immagine grande" : {
 
     },
+    "Apri Impostazioni" : {
+
+    },
     "Arancione" : {
 
     },
@@ -517,6 +520,9 @@
     "Fino a tre livelli: categoria, sottocategoria e tipologia." : {
 
     },
+    "Fotocamera non consentita" : {
+
+    },
     "Frigorifero" : {
 
     },
@@ -597,6 +603,9 @@
 
     },
     "In scadenza il %@" : {
+
+    },
+    "Inquadra il codice a barre o il QR" : {
 
     },
     "Inserimento" : {
@@ -873,6 +882,9 @@
     "Per dare questa etichetta a un prodotto sceglila nel modulo del prodotto." : {
 
     },
+    "Per leggere i codici, consenti a Dispensa di usare la fotocamera in Impostazioni." : {
+
+    },
     "Per spostare qui una struttura esistente cambia l'ubicazione nella sua scheda." : {
 
     },
@@ -1003,6 +1015,9 @@
 
     },
     "Scaffale" : {
+
+    },
+    "Scansiona codice" : {
 
     },
     "Scatoletta" : {
