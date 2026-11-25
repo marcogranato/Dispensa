@@ -46,18 +46,7 @@ struct RigaArticoloConAzioni: View {
 
     var body: some View {
         RigaNavigabile(valore: articolo) {
-            VStack(alignment: .leading, spacing: 2) {
-                RigaArticoloView(articolo: articolo)
-                if mostraStruttura, let struttura = articolo.struttura {
-                    HStack(spacing: 4) {
-                        Image(systemName: struttura.tipo.simbolo)
-                            .accessibilityHidden(true)
-                        Text(struttura.nome)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-            }
+            RigaArticoloView(articolo: articolo, struttura: mostraStruttura ? articolo.struttura?.nome : nil)
         }
         .swipeActions(edge: .leading) {
             Button("Preleva 1", systemImage: "minus.circle") {

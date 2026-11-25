@@ -6,9 +6,12 @@
 import SwiftUI
 import SwiftData
 
-/// Riga di un articolo negli elenchi: nome, marca, parti e quantità, scadenza evidenziata.
+/// Riga di un articolo negli elenchi: a sinistra l'icona, centrata; accanto nome, marca, parti e quantità,
+/// scadenza evidenziata e, sotto, la struttura (quando serve), allineata al nome.
 struct RigaArticoloView: View {
     let articolo: Articolo
+    /// Il nome della struttura, per gli elenchi con articoli di più strutture.
+    var struttura: String?
 
     private var dettagli: String? {
         let parti = articolo.partiTotali > 1
@@ -21,33 +24,44 @@ struct RigaArticoloView: View {
     }
 
     var body: some View {
-        // Prima prova tutto su una riga; se non ci sta (nome lungo, testo grande) va su due righe.
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline) {
-                icona
-                Text(articolo.nomeVisualizzato)
-                    .lineLimit(1)
-                    .fixedSize()
-                if let dettagli {
-                    testoDettagli(dettagli)
-                        .lineLimit(1)
-                        .fixedSize()
-                }
-                Spacer(minLength: 8)
-                scadenza
-                    .fixedSize()
-            }
-            HStack {
-                icona
-                VStack(alignment: .leading) {
-                    Text(articolo.nomeVisualizzato)
-                    if let dettagli {
-                        testoDettagli(dettagli)
+        HStack(spacing: 12) {
+            icona
+            VStack(alignment: .leading, spacing: 2) {
+                // Prima prova nome, dettagli e scadenza su una riga; se non ci stanno (nome lungo, testo grande)
+                // i dettagli vanno sotto il nome.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(articolo.nomeVisualizzato)
+                            .lineLimit(1)
+                            .fixedSize()
+                        if let dettagli {
+                            testoDettagli(dettagli)
+                                .lineLimit(1)
+                                .fixedSize()
+                        }
+                        Spacer(minLength: 8)
+                        scadenza
+                            .fixedSize()
+                    }
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(articolo.nomeVisualizzato)
+                            if let dettagli {
+                                testoDettagli(dettagli)
+                            }
+                        }
+                        Spacer()
+                        scadenza
                     }
                 }
-                Spacer()
-                scadenza
+                if let struttura {
+                    Text(struttura)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
+            // La linea tra le righe parte dal testo, uguale per tutte le righe.
+            .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
         }
     }
 
