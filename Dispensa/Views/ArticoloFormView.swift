@@ -8,7 +8,8 @@ import SwiftData
 
 /// Modulo per aggiungere articoli (`articolo == nil`) o modificarne uno esistente.
 /// Il prodotto si sceglie scrivendo nome e marca: se non esiste, viene creato al salvataggio,
-/// con la categoria e il tipo di parte indicati qui.
+/// con la categoria e il tipo di parte indicati qui. Per un articolo nuovo si può partire dal codice a barre:
+/// se è di un prodotto lo compila, altrimenti viene collegato al prodotto al salvataggio.
 struct ArticoloFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -27,10 +28,16 @@ struct ArticoloFormView: View {
     @State private var struttura: Struttura?
     @State private var partiRimaste: Int
     @State private var confezioni = 1
+    /// Codice a barre o QR letto o scritto (solo per un articolo nuovo).
+    @State private var codice = ""
+    @State private var mostraScanner = false
     @FocusState private var nomeInModifica: Bool
 
-    init(dispensa: Dispensa, struttura: Struttura?, articolo: Articolo? = nil) {
+    /// `scansiona`: apre subito la fotocamera per leggere il codice del prodotto (dove lo scanner c'è).
+    init(dispensa: Dispensa, struttura: Struttura?, articolo: Articolo? = nil, scansiona: Bool = false) {
         self.dispensa = dispensa
+        // Lo scanner prende il posto del modulo nello stesso foglio: così si apre subito, senza un secondo foglio.
+        _mostraScanner = State(initialValue: scansiona && articolo == nil && ScannerCodici.disponibile)
         self.articolo = articolo
         _nomeProdotto = State(initialValue: articolo?.prodotto?.nome ?? "")
         _marca = State(initialValue: articolo?.prodotto?.marca ?? "")
@@ -45,6 +52,15 @@ struct ArticoloFormView: View {
 
     private var marcaPulita: String {
         marca.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var codicePulito: String {
+        codice.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Il prodotto che ha già il codice scritto, se c'è.
+    private var prodottoDelCodice: Prodotto? {
+        dispensa.prodotto(conCodice: codicePulito)
     }
 
     private var prodottoEsistente: Prodotto? {
@@ -72,21 +88,24 @@ struct ArticoloFormView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                sezioneProdotto
-                sezioneStruttura
-                sezioneConfezione
-                sezioneDate
-            }
-            .formStyle(.grouped)
-            .navigationTitle(articolo == nil ? Text("Nuovo articolo") : Text("Modifica articolo"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Annulla") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Salva", action: salva)
-                        .disabled(nomePulito.isEmpty || struttura == nil)
+            Group {
+                if mostraScanner {
+                    ScannerIncorporato { letto in
+                        mostraScanner = false
+                        usa(letto)
+                    }
+                    .navigationTitle("Scansiona codice")
+#if os(iOS)
+                    .navigationBarTitleDisplayMode(.inline)
+#endif
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            // Torna al modulo, per scrivere a mano.
+                            Button("Annulla") { mostraScanner = false }
+                        }
+                    }
+                } else {
+                    modulo
                 }
             }
             .onChange(of: dati.partiTotali) {
@@ -107,6 +126,57 @@ struct ArticoloFormView: View {
 #if os(macOS)
         .frame(minWidth: 440, minHeight: 560)
 #endif
+    }
+
+    private var modulo: some View {
+        Form {
+            if articolo == nil {
+                sezioneCodice
+            }
+            sezioneProdotto
+            sezioneStruttura
+            sezioneConfezione
+            sezioneDate
+        }
+        .formStyle(.grouped)
+        .navigationTitle(articolo == nil ? Text("Nuovo articolo") : Text("Modifica articolo"))
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Annulla") { dismiss() }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Salva", action: salva)
+                    .disabled(nomePulito.isEmpty || struttura == nil)
+            }
+        }
+    }
+
+    private var sezioneCodice: some View {
+        Section {
+            TextField("Codice a barre", text: $codice, prompt: Text("Codice a barre o QR"))
+                .autocorrectionDisabled()
+#if os(iOS)
+                .textInputAutocapitalization(.never)
+#endif
+                .onSubmit { usa(codice) }
+            if ScannerCodici.disponibile {
+                Button("Scansiona codice", systemImage: "barcode.viewfinder") { mostraScanner = true }
+            }
+        } header: {
+            Text("Codice a barre")
+        } footer: {
+            if !codicePulito.isEmpty {
+                if let prodotto = prodottoDelCodice {
+                    if prodotto === prodottoEsistente {
+                        Text("Prodotto riconosciuto dal codice.")
+                    } else {
+                        Text("Il codice è di «\(prodotto.nomeConMarca)»: non verrà collegato a un altro prodotto.")
+                    }
+                } else {
+                    Text("Codice nuovo: verrà collegato al prodotto.")
+                }
+            }
+        }
     }
 
     private var sezioneProdotto: some View {
@@ -225,6 +295,17 @@ struct ArticoloFormView: View {
         }
     }
 
+    /// Un codice letto o scritto: se è di un prodotto lo sceglie, altrimenti si passa a scrivere il nome.
+    private func usa(_ letto: String) {
+        codice = letto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !codicePulito.isEmpty else { return }
+        if let prodotto = prodottoDelCodice {
+            scegli(prodotto)
+        } else if nomePulito.isEmpty {
+            nomeInModifica = true
+        }
+    }
+
     /// Sceglie un prodotto suggerito; per un nuovo articolo propone i valori della sua confezione.
     private func scegli(_ prodotto: Prodotto) {
         nomeProdotto = prodotto.nome
@@ -267,6 +348,8 @@ struct ArticoloFormView: View {
             articolo.struttura = struttura
         } else {
             modelContext.aggiungiArticoli(dati, prodotto: prodotto, struttura: struttura, confezioni: confezioni)
+            // Un codice nuovo si collega al prodotto; uno già di un altro prodotto resta dov'è.
+            modelContext.aggiungiCodice(codicePulito, a: prodotto)
         }
         dismiss()
     }

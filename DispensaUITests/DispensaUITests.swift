@@ -87,7 +87,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
 
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Latte", nelPrimoCampoDi: app)
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         XCTAssertTrue(app.staticTexts["Verrà creato il nuovo prodotto «Latte»."].exists)
         aumenta("Confezioni da aggiungere", di: 1, in: app)
         app.buttons["Salva"].tap()
@@ -104,7 +104,7 @@ final class DispensaUITests: XCTestCase {
 
         for marca in ["Barilla", "De Cecco"] {
             app.buttons["Aggiungi articolo"].tap()
-            scrivi("Penne", nelPrimoCampoDi: app)
+            scrivi("Penne", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
             scrivi(marca, nelCampoConEsempio: "Marca (facoltativa)", in: app)
             XCTAssertTrue(app.staticTexts["Verrà creato il nuovo prodotto «Penne» (\(marca))."].waitForExistence(timeout: 5))
             app.buttons["Salva"].tap()
@@ -126,7 +126,7 @@ final class DispensaUITests: XCTestCase {
         // Frigorifero con il latte, Cantina con il vino.
         creaEApriStruttura(app)
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Latte", nelPrimoCampoDi: app)
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         app.buttons["Salva"].tap()
         XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
         app.navigationBars.buttons["BackButton"].tap()
@@ -136,7 +136,7 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Salva"].tap()
         tocca(rigaCheIniziaCon: "Cantina", in: app)
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Vino", nelPrimoCampoDi: app)
+        scrivi("Vino", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         app.buttons["Salva"].tap()
         XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
 
@@ -169,7 +169,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
         for nome in ["Latte", "Vino"] {
             app.buttons["Aggiungi articolo"].tap()
-            scrivi(nome, nelPrimoCampoDi: app)
+            scrivi(nome, nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
             app.buttons["Salva"].tap()
         }
         XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
@@ -196,7 +196,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
         for nome in ["Latte", "Vino"] {
             app.buttons["Aggiungi articolo"].tap()
-            scrivi(nome, nelPrimoCampoDi: app)
+            scrivi(nome, nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
             app.buttons["Salva"].tap()
         }
         XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
@@ -252,7 +252,7 @@ final class DispensaUITests: XCTestCase {
         let app = avviaConDispensa()
         creaEApriStruttura(app)
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Latte", nelPrimoCampoDi: app)
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         app.buttons["Salva"].tap()
         XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
 
@@ -299,7 +299,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
         for nome in ["Latte", "Vino"] {
             app.buttons["Aggiungi articolo"].tap()
-            scrivi(nome, nelPrimoCampoDi: app)
+            scrivi(nome, nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
             app.buttons["Salva"].tap()
         }
         XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5))
@@ -355,7 +355,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
 
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Biscotti", nelPrimoCampoDi: app)
+        scrivi("Biscotti", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         aumenta("Parti per confezione", di: 5, in: app)
         app.buttons["Salva"].tap()
 
@@ -383,7 +383,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
 
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Yogurt", nelPrimoCampoDi: app)
+        scrivi("Yogurt", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         app.buttons["Salva"].tap()
         tocca(rigaCheIniziaCon: "Yogurt", in: app)
         app.buttons["Butta…"].tap()
@@ -468,6 +468,40 @@ final class DispensaUITests: XCTestCase {
         let riga = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).firstMatch
         XCTAssertTrue(riga.waitForExistence(timeout: 5))
         allegaScreenshot(app)
+    }
+
+    /// Nel nuovo articolo il codice di un prodotto noto compila nome e marca; un codice nuovo si collega al prodotto.
+    @MainActor
+    func testArticoloDaCodice() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+
+        // Primo articolo con un codice nuovo: viene collegato al prodotto creato.
+        app.navigationBars.buttons["Nuovo articolo"].tap()
+        scrivi("8001\n", nelCampoConEsempio: "Codice a barre o QR", in: app)
+        XCTAssertTrue(app.staticTexts["Codice nuovo: verrà collegato al prodotto."].waitForExistence(timeout: 5))
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
+        scrivi("Granarolo", nelCampoConEsempio: "Marca (facoltativa)", in: app)
+        app.buttons["Salva"].tap()
+
+        // Secondo articolo: basta il codice.
+        app.navigationBars.buttons["Nuovo articolo"].tap()
+        scrivi("8001\n", nelCampoConEsempio: "Codice a barre o QR", in: app)
+        XCTAssertTrue(app.staticTexts["Prodotto riconosciuto dal codice."].waitForExistence(timeout: 5))
+        let nome = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "Es. Latte, Biscotti")).firstMatch
+        XCTAssertEqual(nome.value as? String, "Latte")
+        allegaScreenshot(app)
+        app.buttons["Salva"].tap()
+
+        let righe = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte"))
+        XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(righe.count, 2, app.debugDescription)
+
+        apri(scheda: "Prodotti", in: app)
+        tocca(rigaCheIniziaCon: "Latte", in: app)
+        let codice = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Codice")).firstMatch
+        XCTAssertTrue(codice.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(codice.label.contains("8001"), codice.label)
     }
 
     /// Le etichette si aprono dalla scheda Prodotti, si creano e si danno a un prodotto dal suo modulo.
@@ -603,7 +637,7 @@ final class DispensaUITests: XCTestCase {
         creaEApriStruttura(app)
 
         app.buttons["Aggiungi articolo"].tap()
-        scrivi("Latte", nelPrimoCampoDi: app)
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         app.buttons["Salva"].tap()
         XCTAssertTrue(app.staticTexts["Articoli presenti: 1"].waitForExistence(timeout: 5))
 

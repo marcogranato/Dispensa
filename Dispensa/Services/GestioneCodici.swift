@@ -107,6 +107,19 @@ extension ModelContext {
         }
     }
 
+    /// Collega un codice letto al prodotto, ma solo se è libero: se è già suo o di un altro prodotto non cambia nulla.
+    /// Restituisce vero se il codice è stato aggiunto.
+    @discardableResult
+    func aggiungiCodice(_ codice: String, a prodotto: Prodotto) -> Bool {
+        let codice = codice.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !codice.isEmpty, !prodotto.haCodice(codice) else { return false }
+        if let dispensa = prodotto.dispensa, dispensa.prodotto(conCodice: codice) != nil { return false }
+        let nuovo = CodiceBarre(codice: codice)
+        insert(nuovo)
+        nuovo.prodotto = prodotto
+        return true
+    }
+
     /// Porta il vecchio campo `codiceBarre` dei prodotti nei codici multipli e lo svuota.
     /// Si può chiamare a ogni avvio: i prodotti già sistemati non cambiano.
     func spostaCodiciVecchi() {

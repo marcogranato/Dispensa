@@ -117,3 +117,23 @@ extension GestioneCodiciTests {
         #expect(Codici.posizione(del: " 8001\n", in: ["7000", " 8001 ", ""]) == .giaPresente(1))
     }
 }
+
+extension GestioneCodiciTests {
+    @Test func unCodiceLettoSiCollegaSoloSeLibero() {
+        let latte = creaProdotto("Latte")
+        let panna = creaProdotto("Panna")
+
+        #expect(context.aggiungiCodice(" 8001 ", a: latte))
+        #expect(latte.codiciOrdinati == ["8001"])
+        // Già suo: niente doppioni.
+        #expect(!context.aggiungiCodice("8001", a: latte))
+        #expect(latte.codiciOrdinati == ["8001"])
+        // Di un altro prodotto: non si sposta.
+        #expect(!context.aggiungiCodice("8001", a: panna))
+        #expect(panna.codiciOrdinati.isEmpty)
+        #expect(latte.codiciOrdinati == ["8001"])
+        // Vuoto: ignorato.
+        #expect(!context.aggiungiCodice("  ", a: panna))
+        #expect(dispensa.prodotto(conCodice: "8001") === latte)
+    }
+}

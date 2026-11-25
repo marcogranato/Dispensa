@@ -12,7 +12,7 @@ struct ElencoArticoliView: View {
 
     @State private var ricerca = ""
     @State private var stato: StatoArticoli
-    @State private var mostraNuovoArticolo = false
+    @State private var nuovoArticolo: RichiestaNuovoArticolo?
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
 
@@ -54,13 +54,13 @@ struct ElencoArticoliView: View {
         .azioniArticolo($azione, daEliminare: $daEliminare)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }
+                PulsanteNuovoArticolo(richiesta: $nuovoArticolo)
                     .disabled(senzaStrutture)
             }
         }
-        .sheet(isPresented: $mostraNuovoArticolo) {
+        .sheet(item: $nuovoArticolo) { richiesta in
             // La struttura si sceglie nel modulo.
-            ArticoloFormView(dispensa: dispensa, struttura: nil)
+            ArticoloFormView(dispensa: dispensa, struttura: nil, scansiona: richiesta.scansiona)
         }
     }
 

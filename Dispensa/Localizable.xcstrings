@@ -283,6 +283,9 @@
     "Codice a barre o QR" : {
 
     },
+    "Codice nuovo: verrà collegato al prodotto." : {
+
+    },
     "Codici" : {
 
     },
@@ -574,6 +577,9 @@
           }
         }
       }
+    },
+    "Il codice è di «%@»: non verrà collegato a un altro prodotto." : {
+
     },
     "Il numero di parti non è valido." : {
 
@@ -919,6 +925,9 @@
 
     },
     "Prodotto eliminato" : {
+
+    },
+    "Prodotto riconosciuto dal codice." : {
 
     },
     "Prodotto sconosciuto" : {

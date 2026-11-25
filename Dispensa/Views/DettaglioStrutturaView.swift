@@ -11,7 +11,7 @@ struct DettaglioStrutturaView: View {
     let struttura: Struttura
 
     @State private var mostraModifica = false
-    @State private var mostraNuovoArticolo = false
+    @State private var nuovoArticolo: RichiestaNuovoArticolo?
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
     @State private var ricerca = ""
@@ -78,7 +78,9 @@ struct DettaglioStrutturaView: View {
                     Text("Nessun articolo corrisponde alla ricerca o ai filtri.")
                         .foregroundStyle(.secondary)
                 }
-                Button("Aggiungi articolo", systemImage: "plus.circle") { mostraNuovoArticolo = true }
+                Button("Aggiungi articolo", systemImage: "plus.circle") {
+                    nuovoArticolo = RichiestaNuovoArticolo()
+                }
             } header: {
                 if articoli.count == totale {
                     Text("Articoli presenti: \(totale)")
@@ -101,12 +103,12 @@ struct DettaglioStrutturaView: View {
                 Button("Modifica") { mostraModifica = true }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button("Nuovo articolo", systemImage: "plus") { mostraNuovoArticolo = true }
+                PulsanteNuovoArticolo(richiesta: $nuovoArticolo)
             }
         }
-        .sheet(isPresented: $mostraNuovoArticolo) {
+        .sheet(item: $nuovoArticolo) { richiesta in
             if let dispensa = struttura.dispensa {
-                ArticoloFormView(dispensa: dispensa, struttura: struttura)
+                ArticoloFormView(dispensa: dispensa, struttura: struttura, scansiona: richiesta.scansiona)
             }
         }
         .sheet(isPresented: $mostraModifica) {
