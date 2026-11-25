@@ -23,10 +23,15 @@ enum ScannerCodici {
 
 extension View {
     /// Apre lo scanner a tutto schermo quando `aperto` è vero; al primo codice letto lo chiude e chiama `letto`.
+    /// `chiuso` arriva quando lo scanner è sparito del tutto: lì si può aprire un altro foglio o un avviso.
     /// Dove lo scanner non c'è non fa nulla.
-    func scannerCodici(aperto: Binding<Bool>, letto: @escaping (String) -> Void) -> some View {
+    func scannerCodici(
+        aperto: Binding<Bool>,
+        letto: @escaping (String) -> Void,
+        chiuso: (() -> Void)? = nil
+    ) -> some View {
 #if os(iOS)
-        fullScreenCover(isPresented: aperto) {
+        fullScreenCover(isPresented: aperto, onDismiss: chiuso) {
             FoglioScanner { codice in
                 aperto.wrappedValue = false
                 letto(codice)
@@ -59,6 +64,8 @@ struct PulsanteScansione: View {
 struct RichiestaNuovoArticolo: Identifiable {
     let id = UUID()
     var scansiona = false
+    /// Un codice già letto, da collegare al prodotto.
+    var codice = ""
 }
 
 /// Il "+" degli articoli: dove c'è lo scanner è un menu con "Nuovo articolo" e "Scansiona codice"

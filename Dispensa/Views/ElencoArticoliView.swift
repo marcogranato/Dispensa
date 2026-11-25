@@ -13,6 +13,12 @@ struct ElencoArticoliView: View {
     @State private var ricerca = ""
     @State private var stato: StatoArticoli
     @State private var nuovoArticolo: RichiestaNuovoArticolo?
+    @State private var mostraScanner = false
+    /// Il codice letto da "Trova dal codice", gestito quando lo scanner si è chiuso.
+    @State private var codiceLetto: String?
+    /// Un codice letto che nessun prodotto ha: si propone di aggiungere un articolo.
+    @State private var codiceSconosciuto: String?
+    @Environment(\.apriNellaPila) private var apri
     @State private var azione: AzioneArticolo?
     @State private var daEliminare: Articolo?
 
@@ -57,10 +63,40 @@ struct ElencoArticoliView: View {
                 PulsanteNuovoArticolo(richiesta: $nuovoArticolo)
                     .disabled(senzaStrutture)
             }
+            if ScannerCodici.disponibile {
+                ToolbarItem {
+                    Button("Trova dal codice", systemImage: "barcode.viewfinder") { mostraScanner = true }
+                }
+            }
+        }
+        .scannerCodici(aperto: $mostraScanner, letto: { codiceLetto = $0 }, chiuso: trovaCodiceLetto)
+        .alert(
+            "Codice sconosciuto",
+            isPresented: Binding(get: { codiceSconosciuto != nil }, set: { if !$0 { codiceSconosciuto = nil } }),
+            presenting: codiceSconosciuto
+        ) { codice in
+            if !senzaStrutture {
+                Button("Aggiungi articolo") { nuovoArticolo = RichiestaNuovoArticolo(codice: codice) }
+            }
+            Button("Annulla", role: .cancel) {}
+        } message: { codice in
+            Text("Nessun prodotto ha il codice \(codice).")
         }
         .sheet(item: $nuovoArticolo) { richiesta in
             // La struttura si sceglie nel modulo.
-            ArticoloFormView(dispensa: dispensa, struttura: nil, scansiona: richiesta.scansiona)
+            ArticoloFormView(dispensa: dispensa, struttura: nil, scansiona: richiesta.scansiona, codice: richiesta.codice)
+        }
+    }
+
+    /// Dopo "Trova dal codice": apre la scheda del prodotto (con i suoi articoli e dove sono),
+    /// oppure propone di aggiungere un articolo con quel codice.
+    private func trovaCodiceLetto() {
+        guard let codice = codiceLetto else { return }
+        codiceLetto = nil
+        if let prodotto = dispensa.prodotto(conCodice: codice) {
+            apri?(prodotto)
+        } else {
+            codiceSconosciuto = codice
         }
     }
 

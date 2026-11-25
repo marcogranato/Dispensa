@@ -34,8 +34,10 @@ struct ArticoloFormView: View {
     @FocusState private var nomeInModifica: Bool
 
     /// `scansiona`: apre subito la fotocamera per leggere il codice del prodotto (dove lo scanner c'è).
-    init(dispensa: Dispensa, struttura: Struttura?, articolo: Articolo? = nil, scansiona: Bool = false) {
+    /// `codice`: un codice già letto, che si collegherà al prodotto.
+    init(dispensa: Dispensa, struttura: Struttura?, articolo: Articolo? = nil, scansiona: Bool = false, codice: String = "") {
         self.dispensa = dispensa
+        _codice = State(initialValue: articolo == nil ? codice : "")
         // Lo scanner prende il posto del modulo nello stesso foglio: così si apre subito, senza un secondo foglio.
         _mostraScanner = State(initialValue: scansiona && articolo == nil && ScannerCodici.disponibile)
         self.articolo = articolo

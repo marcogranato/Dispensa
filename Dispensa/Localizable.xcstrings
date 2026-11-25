@@ -286,6 +286,9 @@
     "Codice nuovo: verrà collegato al prodotto." : {
 
     },
+    "Codice sconosciuto" : {
+
+    },
     "Codici" : {
 
     },
@@ -734,6 +737,9 @@
     "Nessun prodotto con questi filtri" : {
 
     },
+    "Nessun prodotto ha il codice %@." : {
+
+    },
     "Nessuna" : {
 
     },
@@ -1170,6 +1176,9 @@
 
     },
     "Togli predefinita" : {
+
+    },
+    "Trova dal codice" : {
 
     },
     "Ubicazione" : {
