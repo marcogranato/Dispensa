@@ -96,6 +96,37 @@ final class DispensaUITests: XCTestCase {
         allegaScreenshot(app)
     }
 
+    /// In Articoli le confezioni dello stesso prodotto stanno in una riga "×2" che apre la scheda del prodotto;
+    /// togliendo "Raggruppa per prodotto" tornano una riga per confezione.
+    @MainActor
+    func testRaggruppamento() throws {
+        let app = avviaConDispensa()
+        creaEApriStruttura(app)
+        app.buttons["Aggiungi articolo"].tap()
+        scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
+        aumenta("Confezioni da aggiungere", di: 1, in: app)
+        app.buttons["Salva"].tap()
+        // Nella scheda della struttura il raggruppamento è spento.
+        let righe = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte"))
+        XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(righe.count, 2)
+
+        apri(scheda: "Articoli", in: app)
+        XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(righe.count, 1, app.debugDescription)
+        XCTAssertTrue(righe.firstMatch.label.contains("2 confezioni"), righe.firstMatch.label)
+        allegaScreenshot(app)
+
+        righe.firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Articoli presenti: 2"].waitForExistence(timeout: 5), app.debugDescription)
+        app.navigationBars.buttons["BackButton"].tap()
+
+        scegliNelMenuVista("Raggruppa per prodotto", in: app)
+        let separata = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte")).element(boundBy: 1)
+        XCTAssertTrue(separata.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertEqual(righe.count, 2)
+    }
+
     /// Due articoli con lo stesso nome e marche diverse diventano due prodotti distinti.
     @MainActor
     func testProdottiDiMarcheDiverse() throws {

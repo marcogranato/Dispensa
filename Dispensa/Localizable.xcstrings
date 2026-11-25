@@ -60,6 +60,9 @@
         }
       }
     },
+    "%lld confezioni" : {
+
+    },
     "%lld di %lld" : {
       "localizations" : {
         "it" : {
@@ -71,6 +74,12 @@
       }
     },
     "%lld parti" : {
+
+    },
+    "%lld strutture" : {
+
+    },
+    "×%lld" : {
 
     },
     "A → Z" : {
@@ -137,6 +146,9 @@
 
     },
     "Apri Impostazioni" : {
+
+    },
+    "Apri prodotto" : {
 
     },
     "Arancione" : {
@@ -918,6 +930,9 @@
     "Preleva 1" : {
 
     },
+    "Preleva 1 (scade prima)" : {
+
+    },
     "Preleva…" : {
 
     },
@@ -970,6 +985,9 @@
 
     },
     "Qui compariranno gli articoli consumati o buttati." : {
+
+    },
+    "Raggruppa per prodotto" : {
 
     },
     "Rimetti" : {

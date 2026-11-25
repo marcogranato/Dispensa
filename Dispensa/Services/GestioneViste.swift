@@ -34,24 +34,36 @@ struct StatoElenco<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: Equa
     /// I criteri del menu "Ordina" per questo elenco.
     let criteri: [Criterio]
     let ordineIniziale: Ordine<Criterio>
+    /// Vero se l'elenco offre "Raggruppa per prodotto".
+    let puoRaggruppare: Bool
+    let raggruppaIniziale: Bool
 
     var filtro = Filtro()
     var ordine: Ordine<Criterio>
+    /// Gli articoli dello stesso prodotto in una sola riga (vedi Services/RaggruppamentoArticoli.swift).
+    var raggruppa: Bool
     /// La vista salvata applicata per ultima, se c'è.
     var vista: UUID?
 
-    init(tipo: TipoElenco, criteri: [Criterio], ordineIniziale: Ordine<Criterio>) {
+    /// `raggruppaIniziale`: `nil` se l'elenco non offre il raggruppamento.
+    init(tipo: TipoElenco, criteri: [Criterio], ordineIniziale: Ordine<Criterio>, raggruppaIniziale: Bool? = nil) {
         self.tipo = tipo
         self.criteri = criteri
         self.ordineIniziale = ordineIniziale
         self.ordine = ordineIniziale
+        self.puoRaggruppare = raggruppaIniziale != nil
+        self.raggruppaIniziale = raggruppaIniziale ?? false
+        self.raggruppa = raggruppaIniziale ?? false
     }
+
+    /// Il raggruppamento da salvare in una vista (`nil` se l'elenco non lo offre).
+    var raggruppaDaSalvare: Bool? { puoRaggruppare ? raggruppa : nil }
 
     /// Vero quando in cima all'elenco va mostrata la riga con la vista o i filtri attivi.
     var mostraRiga: Bool { !filtro.vuoto || vista != nil }
 
     /// Vero se l'elenco è ancora come appena aperto: nessun filtro, nessuna vista, ordine iniziale.
-    var allInizio: Bool { filtro.vuoto && vista == nil && ordine == ordineIniziale }
+    var allInizio: Bool { filtro.vuoto && vista == nil && ordine == ordineIniziale && raggruppa == raggruppaIniziale }
 
     /// Lo stato iniziale dell'elenco: con la vista predefinita, se la dispensa ne ha una.
     func conPredefinita(in dispensa: Dispensa?) -> Self {
@@ -80,7 +92,10 @@ struct StatoElenco<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: Equa
     /// Toglie i filtri e la vista; se c'era una vista, torna anche l'ordine iniziale.
     mutating func mostraTutto() {
         filtro = Filtro()
-        if vista != nil { ordine = ordineIniziale }
+        if vista != nil {
+            ordine = ordineIniziale
+            raggruppa = raggruppaIniziale
+        }
         vista = nil
     }
 
@@ -88,6 +103,7 @@ struct StatoElenco<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: Equa
     mutating func applica(_ salvata: VistaSalvata, in dispensa: Dispensa) {
         filtro = salvata.filtro(Filtro.self).ripulito(per: dispensa)
         ordine = salvata.ordine(criteri: criteri, iniziale: ordineIniziale)
+        raggruppa = raggruppaSalvato(in: salvata)
         vista = salvata.id
     }
 
@@ -97,10 +113,16 @@ struct StatoElenco<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>: Equa
         return (dispensa.viste ?? []).first { $0.id == vista && $0.tipo == tipo }
     }
 
-    /// Vero se filtro o ordine sono cambiati rispetto alla vista.
+    /// Vero se filtro, ordine o raggruppamento sono cambiati rispetto alla vista.
     func differisce(da salvata: VistaSalvata, in dispensa: Dispensa) -> Bool {
         salvata.filtro(Filtro.self).ripulito(per: dispensa) != filtro
             || salvata.ordine(criteri: criteri, iniziale: ordineIniziale) != ordine
+            || raggruppaSalvato(in: salvata) != raggruppa
+    }
+
+    /// Il raggruppamento della vista; le viste salvate prima che esistesse usano quello iniziale.
+    private func raggruppaSalvato(in salvata: VistaSalvata) -> Bool {
+        puoRaggruppare ? (salvata.raggruppa ?? raggruppaIniziale) : false
     }
 }
 
@@ -109,7 +131,7 @@ typealias StatoProdotti = StatoElenco<FiltroProdotti, CriterioProdotti>
 
 extension StatoElenco where Filtro == FiltroArticoli, Criterio == CriterioArticoli {
     static var articoli: StatoArticoli {
-        StatoArticoli(tipo: .articoli, criteri: CriterioArticoli.perArticoli, ordineIniziale: .articoli)
+        StatoArticoli(tipo: .articoli, criteri: CriterioArticoli.perArticoli, ordineIniziale: .articoli, raggruppaIniziale: true)
     }
 
     static var storico: StatoArticoli {
@@ -117,7 +139,7 @@ extension StatoElenco where Filtro == FiltroArticoli, Criterio == CriterioArtico
     }
 
     static var struttura: StatoArticoli {
-        StatoArticoli(tipo: .struttura, criteri: CriterioArticoli.perStruttura, ordineIniziale: .articoli)
+        StatoArticoli(tipo: .struttura, criteri: CriterioArticoli.perStruttura, ordineIniziale: .articoli, raggruppaIniziale: false)
     }
 }
 
@@ -146,11 +168,16 @@ extension VistaSalvata {
         return ordine
     }
 
-    /// Salva nella vista filtro e ordine.
-    func imposta<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>(filtro: Filtro, ordine: Ordine<Criterio>) {
+    /// Salva nella vista filtro, ordine e raggruppamento.
+    func imposta<Filtro: FiltroSalvabile, Criterio: CriterioOrdinamento>(
+        filtro: Filtro,
+        ordine: Ordine<Criterio>,
+        raggruppa: Bool? = nil
+    ) {
         filtroJSON = try? JSONEncoder().encode(filtro)
         criterioRaw = ordine.criterio.rawValue
         crescente = ordine.crescente
+        self.raggruppa = raggruppa
     }
 }
 
@@ -180,7 +207,7 @@ extension ModelContext {
         let vista = VistaSalvata(nome: nome, tipo: stato.tipo)
         insert(vista)
         vista.dispensa = dispensa
-        vista.imposta(filtro: stato.filtro, ordine: stato.ordine)
+        vista.imposta(filtro: stato.filtro, ordine: stato.ordine, raggruppa: stato.raggruppaDaSalvare)
         return vista
     }
 
@@ -189,7 +216,7 @@ extension ModelContext {
         _ vista: VistaSalvata,
         con stato: StatoElenco<Filtro, Criterio>
     ) {
-        vista.imposta(filtro: stato.filtro, ordine: stato.ordine)
+        vista.imposta(filtro: stato.filtro, ordine: stato.ordine, raggruppa: stato.raggruppaDaSalvare)
     }
 
     func rinominaVista(_ vista: VistaSalvata, nome: String) throws {

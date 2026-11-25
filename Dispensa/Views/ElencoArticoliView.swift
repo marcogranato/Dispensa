@@ -47,8 +47,14 @@ struct ElencoArticoliView: View {
             if stato.mostraRiga, !articoli.isEmpty {
                 RigaFiltriAttivi(stato: $stato, dispensa: dispensa)
             }
-            ForEach(articoli) { articolo in
-                RigaArticoloConAzioni(articolo: articolo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
+            if stato.raggruppa {
+                ForEach(RaggruppamentoArticoli.raggruppa(articoli)) { gruppo in
+                    RigaGruppoConAzioni(gruppo: gruppo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
+                }
+            } else {
+                ForEach(articoli) { articolo in
+                    RigaArticoloConAzioni(articolo: articolo, mostraStruttura: true, azione: $azione, daEliminare: $daEliminare)
+                }
             }
         }
         .navigationTitle("Articoli")

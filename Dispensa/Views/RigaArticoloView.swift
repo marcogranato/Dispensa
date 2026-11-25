@@ -24,14 +24,85 @@ struct RigaArticoloView: View {
     }
 
     var body: some View {
+        ImpaginazioneRigaArticolo(
+            prodotto: articolo.prodotto,
+            nome: articolo.nomeVisualizzato,
+            dettagli: dettagli,
+            sottotitolo: struttura
+        ) {
+            if let data = articolo.dataScadenza {
+                EtichettaScadenzaView(data: data, stato: articolo.statoScadenza())
+                    .font(.caption)
+            }
+        }
+    }
+}
+
+/// Riga di più confezioni dello stesso prodotto: "Gran Cereale frutta ×3", la scadenza più vicina
+/// con il colore del caso peggiore e, sotto, le strutture in cui si trovano.
+struct RigaGruppoArticoliView: View {
+    let gruppo: GruppoArticoli
+    /// Mostra sotto il nome le strutture (per gli elenchi di più strutture).
+    var mostraStruttura = false
+
+    private var dettagli: String? {
+        let articoli = gruppo.articoli
+        // La quantità per parte si mostra solo se è uguale in tutte le confezioni.
+        let quantite = Set(articoli.map { Formattazione.quantita($0.quantitaPerParte, unita: $0.unita) })
+        let quantita = quantite.count == 1 ? quantite.first ?? nil : nil
+        var parti: String?
+        if gruppo.conPiuParti {
+            let nome = gruppo.prodotto?.tipoParte.map { String(localized: $0.nomePlurale) } ?? String(localized: "parti")
+            parti = String(localized: "\(gruppo.partiRimaste) \(nome)")
+        }
+        let testo = [gruppo.prodotto?.marca, parti, quantita].compactMap { $0 }.joined(separator: " · ")
+        return testo.isEmpty ? nil : testo
+    }
+
+    private var strutture: String? {
+        guard mostraStruttura else { return nil }
+        let nomi = gruppo.strutture
+        if nomi.isEmpty { return nil }
+        if nomi.count <= 2 { return nomi.joined(separator: ", ") }
+        return String(localized: "\(nomi.count) strutture")
+    }
+
+    var body: some View {
+        ImpaginazioneRigaArticolo(
+            prodotto: gruppo.prodotto,
+            nome: gruppo.articoli[0].nomeVisualizzato,
+            dettagli: dettagli,
+            confezioni: gruppo.confezioni,
+            sottotitolo: strutture
+        ) {
+            if let data = gruppo.scadenzaPiuVicina {
+                EtichettaScadenzaView(data: data, stato: gruppo.statoPeggiore())
+                    .font(.caption)
+            }
+        }
+    }
+}
+
+/// L'impaginazione comune alle righe di articoli e di gruppi: icona centrata a sinistra; nome, dettagli,
+/// numero di confezioni e scadenza su una riga (su due se non ci stanno); sotto, il sottotitolo allineato al nome.
+private struct ImpaginazioneRigaArticolo<Scadenza: View>: View {
+    let prodotto: Prodotto?
+    let nome: String
+    let dettagli: String?
+    /// "×3" per un gruppo di confezioni.
+    var confezioni: Int?
+    var sottotitolo: String?
+    @ViewBuilder let scadenza: Scadenza
+
+    var body: some View {
         HStack(spacing: 12) {
-            icona
+            IconaProdottoView(icona: prodotto?.iconaEffettiva, miniatura: prodotto?.miniatura)
             VStack(alignment: .leading, spacing: 2) {
                 // Prima prova nome, dettagli e scadenza su una riga; se non ci stanno (nome lungo, testo grande)
                 // i dettagli vanno sotto il nome.
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .firstTextBaseline) {
-                        Text(articolo.nomeVisualizzato)
+                        Text(nome)
                             .lineLimit(1)
                             .fixedSize()
                         if let dettagli {
@@ -40,22 +111,25 @@ struct RigaArticoloView: View {
                                 .fixedSize()
                         }
                         Spacer(minLength: 8)
+                        numeroConfezioni
+                            .fixedSize()
                         scadenza
                             .fixedSize()
                     }
                     HStack {
                         VStack(alignment: .leading) {
-                            Text(articolo.nomeVisualizzato)
+                            Text(nome)
                             if let dettagli {
                                 testoDettagli(dettagli)
                             }
                         }
                         Spacer()
+                        numeroConfezioni
                         scadenza
                     }
                 }
-                if let struttura {
-                    Text(struttura)
+                if let sottotitolo {
+                    Text(sottotitolo)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -65,10 +139,6 @@ struct RigaArticoloView: View {
         }
     }
 
-    private var icona: some View {
-        IconaProdottoView(icona: articolo.prodotto?.iconaEffettiva, miniatura: articolo.prodotto?.miniatura)
-    }
-
     private func testoDettagli(_ testo: String) -> some View {
         Text(testo)
             .font(.caption)
@@ -76,10 +146,15 @@ struct RigaArticoloView: View {
     }
 
     @ViewBuilder
-    private var scadenza: some View {
-        if let data = articolo.dataScadenza {
-            EtichettaScadenzaView(data: data, stato: articolo.statoScadenza())
-                .font(.caption)
+    private var numeroConfezioni: some View {
+        if let confezioni {
+            Text("×\(confezioni)")
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2)
+                .background(.quaternary, in: Capsule())
+                .accessibilityLabel(Text("\(confezioni) confezioni"))
         }
     }
 }

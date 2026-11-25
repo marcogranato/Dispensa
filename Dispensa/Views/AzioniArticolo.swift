@@ -33,6 +33,46 @@ struct MenuAzioniArticolo: View {
     }
 }
 
+/// Riga di un gruppo di confezioni dello stesso prodotto: il tocco apre la scheda del prodotto,
+/// "Preleva 1" prende dalla confezione che scade prima. Una confezione sola usa la riga dell'articolo.
+struct RigaGruppoConAzioni: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.apriNellaPila) private var apri
+
+    let gruppo: GruppoArticoli
+    var mostraStruttura = false
+    @Binding var azione: AzioneArticolo?
+    @Binding var daEliminare: Articolo?
+
+    var body: some View {
+        if gruppo.multiplo, let prodotto = gruppo.prodotto {
+            RigaNavigabile(valore: prodotto) {
+                RigaGruppoArticoliView(gruppo: gruppo, mostraStruttura: mostraStruttura)
+            }
+            .swipeActions(edge: .leading) {
+                Button("Preleva 1", systemImage: "minus.circle") { prelevaUno() }
+                    .tint(.green)
+            }
+            .contextMenu {
+                Button("Preleva 1 (scade prima)", systemImage: "minus.circle") { prelevaUno() }
+                Button("Apri prodotto", systemImage: "info.circle") { apri?(prodotto) }
+            }
+        } else {
+            RigaArticoloConAzioni(
+                articolo: gruppo.articoli[0],
+                mostraStruttura: mostraStruttura,
+                azione: $azione,
+                daEliminare: $daEliminare
+            )
+        }
+    }
+
+    private func prelevaUno() {
+        // Una parte si può sempre prelevare da un articolo presente: l'errore non può verificarsi.
+        try? modelContext.preleva(gruppo.daPrelevare)
+    }
+}
+
 /// Riga di un articolo che apre il dettaglio, con le azioni rapide:
 /// scorrendo verso destra si preleva una parte, verso sinistra si butta; tenendo premuto, il menu completo.
 struct RigaArticoloConAzioni: View {

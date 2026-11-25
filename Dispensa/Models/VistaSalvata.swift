@@ -25,6 +25,8 @@ final class VistaSalvata {
     var filtroJSON: Data?
     var criterioRaw: String?
     var crescente: Bool = true
+    /// "Raggruppa per prodotto" (solo per gli elenchi di articoli presenti); `nil` = come all'apertura dell'elenco.
+    var raggruppa: Bool?
     /// La vista con cui si apre il suo elenco (al massimo una per elenco).
     var predefinita: Bool = false
     var dataCreazione: Date = Date.now

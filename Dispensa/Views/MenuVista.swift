@@ -117,6 +117,9 @@ private struct ModificatoreVista<Filtro: FiltroSalvabile, Criterio: CriterioOrdi
                 } label: {
                     Label("Ordina", systemImage: "arrow.up.arrow.down")
                 }
+                if stato.puoRaggruppare {
+                    Toggle("Raggruppa per prodotto", systemImage: "square.stack.3d.down.right", isOn: $stato.raggruppa)
+                }
             }
             if let dispensa {
                 Section {

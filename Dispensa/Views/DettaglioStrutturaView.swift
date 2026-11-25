@@ -71,8 +71,14 @@ struct DettaglioStrutturaView: View {
                 if stato.mostraRiga {
                     RigaFiltriAttivi(stato: $stato, dispensa: struttura.dispensa)
                 }
-                ForEach(articoli) { articolo in
-                    RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
+                if stato.raggruppa {
+                    ForEach(RaggruppamentoArticoli.raggruppa(articoli)) { gruppo in
+                        RigaGruppoConAzioni(gruppo: gruppo, azione: $azione, daEliminare: $daEliminare)
+                    }
+                } else {
+                    ForEach(articoli) { articolo in
+                        RigaArticoloConAzioni(articolo: articolo, azione: $azione, daEliminare: $daEliminare)
+                    }
                 }
                 if articoli.isEmpty, totale > 0 {
                     Text("Nessun articolo corrisponde alla ricerca o ai filtri.")
