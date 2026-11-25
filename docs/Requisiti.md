@@ -25,7 +25,7 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 | 2 | Articoli e Prodotti: aggiungere, modificare, spostare, prelevare, buttare, storico | ✅ Completata |
 | 3 | Navigazione a schede ed elenco di tutti gli articoli; classificazione e dettagli dei prodotti (categorie, emoji); etichette, ricerca, filtri, ordinamento | ✅ Completata |
 | 4 | Filtri in tutti gli elenchi, viste salvate e vista predefinita | ✅ Completata |
-| 5 | Immagini e scanner di codici a barre/QR; più codici a barre per prodotto (da valutare) | Da fare |
+| 5 | Immagini di prodotti e strutture; più codici a barre per prodotto; scanner su iPhone e iPad per aggiungere e trovare | ✅ Completata |
 | 6 | Notifiche locali per gli articoli in scadenza | Da fare |
 | 7 | Sincronizzazione iCloud e condivisione (con account a pagamento) | Da fare |
 
@@ -54,7 +54,14 @@ Gestire una dispensa alimentare: monitorare la quantità di cibo presente e le d
 4. ❌ Tabelle con colonne configurabili su iPad e Mac: provate e poi tolte (vedi "Visualizzazione e filtri"). Il codice resta nel ramo Git `tabelle`.
 5. ⏸ Informazioni nella riga: rimandato.
 
-Prossima: la fase 5, da pianificare.
+### Fase 5: avanzamento
+
+1. ✅ Immagini di prodotti e strutture: dalla libreria Foto, dalla fotocamera (iPhone e iPad) o da un file (Mac); ridotte prima di salvarle, con una miniatura per le righe.
+2. ✅ Più codici a barre per prodotto (i vecchi codici sono stati spostati da soli al primo avvio).
+3. ✅ Scanner su iPhone e iPad nel modulo del prodotto. ⏸ Scanner sul Mac (webcam o iPhone come fotocamera, lettura da una foto): rimandato.
+4. ✅ Articolo nuovo dal codice: "Scansiona codice" dal "+" di Articoli e della struttura e nel modulo dell'articolo; "Trova dal codice" nella scheda Articoli.
+
+Prossima: la fase 6 (notifiche), da pianificare.
 
 ### Da provare a mano
 
@@ -68,7 +75,9 @@ Queste funzioni compilano e la loro logica è coperta da test, ma nessun test UI
 - selettore delle etichette nel modulo del prodotto e palette dei colori;
 - foglio dei filtri, in particolare le date "Dal/Al", e menu "Ordina" con i suoi criteri;
 - menu "Vista" sul Mac: richiesta del nome, "Gestisci viste…" (rinomina, elimina, predefinita) e "Aggiorna";
-- tutta l'app su iPad (le schede possono diventare una barra laterale, come sul Mac).
+- tutta l'app su iPad (le schede possono diventare una barra laterale, come sul Mac);
+- immagini: "Scegli foto" (il selettore di Foto non si può guidare dai test), "Scatta foto", "Scegli file…" sul Mac, l'immagine grande nella scheda;
+- scanner su iPhone e iPad (sul simulatore non c'è): lettura di codici EAN e QR, codice già presente, "Annulla", fotocamera non consentita, "Trova dal codice" con un codice noto e uno sconosciuto.
 
 Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da un test UI dedicato (`NavigazioneMacUITests`), da rilanciare: dopo l'arrivo delle emoji nelle righe non è ancora stato eseguito. Il resto dell'app sul Mac va provato a mano, in particolare la navigazione di Categorie e Ubicazioni (clic sulle righe, "+", Indietro, cambio di scheda), "Elimina prodotto", la scheda Prodotti divisa per categoria, le etichette, i filtri e il menu "Vista".
 
@@ -82,7 +91,7 @@ Sul Mac la navigazione tra le schede e l'apertura dei dettagli sono coperte da u
 - Aggiungere, modificare ed eliminare strutture di una Dispensa.
 - Tipologie di struttura: frigorifero, congelatore, dispensa, estraibile, scaffale, altro (con nome libero).
 - Caratteristiche di una struttura: numero di ripiani, numero di cassetti, note, ubicazione.
-- Immagine della struttura (priorità bassa, fase 5).
+- Immagine della struttura (fase 5): nella riga al posto del simbolo del tipo, grande nella scheda.
 
 Decisioni prese:
 
@@ -104,8 +113,18 @@ Decisioni prese:
 - Prelievo **solo a parti intere** (es. 1 pacco su 6). Non si preleva una quantità parziale di una parte.
 - Date opzionali e modificabili: inserimento (predefinita: oggi), produzione/confezionamento, scadenza.
 - Una categoria facoltativa e uno o più hashtag (tramite il Prodotto).
-- Codici a barre e QR code (scanner solo su iPhone/iPad, fase 5; su Mac inserimento manuale). Per ora il codice si scrive a mano nel prodotto.
-- Immagine (priorità bassa, fase 5).
+- Codici a barre e QR code, anche più di uno per prodotto (fase 5): scanner su iPhone e iPad; sul Mac, per ora, si scrivono o si incollano (anche con un lettore USB, che fa da tastiera).
+- Immagine del prodotto (fase 5): nelle righe al posto dell'emoji, grande nella scheda.
+
+### Immagini e codici a barre (fase 5)
+
+- Un'immagine per prodotto e per struttura, facoltativa: dalla libreria Foto, scattata con la fotocamera (iPhone e iPad) o scelta da un file (Mac). Prima di salvarla viene ridotta (lato massimo 1200 pixel, JPEG) e se ne crea una miniatura per le righe, per non appesantire i dati e la futura sincronizzazione.
+- Un prodotto può avere più codici (es. confezione singola e multipla, o formati cambiati nel tempo). Un codice appartiene a un solo prodotto della dispensa: il modulo avvisa e non salva se il codice è già di un altro.
+- Scanner (iPhone e iPad): legge EAN, UPC, ITF, Code 128/39, QR e Data Matrix; si ferma al primo codice, con una vibrazione. Nel modulo del prodotto il codice va nel primo campo vuoto o in uno nuovo; se c'è già, la riga si evidenzia.
+- Articolo nuovo dal codice: se il codice è di un prodotto, il modulo compila nome, marca e confezione; se è nuovo, al salvataggio viene collegato al prodotto dell'articolo (mai spostato da un altro prodotto).
+- "Trova dal codice" (scheda Articoli): apre la scheda del prodotto, con gli articoli presenti e dove sono; se nessun prodotto ha il codice, propone di aggiungere un articolo con quel codice.
+- Nessuna ricerca online dei prodotti per ora: il codice serve a riconoscere un prodotto già inserito, evitare doppioni e trovare il prodotto che si ha in mano.
+- Rimandati: scanner sul Mac (webcam, iPhone come fotocamera, lettura da una foto; richiede il permesso della fotocamera per il Mac) e ricerca dei dati del prodotto in un archivio online (es. Open Food Facts).
 
 Decisioni prese:
 
@@ -129,7 +148,7 @@ Decisioni prese:
 - Eliminando una categoria si eliminano anche le sue sottocategorie; i prodotti passano alla categoria superiore (o restano senza categoria).
 - Le categorie si aprono dalla scheda Prodotti; la scheda di una categoria mostra sottocategorie e prodotti, compresi quelli delle sottocategorie.
 - La scheda Prodotti è divisa per categoria principale, in ordine alfabetico, con "Senza categoria" in fondo; nella riga compare la sottocategoria.
-- Rimandati: un albero di categorie preimpostato (a una fase successiva; per ora, solo nelle versioni di sviluppo, "Aggiungi categorie di prova"); più codici a barre per lo stesso prodotto (da valutare nella fase 5).
+- Rimandati: un albero di categorie preimpostato (a una fase successiva; per ora, solo nelle versioni di sviluppo, "Aggiungi categorie di prova"); più codici a barre per lo stesso prodotto (fatto nella fase 5).
 
 ### Etichette, ricerca, filtri e ordinamento
 
