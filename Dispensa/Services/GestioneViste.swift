@@ -139,7 +139,7 @@ extension StatoElenco where Filtro == FiltroArticoli, Criterio == CriterioArtico
     }
 
     static var struttura: StatoArticoli {
-        StatoArticoli(tipo: .struttura, criteri: CriterioArticoli.perStruttura, ordineIniziale: .articoli, raggruppaIniziale: false)
+        StatoArticoli(tipo: .struttura, criteri: CriterioArticoli.perStruttura, ordineIniziale: .articoli, raggruppaIniziale: true)
     }
 }
 

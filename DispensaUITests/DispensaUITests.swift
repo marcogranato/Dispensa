@@ -106,9 +106,13 @@ final class DispensaUITests: XCTestCase {
         scrivi("Latte", nelCampoConEsempio: "Es. Latte, Biscotti", in: app)
         aumenta("Confezioni da aggiungere", di: 1, in: app)
         app.buttons["Salva"].tap()
-        // Nella scheda della struttura il raggruppamento è spento.
+        // Anche nella scheda della struttura le confezioni dello stesso prodotto sono in una riga.
         let righe = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte"))
         XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(righe.count, 1, app.debugDescription)
+        XCTAssertTrue(righe.firstMatch.label.contains("2 confezioni"), righe.firstMatch.label)
+        scegliNelMenuVista("Raggruppa per prodotto", in: app)
+        XCTAssertTrue(righe.element(boundBy: 1).waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertEqual(righe.count, 2)
 
         apri(scheda: "Articoli", in: app)
@@ -525,8 +529,10 @@ final class DispensaUITests: XCTestCase {
         app.buttons["Salva"].tap()
 
         let righe = app.cells.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Latte"))
+        // Le due confezioni dello stesso prodotto sono in una riga sola.
         XCTAssertTrue(righe.firstMatch.waitForExistence(timeout: 5))
-        XCTAssertEqual(righe.count, 2, app.debugDescription)
+        XCTAssertEqual(righe.count, 1, app.debugDescription)
+        XCTAssertTrue(righe.firstMatch.label.contains("2 confezioni"), righe.firstMatch.label)
 
         apri(scheda: "Prodotti", in: app)
         tocca(rigaCheIniziaCon: "Latte", in: app)

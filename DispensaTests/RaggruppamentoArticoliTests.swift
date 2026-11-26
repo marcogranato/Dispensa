@@ -144,7 +144,7 @@ struct RaggruppamentoArticoliTests {
     @Test func laVistaRicordaIlRaggruppamento() throws {
         var stato = StatoArticoli.articoli
         #expect(stato.puoRaggruppare && stato.raggruppa)
-        #expect(StatoArticoli.struttura.puoRaggruppare && !StatoArticoli.struttura.raggruppa)
+        #expect(StatoArticoli.struttura.puoRaggruppare && StatoArticoli.struttura.raggruppa)
         #expect(!StatoArticoli.storico.puoRaggruppare)
 
         stato.raggruppa = false
